@@ -8,6 +8,8 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { ThemeProvider, LanguageProvider } from "~/hooks";
+import { LanguageSync } from "~/components/LanguageSync";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -25,15 +27,34 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('babana-ui-theme') || 'system';
+                if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.add('light');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
       </head>
-      <body>
-        {children}
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <LanguageProvider defaultLanguage="fr" storageKey="babana-language">
+          <ThemeProvider defaultTheme="system" storageKey="babana-ui-theme">
+            <LanguageSync />
+            {children}
+          </ThemeProvider>
+        </LanguageProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

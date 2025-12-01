@@ -1,0 +1,292 @@
+# BABANA Partner Web - Configuration Cursor
+
+## 📋 Stack Technique
+
+- **Framework**: React Router 7 (SSR activé)
+- **Build**: Vite 7
+- **Styling**: Tailwind CSS 4 (avec @tailwindcss/vite)
+- **TypeScript**: Version 5.9.2
+- **UI Components**: shadcn/ui (style "new-york")
+- **Animations**: GSAP 3.13, tw-animate-css
+- **Forms**: react-hook-form + zod + @hookform/resolvers
+- **Icons**: lucide-react, @radix-ui/react-icons
+- **HTTP Client**: axios (configuré avec intercepteurs)
+- **Internationalisation**: Support bilingue (fr/en) via header Accept-Language
+
+## 🎨 Design System BABANA
+
+### Couleurs de marque
+- **Cyan (Principale)**: `#5FC8E9`
+  - Classes Tailwind: `text-babana-cyan`, `bg-babana-cyan`, `border-babana-cyan`
+- **Navy (Secondaire)**: `#0D1B4D`
+  - Classes Tailwind: `text-babana-navy`, `bg-babana-navy`, `border-babana-navy`
+
+### Thèmes
+- Support du mode sombre (dark mode)
+- Variables CSS définies dans `app/app.css`
+- Configuration Tailwind avec cssVariables: true
+- Hook `useTheme()` pour gérer le thème
+
+### Langues
+- Support bilingue: Français (fr) et Anglais (en)
+- Hook `useLanguage()` pour gérer la langue
+- Détection automatique de la langue du navigateur
+- Sauvegarde dans localStorage
+- Header `Accept-Language` automatiquement ajouté aux requêtes API
+
+## 📦 shadcn/ui Configuration
+
+### Config (components.json)
+```json
+{
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "app/app.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  }
+}
+```
+
+### Aliases de chemin
+- `~/components` → `app/components`
+- `~/lib/utils` → `app/lib/utils`
+- `~/components/ui` → `app/components/ui`
+- `~/lib` → `app/lib`
+- `~/hooks` → `app/hooks`
+
+### Composants UI installés
+- Alert, Avatar, Badge, Breadcrumb
+- Button, Card, Checkbox
+- Dialog, Dropdown Menu
+- Input, Label
+- Popover, Radio Group
+- Select, Separator, Switch
+- Table, Tabs, Textarea, Tooltip
+
+## 📁 Structure du Projet
+
+```
+app/
+├── root.tsx                    # Layout principal avec Providers (Theme + Language)
+├── routes.ts                   # Configuration des routes
+├── app.css                     # Styles globaux + variables Tailwind
+├── routes/
+│   └── home.tsx                # Page d'accueil (/)
+├── components/
+│   ├── index.ts                # Exports centralisés
+│   ├── Header.tsx              # Header avec navigation + toggles
+│   ├── Logo.tsx                # Logo BABANA
+│   ├── ThemeToggle.tsx         # Sélecteur de thème (light/dark)
+│   ├── LanguageToggle.tsx      # Sélecteur de langue (fr/en)
+│   ├── LanguageSync.tsx        # Synchronisation langue → axios
+│   └── ui/                     # Composants shadcn/ui
+├── hooks/
+│   ├── index.ts                # Exports centralisés
+│   ├── useTheme.tsx            # Hook + Provider pour le thème
+│   ├── useLanguage.tsx         # Hook + Provider pour la langue
+│   └── useScrolled.ts          # Hook pour détecter le scroll
+├── lib/
+│   ├── index.ts                # Exports centralisés
+│   ├── utils.ts                # Utilitaires (cn, etc.)
+│   └── axios.ts                # Configuration axios + intercepteurs
+└── assets/
+    └── logo.png                # Logo BABANA
+
+.env                            # Variables d'environnement (non versionné)
+```
+
+## 🎯 Conventions de Code
+
+### Imports
+- Utiliser les alias de chemin (`~/components`, `~/lib/utils`)
+- Imports groupés: React → Libraries → Composants → Utils → Types
+
+### Composants
+- Utiliser TypeScript avec typage strict
+- Export nommé préféré pour les composants
+- Utiliser `export default` pour les routes
+
+### Styling
+- Tailwind CSS en priorité
+- Utiliser la fonction `cn()` de `~/lib/utils` pour les classes conditionnelles
+- Variables CSS pour les couleurs du thème
+
+### Routes (React Router 7)
+- Fichiers dans `app/routes/`
+- Configuration centralisée dans `app/routes.ts`
+- Export default obligatoire pour les composants de route
+- Utiliser `route()` helper pour définir les routes
+
+## 🔧 Scripts disponibles
+
+```bash
+npm run dev         # Serveur de développement (--host activé)
+npm run build       # Build production
+npm run start       # Démarrer le serveur de production
+npm run typecheck   # Vérification TypeScript
+```
+
+## 🌐 Développement
+
+- Le serveur dev écoute sur toutes les interfaces (flag --host)
+- Port par défaut: 5173
+- Hot Module Replacement (HMR) activé
+
+## 📝 Notes Importantes
+
+1. **React 19**: Utilise la dernière version de React (19.1.1)
+2. **SSR**: Server-Side Rendering activé par défaut
+3. **TypeScript**: Configuration stricte
+4. **Tailwind 4**: Utilise la nouvelle version avec Vite plugin
+5. **Logo**: Fichier PNG dans `app/assets/logo.png`
+
+## 🎨 Personnalisation Tailwind
+
+Le fichier `tailwind.config.js` contient:
+- Extensions de couleurs BABANA (cyan, navy)
+- Configuration du mode sombre
+- Variables CSS personnalisées
+- Animations personnalisées (via tw-animate-css)
+
+## 🔐 Variables d'environnement
+
+Fichier `.env` à la racine (non versionné) :
+
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:3000/api
+VITE_API_TIMEOUT=30000
+VITE_API_KEY=
+
+# App Configuration
+VITE_APP_NAME=BABANA Partner
+VITE_APP_VERSION=1.0.0
+NODE_ENV=development
+```
+
+## 🔌 Configuration HTTP (Axios)
+
+### Instance Axios (`~/lib/axios.ts`)
+- Base URL depuis `VITE_API_BASE_URL`
+- Timeout depuis `VITE_API_TIMEOUT` (défaut: 30s)
+- Header `Content-Type: application/json`
+
+### Intercepteurs automatiques
+
+**Requête** :
+- Header `Accept-Language` (fr/en) selon la langue de l'utilisateur
+- Header `Authorization: Bearer {token}` si token présent dans localStorage
+- Header `X-API-Key` si défini dans `.env`
+- Logs en mode développement
+
+**Réponse** :
+- Gestion automatique des erreurs HTTP (401, 403, 404, 422, 429, 500+)
+- Suppression automatique du token en cas d'erreur 401
+- Messages d'erreur personnalisés et typés
+- Logs en mode développement
+
+### Utilisation des API
+
+```tsx
+import { api } from '~/lib';
+
+// GET
+const users = await api.get('/users');
+
+// POST
+const newUser = await api.post('/users', { name: 'John' });
+
+// PUT / PATCH / DELETE
+await api.put('/users/1', data);
+await api.patch('/users/1', data);
+await api.delete('/users/1');
+
+// Gestion des erreurs
+import { ApiError } from '~/lib';
+
+try {
+  const data = await api.get('/users');
+} catch (err) {
+  const error = err as ApiError;
+  console.error(error.message); // Message localisé
+  console.error(error.status);  // Code HTTP
+}
+```
+
+### Créer un service
+
+```tsx
+// app/lib/users.service.ts
+import { api, ApiError } from './axios';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export const userService = {
+  getUsers: async (): Promise<User[]> => {
+    try {
+      return await api.get<User[]>('/users');
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
+  
+  getUserById: async (id: string): Promise<User> => {
+    try {
+      return await api.get<User>(`/users/${id}`);
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
+};
+```
+
+## 🌍 Gestion de la Langue
+
+### Hook useLanguage
+
+```tsx
+import { useLanguage } from '~/hooks';
+
+function MyComponent() {
+  const { language, setLanguage } = useLanguage();
+  
+  return (
+    <button onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}>
+      {language === 'fr' ? 'Switch to English' : 'Passer en Français'}
+    </button>
+  );
+}
+```
+
+### Composant LanguageToggle
+
+Déjà intégré dans le Header. Affiche un dropdown pour changer de langue.
+
+### Synchronisation avec Axios
+
+Le composant `LanguageSync` (monté dans `root.tsx`) synchronise automatiquement la langue avec axios. Toutes les requêtes HTTP incluent le header `Accept-Language: fr` ou `en`.
+
+## 📚 Ressources & Documentation
+
+### Documentation Projet
+- `API_GUIDE.md` : Guide complet d'utilisation de l'API avec exemples
+- `HTTP_CONFIG.md` : Documentation de la configuration HTTP
+- `SHADCN_GUIDE.md` : Guide des composants shadcn/ui
+- `README.md` : Vue d'ensemble du projet
+
+### Ressources Externes
+- React Router 7: https://reactrouter.com
+- Tailwind CSS 4: https://tailwindcss.com
+- shadcn/ui: https://ui.shadcn.com
+- Radix UI: https://www.radix-ui.com
+- Axios: https://axios-http.com
+
