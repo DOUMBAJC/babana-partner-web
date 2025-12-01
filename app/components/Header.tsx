@@ -4,26 +4,27 @@ import { ThemeToggle } from "~/components/ThemeToggle";
 import { LanguageToggle } from "~/components/LanguageToggle";
 import { MobileNav } from "~/components/MobileNav";
 import { Button } from "~/components/ui/button";
-import { useScrolled } from "~/hooks";
+import { useScrolled, useTranslation } from "~/hooks";
 import { cn } from "~/lib/utils";
 import logoUrl from "~/assets/logo.png";
 
 interface NavLink {
   href: string;
-  label: string;
+  labelKey: keyof ReturnType<typeof useTranslation>["t"]["nav"];
 }
-
-const navLinks: NavLink[] = [
-  { href: "/", label: "Accueil" },
-  { href: "/dashboard", label: "Tableau de bord" },
-  { href: "/partenaires", label: "Partenaires" },
-  { href: "/transactions", label: "Transactions" },
-  { href: "/aide", label: "Aide" },
-];
 
 export function Header() {
   const location = useLocation();
   const scrolled = useScrolled(20);
+  const { t } = useTranslation();
+
+  const navLinks: NavLink[] = [
+    { href: "/", labelKey: "home" },
+    { href: "/dashboard", labelKey: "dashboard" },
+    { href: "/partenaires", labelKey: "partners" },
+    { href: "/transactions", labelKey: "transactions" },
+    { href: "/aide", labelKey: "help" },
+  ];
 
   return (
     <header
@@ -69,7 +70,7 @@ export function Header() {
                       : "hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
-                  {link.label}
+                  {t.nav[link.labelKey]}
                 </Link>
               );
             })}
@@ -86,13 +87,13 @@ export function Header() {
             {/* Bouton Action Desktop */}
             <div className="hidden md:flex items-center space-x-2 ml-2">
               <Button variant="ghost" size="sm">
-                Connexion
+                {t.actions.login}
               </Button>
               <Button
                 size="sm"
                 className="bg-babana-cyan hover:bg-babana-cyan/90 text-white shadow-md hover:shadow-lg transition-all duration-200"
               >
-                Inscription
+                {t.actions.signup}
               </Button>
             </div>
 

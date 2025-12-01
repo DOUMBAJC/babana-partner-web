@@ -3,11 +3,12 @@ import { Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { useTranslation } from "~/hooks";
 import { cn } from "~/lib/utils";
 
 interface NavLink {
   href: string;
-  label: string;
+  labelKey: keyof ReturnType<typeof useTranslation>["t"]["nav"];
 }
 
 interface MobileNavProps {
@@ -17,6 +18,7 @@ interface MobileNavProps {
 export function MobileNav({ links }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -28,7 +30,7 @@ export function MobileNav({ links }: MobileNavProps) {
         variant="ghost"
         size="icon"
         onClick={toggleMenu}
-        aria-label="Menu de navigation"
+        aria-label={t.header.menuAriaLabel}
         aria-expanded={isOpen}
         className="relative"
       >
@@ -75,7 +77,7 @@ export function MobileNav({ links }: MobileNavProps) {
                           : "hover:bg-accent hover:text-accent-foreground"
                       )}
                     >
-                      {link.label}
+                      {t.nav[link.labelKey]}
                     </Link>
                   );
                 })}
@@ -86,13 +88,13 @@ export function MobileNav({ links }: MobileNavProps) {
               {/* Actions Mobile */}
               <div className="space-y-2 mt-auto">
                 <Button variant="outline" className="w-full" size="sm">
-                  Connexion
+                  {t.actions.login}
                 </Button>
                 <Button
                   className="w-full bg-babana-cyan hover:bg-babana-cyan/90 text-white shadow-md"
                   size="sm"
                 >
-                  Inscription
+                  {t.actions.signup}
                 </Button>
               </div>
             </div>

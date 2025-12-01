@@ -41,6 +41,7 @@ L'application sera accessible sur **http://localhost:5173**
 - **[API_GUIDE.md](./API_GUIDE.md)** - Guide complet pour utiliser l'API avec axios
 - **[HTTP_CONFIG.md](./HTTP_CONFIG.md)** - Documentation de la configuration HTTP
 - **[SHADCN_GUIDE.md](./SHADCN_GUIDE.md)** - Guide des composants shadcn/ui
+- **[TRANSLATIONS_QUICKSTART.md](./TRANSLATIONS_QUICKSTART.md)** - Guide du système de traductions
 
 ## 🛠 Technologies
 
@@ -75,11 +76,13 @@ app/
 │   ├── index.ts              # Exports centralisés
 │   ├── useTheme.tsx          # Hook pour le thème
 │   ├── useLanguage.tsx       # Hook pour la langue
+│   ├── useTranslation.tsx    # Hook pour les traductions
 │   └── useScrolled.ts        # Hook pour détecter le scroll
 ├── lib/
 │   ├── index.ts              # Exports centralisés
 │   ├── utils.ts              # Utilitaires (cn, etc.)
-│   └── axios.ts              # Configuration HTTP
+│   ├── axios.ts              # Configuration HTTP
+│   └── translations.ts       # Système de traductions
 └── assets/
     └── logo.png              # Logo BABANA
 
@@ -99,25 +102,36 @@ Ces couleurs sont utilisées dans le CSS via les classes Tailwind :
 
 ## 🎯 Fonctionnalités Principales
 
-### 🌍 Support Bilingue Automatique
+### 🌍 Système de Traductions Complet
+
+Le système de traductions permet d'afficher votre application en français et en anglais automatiquement.
 
 ```tsx
-import { useLanguage } from '~/hooks';
+import { useTranslation } from '~/hooks';
 
 function MyComponent() {
-  const { language, setLanguage } = useLanguage();
+  const { t, language } = useTranslation();
   
   return (
     <div>
-      <p>Langue : {language}</p>
-      <button onClick={() => setLanguage('en')}>English</button>
-      <button onClick={() => setLanguage('fr')}>Français</button>
+      <h1>{t.nav.home}</h1>
+      <button>{t.actions.save}</button>
+      <p>{t.common.loading}</p>
     </div>
   );
 }
 ```
 
-Le header `Accept-Language` est automatiquement ajouté à toutes les requêtes API.
+**Fonctionnalités :**
+- ✅ Détection automatique de la langue du navigateur
+- ✅ Changement de langue en temps réel
+- ✅ Persistance dans localStorage
+- ✅ Header `Accept-Language` automatique dans les requêtes API
+- ✅ Plus de 100 traductions prêtes à l'emploi
+- ✅ TypeScript avec autocomplétion
+- ✅ Interpolation de variables
+
+**Documentation :** [TRANSLATIONS_QUICKSTART.md](./TRANSLATIONS_QUICKSTART.md)
 
 ### 🔌 Requêtes HTTP avec Axios
 
@@ -183,10 +197,10 @@ VITE_APP_VERSION=1.0.0
 NODE_ENV=development
 ```
 
-## 🚀 Prochaines Étapes
+## 🚀 Démarrage
 
 1. **Configurer l'API** : Éditer `.env` avec l'URL de votre API
-2. **Lire la documentation** : [API_GUIDE.md](./API_GUIDE.md) pour des exemples complets
+2. **Lire la documentation** : Consulter les guides dans le dossier racine
 3. **Créer des services** : Ajouter vos services API dans `app/lib/`
 4. **Créer des pages** : Ajouter de nouvelles routes dans `app/routes/`
 5. **Personnaliser** : Adapter les composants à vos besoins

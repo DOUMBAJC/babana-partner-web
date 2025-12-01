@@ -1,5 +1,5 @@
 import { Languages } from "lucide-react";
-import { useLanguage } from "~/hooks";
+import { useLanguage, useTranslation } from "~/hooks";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -10,13 +10,14 @@ import {
 
 export function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Languages className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Changer de langue</span>
+          <span className="sr-only">{t.header.changeLanguage}</span>
           <span className="absolute -top-1 -right-1 text-[10px] font-bold uppercase bg-babana-cyan text-white px-1 rounded">
             {language}
           </span>
@@ -27,13 +28,13 @@ export function LanguageToggle() {
           onClick={() => setLanguage("fr")}
           className={language === "fr" ? "bg-accent" : ""}
         >
-          🇫🇷 Français
+          🇫🇷 {t.languages.french}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setLanguage("en")}
           className={language === "en" ? "bg-accent" : ""}
         >
-          🇬🇧 English
+          🇬🇧 {t.languages.english}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
