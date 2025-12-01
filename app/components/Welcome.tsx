@@ -12,11 +12,11 @@ export function Welcome() {
         <div className="flex flex-col items-center text-center space-y-8">
           <Logo logoUrl={logoUrl} />
 
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
             {t.home.title}
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl">
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl">
             {t.home.subtitle}
           </p>
 
@@ -24,7 +24,7 @@ export function Welcome() {
             <Button variant="default" size="lg">
               {t.home.getStarted}
             </Button>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="border-border bg-background hover:bg-accent hover:text-accent-foreground">
               {t.home.learnMore}
             </Button>
           </div>

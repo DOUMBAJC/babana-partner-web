@@ -5,7 +5,7 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  /* Couleurs BABANA - Basées sur le logo */
+  /* Couleurs BABANA - Basées sur le logo (fixes, ne changent pas avec le thème) */
   --color-babana-cyan: #5FC8E9;
   --color-babana-cyan-light: #7DD4EF;
   --color-babana-cyan-dark: #4AB5D6;
@@ -17,27 +17,6 @@
   --color-babana-blue: #2563EB;
   --color-babana-blue-light: #3B82F6;
   --color-babana-blue-dark: #1E40AF;
-
-  /* Couleurs shadcn/ui - Mode clair */
-  --color-background: #FFFFFF;
-  --color-foreground: hsl(222.2, 84%, 4.9%);
-  --color-card: #FFFFFF;
-  --color-card-foreground: hsl(222.2, 84%, 4.9%);
-  --color-popover: #FFFFFF;
-  --color-popover-foreground: hsl(222.2, 84%, 4.9%);
-  --color-primary: #5FC8E9;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #0D1B4D;
-  --color-secondary-foreground: #FFFFFF;
-  --color-muted: hsl(210, 40%, 96.1%);
-  --color-muted-foreground: hsl(215.4, 16.3%, 46.9%);
-  --color-accent: hsl(210, 40%, 96.1%);
-  --color-accent-foreground: hsl(222.2, 47.4%, 11.2%);
-  --color-destructive: hsl(0, 84.2%, 60.2%);
-  --color-destructive-foreground: hsl(210, 40%, 98%);
-  --color-border: hsl(214.3, 31.8%, 91.4%);
-  --color-input: hsl(214.3, 31.8%, 91.4%);
-  --color-ring: #5FC8E9;
   
   /* Radius */
   --radius-sm: 0.25rem;

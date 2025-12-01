@@ -34,6 +34,16 @@
 - Sauvegarde dans localStorage
 - Header `Accept-Language` automatiquement ajouté aux requêtes API
 
+### Authentification et Permissions
+- Système de rôles et permissions granulaire
+- Hook `useAuth()` pour gérer l'authentification
+- Hook `usePermissions()` pour vérifier les permissions
+- Composant `<Can>` pour l'affichage conditionnel
+- Composant `<ProtectedRoute>` pour protéger les routes
+- 9 rôles définis: super_admin, admin, ba, activateur, pos, dsm, vendeur, client, autre
+- Token JWT stocké dans localStorage
+- Header `Authorization: Bearer {token}` automatiquement ajouté aux requêtes API
+
 ## 📦 shadcn/ui Configuration
 
 ### Config (components.json)
@@ -72,7 +82,7 @@
 
 ```
 app/
-├── root.tsx                    # Layout principal avec Providers (Theme + Language)
+├── root.tsx                    # Layout principal avec Providers (Theme + Language + Auth)
 ├── routes.ts                   # Configuration des routes
 ├── app.css                     # Styles globaux + variables Tailwind
 ├── routes/
@@ -84,16 +94,25 @@ app/
 │   ├── ThemeToggle.tsx         # Sélecteur de thème (light/dark)
 │   ├── LanguageToggle.tsx      # Sélecteur de langue (fr/en)
 │   ├── LanguageSync.tsx        # Synchronisation langue → axios
+│   ├── Can.tsx                 # Composant d'affichage conditionnel basé sur permissions
+│   ├── ProtectedRoute.tsx      # Composant de protection de routes
 │   └── ui/                     # Composants shadcn/ui
 ├── hooks/
 │   ├── index.ts                # Exports centralisés
 │   ├── useTheme.tsx            # Hook + Provider pour le thème
 │   ├── useLanguage.tsx         # Hook + Provider pour la langue
+│   ├── useAuth.tsx             # Hook + Provider pour l'authentification
+│   ├── usePermissions.tsx      # Hook pour vérifier les permissions
 │   └── useScrolled.ts          # Hook pour détecter le scroll
 ├── lib/
 │   ├── index.ts                # Exports centralisés
 │   ├── utils.ts                # Utilitaires (cn, etc.)
-│   └── axios.ts                # Configuration axios + intercepteurs
+│   ├── axios.ts                # Configuration axios + intercepteurs
+│   ├── roles.ts                # Définition des rôles
+│   └── permissions.ts          # Utilitaires de vérification des permissions
+├── types/
+│   ├── index.ts                # Exports centralisés
+│   └── auth.types.ts           # Types pour l'authentification et permissions
 └── assets/
     └── logo.png                # Logo BABANA
 
@@ -275,13 +294,144 @@ Déjà intégré dans le Header. Affiche un dropdown pour changer de langue.
 
 Le composant `LanguageSync` (monté dans `root.tsx`) synchronise automatiquement la langue avec axios. Toutes les requêtes HTTP incluent le header `Accept-Language: fr` ou `en`.
 
+## 🔐 Authentification et Permissions
+
+### Vue d'ensemble
+
+Le système utilise un modèle de **rôles et permissions** où chaque utilisateur peut avoir un ou plusieurs rôles, et chaque rôle possède des permissions spécifiques.
+
+### Rôles disponibles
+
+| Rôle | Slug | Description |
+|------|------|-------------|
+| Super Administrateur | `super_admin` | Accès complet (toutes permissions) |
+| Administrateur | `admin` | Accès à la plupart des fonctionnalités administratives |
+| Brand Ambassador | `ba` | Ambassadeur de marque avec accès aux fonctionnalités de base |
+| Activateur | `activateur` | Gère et traite les requêtes des BA |
+| Point de Vente | `pos` | Point de vente avec droits étendus |
+| District Sales Manager | `dsm` | Gère les points de vente |
+| Vendeur | `vendeur` | Vend les produits aux BA |
+| Client | `client` | Client de la plateforme |
+| Autre | `autre` | Accès limité à la gestion de leurs tâches |
+
+### Hook useAuth
+
+```tsx
+import { useAuth } from '~/hooks';
+
+function MyComponent() {
+  const { user, token, isAuthenticated, isLoading, login, logout, updateUser } = useAuth();
+  
+  // Login
+  await login({ email: 'user@example.com', password: 'password' });
+  
+  // Logout
+  logout();
+}
+```
+
+### Hook usePermissions
+
+```tsx
+import { usePermissions } from '~/hooks';
+
+function MyComponent() {
+  const { can, canAll, canAny, hasRole, isAdmin, isSuperAdmin, permissions, roles } = usePermissions();
+  
+  // Vérifier une permission
+  if (can('create-users')) {
+    // L'utilisateur peut créer des utilisateurs
+  }
+  
+  // Vérifier un rôle
+  if (hasRole('admin')) {
+    // L'utilisateur est admin
+  }
+}
+```
+
+### Composant Can (Affichage conditionnel)
+
+```tsx
+import { Can } from '~/components';
+
+// Afficher selon la permission
+<Can permission="create-users">
+  <Button>Créer un utilisateur</Button>
+</Can>
+
+// Afficher selon le rôle
+<Can role="admin">
+  <AdminPanel />
+</Can>
+
+// Avec fallback
+<Can permission="premium-feature" fallback={<UpgradeMessage />}>
+  <PremiumContent />
+</Can>
+```
+
+### Composant ProtectedRoute (Protection de routes)
+
+```tsx
+import { ProtectedRoute } from '~/components';
+
+// Route nécessitant uniquement l'authentification
+export default function Dashboard() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+// Route nécessitant une permission
+export default function UsersPage() {
+  return (
+    <ProtectedRoute permission="view-users">
+      <UsersContent />
+    </ProtectedRoute>
+  );
+}
+
+// Route nécessitant un rôle
+export default function AdminPanel() {
+  return (
+    <ProtectedRoute role="admin">
+      <AdminContent />
+    </ProtectedRoute>
+  );
+}
+```
+
+### Catégories de permissions
+
+- **Utilisateurs**: `view-users`, `create-users`, `edit-users`
+- **Produits**: `view-products`, `create-products`, `edit-products`
+- **Commandes**: `view-orders`, `create-orders`, `edit-orders`, `approve-orders`
+- **Requêtes**: `view-requests`, `create-requests`, `process-requests`, `approve-requests`, `reject-requests`
+- **Inventaire**: `view-inventory`, `manage-inventory`
+- **Rapports**: `view-reports`, `create-reports`, `export-reports`
+- **Ventes**: `view-sales`, `create-sales`, `edit-sales`
+- **POS**: `view-pos`, `manage-pos`
+- **Tâches**: `view-own-tasks`, `manage-own-tasks`, `view-all-tasks`, `assign-tasks`
+- **Admin**: `admin-access`
+
+### Token JWT
+
+- Token stocké dans `localStorage` sous la clé `babana_auth_token`
+- Utilisateur stocké dans `localStorage` sous la clé `babana_auth_user`
+- Header `Authorization: Bearer {token}` automatiquement ajouté à toutes les requêtes API
+- Token supprimé automatiquement en cas d'erreur 401
+
 ## 📚 Ressources & Documentation
 
 ### Documentation Projet
+- `README.md` : Vue d'ensemble du projet
 - `API_GUIDE.md` : Guide complet d'utilisation de l'API avec exemples
 - `HTTP_CONFIG.md` : Documentation de la configuration HTTP
 - `SHADCN_GUIDE.md` : Guide des composants shadcn/ui
-- `README.md` : Vue d'ensemble du projet
+- `AUTH_GUIDE.md` : Guide complet d'authentification et de gestion des permissions
 
 ### Ressources Externes
 - React Router 7: https://reactrouter.com

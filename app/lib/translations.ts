@@ -3,6 +3,17 @@
 export type Language = "fr" | "en";
 
 export interface Translations {
+  // Auth
+  auth: {
+    login: {
+      title: string;
+      subtitle: string;
+    };
+    register: {
+      title: string;
+      subtitle: string;
+    };
+  };
   // Navigation
   nav: {
     home: string;
@@ -153,6 +164,16 @@ export const translations: Record<Language, Translations> = {
       import: "Importer",
       refresh: "Actualiser",
     },
+    auth: {
+      login: {
+        title: "Connexion",
+        subtitle: "Connectez-vous à votre compte",
+      },
+      register: {
+        title: "Créer un compte",
+        subtitle: "Inscrivez-vous pour accéder à BABANA Partner",
+      },
+    },
     common: {
       loading: "Chargement...",
       error: "Erreur",
@@ -181,9 +202,9 @@ export const translations: Record<Language, Translations> = {
       contact: "Contact",
     },
     home: {
-      title: "Bienvenue sur BABANA Partner",
-      subtitle: "Gérez vos partenariats en toute simplicité",
-      welcomeMessage: "Bienvenue sur votre espace partenaire BABANA",
+      title: "Bienvenue sur BABANA SIM",
+      subtitle: "Gérez vos ventes de SIM en toute simplicité",
+      welcomeMessage: "Bienvenue sur votre espace vente de SIM BABANA",
       getStarted: "Commencer",
       learnMore: "En savoir plus",
     },
@@ -263,6 +284,16 @@ export const translations: Record<Language, Translations> = {
       import: "Import",
       refresh: "Refresh",
     },
+    auth: {
+      login: {
+        title: "Login",
+        subtitle: "Sign in to your account",
+      },
+      register: {
+        title: "Create an account",
+        subtitle: "Sign up to access BABANA Partner",
+      },
+    },
     common: {
       loading: "Loading...",
       error: "Error",
@@ -291,9 +322,9 @@ export const translations: Record<Language, Translations> = {
       contact: "Contact",
     },
     home: {
-      title: "Welcome to BABANA Partner",
-      subtitle: "Manage your partnerships with ease",
-      welcomeMessage: "Welcome to your BABANA partner space",
+      title: "Welcome to BABANA SIM",
+      subtitle: "Manage your SIM sales with ease",
+      welcomeMessage: "Welcome to your BABANA SIM sales space",
       getStarted: "Get Started",
       learnMore: "Learn More",
     },

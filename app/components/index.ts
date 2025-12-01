@@ -7,6 +7,11 @@ export { MobileNav } from './MobileNav';
 export { LanguageToggle } from './LanguageToggle';
 export { LanguageSync } from './LanguageSync';
 export { Welcome } from './Welcome';
+export { Can } from './Can';
+export { ProtectedRoute } from './ProtectedRoute';
+export { UserMenu } from './UserMenu';
+export { AuthLayout } from './AuthLayout';
+export { FormInput } from './FormInput';
 
 // shadcn/ui Components
 export { Button } from './ui/button';

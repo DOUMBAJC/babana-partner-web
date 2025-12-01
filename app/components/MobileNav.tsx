@@ -32,12 +32,12 @@ export function MobileNav({ links }: MobileNavProps) {
         onClick={toggleMenu}
         aria-label={t.header.menuAriaLabel}
         aria-expanded={isOpen}
-        className="relative"
+        className="relative hover:bg-accent hover:text-accent-foreground"
       >
         {isOpen ? (
-          <X className="h-6 w-6 transition-transform rotate-90" />
+          <X className="h-6 w-6 transition-transform rotate-90 text-foreground" />
         ) : (
-          <Menu className="h-6 w-6 transition-transform" />
+          <Menu className="h-6 w-6 transition-transform text-foreground" />
         )}
       </Button>
 
@@ -54,7 +54,7 @@ export function MobileNav({ links }: MobileNavProps) {
           {/* Menu Slide-in */}
           <nav
             className={cn(
-              "fixed top-[65px] right-0 h-[calc(100vh-65px)] w-72 bg-background border-l z-50",
+              "fixed top-[65px] right-0 h-[calc(100vh-65px)] w-72 bg-background text-foreground border-l border-border z-50",
               "transform transition-transform duration-300 ease-in-out",
               "shadow-xl animate-in slide-in-from-right"
             )}
@@ -70,7 +70,7 @@ export function MobileNav({ links }: MobileNavProps) {
                       to={link.href}
                       onClick={closeMenu}
                       className={cn(
-                        "px-4 py-3 rounded-md text-sm font-medium",
+                        "px-4 py-3 rounded-md text-sm font-medium text-foreground",
                         "transition-all duration-200",
                         isActive
                           ? "bg-babana-cyan/10 text-babana-cyan dark:bg-babana-cyan/20 shadow-sm"
@@ -83,11 +83,11 @@ export function MobileNav({ links }: MobileNavProps) {
                 })}
               </div>
 
-              <Separator className="my-4" />
+              <Separator className="my-4 bg-border" />
 
               {/* Actions Mobile */}
               <div className="space-y-2 mt-auto">
-                <Button variant="outline" className="w-full" size="sm">
+                <Button variant="outline" className="w-full border-border bg-background hover:bg-accent hover:text-accent-foreground" size="sm">
                   {t.actions.login}
                 </Button>
                 <Button

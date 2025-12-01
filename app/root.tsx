@@ -8,7 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import { ThemeProvider, LanguageProvider } from "~/hooks";
+import { ThemeProvider, LanguageProvider, AuthProvider } from "~/hooks";
 import { LanguageSync } from "~/components/LanguageSync";
 import "./app.css";
 
@@ -51,8 +51,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="min-h-screen bg-background font-sans antialiased">
         <LanguageProvider defaultLanguage="fr" storageKey="babana-language">
           <ThemeProvider defaultTheme="system" storageKey="babana-ui-theme">
-            <LanguageSync />
-            {children}
+            <AuthProvider>
+              <LanguageSync />
+              {children}
+            </AuthProvider>
           </ThemeProvider>
         </LanguageProvider>
         <ScrollRestoration />

@@ -86,15 +86,19 @@ export function Header() {
 
             {/* Bouton Action Desktop */}
             <div className="hidden md:flex items-center space-x-2 ml-2">
-              <Button variant="ghost" size="sm">
+              <Link to="/login">
+              <Button variant="outline" size="sm">
                 {t.actions.login}
               </Button>
+              </Link>
+              <Link to="/register">
               <Button
                 size="sm"
                 className="bg-babana-cyan hover:bg-babana-cyan/90 text-white shadow-md hover:shadow-lg transition-all duration-200"
               >
                 {t.actions.signup}
               </Button>
+              </Link>
             </div>
 
             {/* Mobile Navigation */}
