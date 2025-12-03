@@ -118,6 +118,7 @@ export default function RegisterPage() {
         password: formData.password,
         password_confirmation: formData.confirmPassword,
       });
+      console.log(response.message);
       // Succès - Rediriger vers la page de connexion
       navigate('/login', { 
         state: { 
