@@ -5,6 +5,8 @@ import { AuthLayout, FormInput, Button } from '~/components';
 import type { LoginCredentials } from '~/types';
 import type { Route } from "./+types/login";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import type { ApiError } from '~/lib/axios';
+import { authService } from '~/lib/auth.service';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,7 +18,7 @@ export function meta({}: Route.MetaArgs) {
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isLoading } = useAuth();
+  const { isLoading } = useAuth();
   const { language } = useLanguage();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
@@ -38,11 +40,11 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login(credentials);
+      await authService.login(credentials);
       navigate('/');
     } catch (err) {
-      setError(t('Email ou mot de passe incorrect', 'Invalid email or password'));
-      console.error('Login error:', err);
+      setCredentials(prev => ({ ...prev, password: '' }));
+      setError((err as unknown as ApiError).message);
     } finally {
       setIsSubmitting(false);
     }

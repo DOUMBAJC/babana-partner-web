@@ -56,6 +56,13 @@ export interface Translations {
     serverError: string;
     networkError: string;
     validationError: string;
+    sessionExpired: string;
+    accessDenied: string;
+    resourceNotFound: string;
+    invalidData: string;
+    tooManyRequests: string;
+    unableToContactServer: string;
+    errorPreparingRequest: string;
   };
   // Header
   header: {
@@ -187,6 +194,13 @@ export const translations: Record<Language, Translations> = {
       serverError: "Erreur serveur",
       networkError: "Erreur réseau",
       validationError: "Erreur de validation",
+      sessionExpired: "Session expirée, veuillez vous reconnecter",
+      accessDenied: "Accès refusé",
+      resourceNotFound: "Ressource introuvable",
+      invalidData: "Données invalides",
+      tooManyRequests: "Trop de requêtes, veuillez réessayer plus tard",
+      unableToContactServer: "Impossible de contacter le serveur",
+      errorPreparingRequest: "Erreur lors de la préparation de la requête",
     },
     header: {
       menuAriaLabel: "Menu de navigation",
@@ -307,6 +321,13 @@ export const translations: Record<Language, Translations> = {
       serverError: "Server error",
       networkError: "Network error",
       validationError: "Validation error",
+      sessionExpired: "Session expired, please reconnect",
+      accessDenied: "Access denied",
+      resourceNotFound: "Resource not found",
+      invalidData: "Invalid data",
+      tooManyRequests: "Too many requests, please try again later",
+      unableToContactServer: "Unable to contact the server",
+      errorPreparingRequest: "Error preparing request",
     },
     header: {
       menuAriaLabel: "Navigation menu",

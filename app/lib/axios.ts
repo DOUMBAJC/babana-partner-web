@@ -5,7 +5,11 @@ export interface ApiError {
   status?: number;
   code?: string;
   details?: any;
+  error?: any;
 }
+
+
+
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api",
@@ -38,7 +42,7 @@ axiosInstance.interceptors.request.use(
       config.headers["X-API-Key"] = apiKey;
     }
 
-    if (import.meta.env.DEV) {
+    if (import.meta.env.VITE_MODE === 'development') {
       console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
     }
 
@@ -52,7 +56,7 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (import.meta.env.DEV) {
+    if (import.meta.env.VITE_MODE === 'development') {
       console.log("📥 API Response:", response.status, response.config.url);
     }
     return response;
@@ -102,7 +106,7 @@ axiosInstance.interceptors.response.use(
       apiError.message = error.message || "Erreur lors de la préparation de la requête";
     }
 
-    if (import.meta.env.DEV) {
+    if (import.meta.env.VITE_MODE === 'development') {
       console.error("❌ API Error:", error.config?.url, apiError.status, apiError.message);
     }
 

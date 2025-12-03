@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { useLanguage } from '~/hooks';
+import {  useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { authService } from '~/lib/auth.service';
 
 interface RegisterFormData {
   firstName: string;
@@ -111,19 +112,16 @@ export default function RegisterPage() {
     setErrors({});
 
     try {
-      // TODO: Implémenter l'appel API d'inscription
-      // await authService.register(formData);
-      
-      // Simulation d'un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      const response = await authService.register({
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword,
+      });
       // Succès - Rediriger vers la page de connexion
       navigate('/login', { 
         state: { 
-          message: t(
-            'Inscription réussie ! Vous pouvez maintenant vous connecter.',
-            'Registration successful! You can now sign in.'
-          ) 
+          message: response.message
         } 
       });
     } catch (err) {

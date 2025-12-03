@@ -14,9 +14,12 @@ export interface LoginResponse {
  * Réponse de l'API pour l'enregistrement
  */
 export interface RegisterResponse {
-  user: User;
-  token: string;
-  expiresIn?: number;
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    requires_email_verification: boolean;
+  };
 }
 
 /**

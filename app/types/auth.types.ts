@@ -80,19 +80,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  emailVerifiedAt?: string;
-  camtelLogin?: string;
-  personalPhone?: string;
-  phoneOperator?: string;
-  accountStatus: AccountStatus;
-  activatedBy?: number;
-  activatedAt?: string;
-  rejectionReason?: string;
-  roles: RoleSlug[];
-  permissions?: Permission[];
-  avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  account_status: AccountStatus;
 
   // Relations (chargées via include)
   activator?: {
@@ -124,6 +112,6 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  passwordConfirmation: string;
+  password_confirmation: string;
 }
 

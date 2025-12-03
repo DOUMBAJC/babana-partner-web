@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { AuthState, User, LoginCredentials } from '~/types/auth.types';
+import { api } from '~/lib/axios';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -65,29 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      // TODO: Remplacer par un vrai appel API
-      // const response = await api.post('/auth/login', credentials);
-      // const { user, token } = response;
-
-      // Pour le moment, simuler une connexion
-      const mockUser: User = {
-        id: 1,
-        name: 'John Doe',
-        email: credentials.email,
-        roles: ['admin'],
-        accountStatus: 'active',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      const mockToken = 'mock-jwt-token';
+      const response = await api.post('/auth/login', credentials);
+      const { user, token } = response.data;
 
       // Sauvegarder dans le localStorage
-      localStorage.setItem(AUTH_TOKEN_KEY, mockToken);
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(mockUser));
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      // localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
 
       setState({
-        user: mockUser,
-        token: mockToken,
+        user: user,
+        token: token,
         isAuthenticated: true,
         isLoading: false,
       });
