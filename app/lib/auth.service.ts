@@ -23,13 +23,29 @@ export interface RegisterResponse {
 }
 
 /**
- * Service d'authentification
- * Gère les appels API pour l'authentification
+ * Réponse de l'API pour la demande de réinitialisation de mot de passe
  */
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+  error: string;
+}
+
+/**
+ * Réponse de l'API pour la réinitialisation de mot de passe
+ */
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+  error: string;
+  data: {
+    user: User;
+    token: string;
+    expiresIn?: number;
+  };
+}
+
 export const authService = {
-  /**
-   * Connexion d'un utilisateur
-   */
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
       const response = await api.post<LoginResponse>('/auth/login', credentials);
@@ -67,7 +83,7 @@ export const authService = {
    */
   me: async (): Promise<User> => {
     try {
-      const response = await api.get<User>('/auth/me');
+      const response = await api.get<User>('/auth/user');
       return response;
     } catch (error) {
       throw error as ApiError;
@@ -91,9 +107,10 @@ export const authService = {
   /**
    * Demander un lien de réinitialisation de mot de passe
    */
-  forgotPassword: async (email: string): Promise<void> => {
+  forgotPassword: async (email: string): Promise<ForgotPasswordResponse> => {
     try {
-      await api.post('/auth/forgot-password', { email });
+      const response = await api.post<ForgotPasswordResponse>('/auth/forgot-password', { email });
+      return response;
     } catch (error) {
       throw error as ApiError;
     }
@@ -105,14 +122,17 @@ export const authService = {
   resetPassword: async (
     token: string,
     password: string,
-    passwordConfirmation: string
-  ): Promise<void> => {
+    password_confirmation: string,
+    email: string | null,
+  ): Promise<ResetPasswordResponse> => {
     try {
-      await api.post('/auth/reset-password', {
+      const response = await api.post<ResetPasswordResponse>('/auth/reset', {
         token,
         password,
-        passwordConfirmation,
+        password_confirmation,
+        email,
       });
+      return response;
     } catch (error) {
       throw error as ApiError;
     }

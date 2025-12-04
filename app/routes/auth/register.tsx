@@ -4,6 +4,13 @@ import {  useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
+import type { Route } from "./+types/register";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "BABANA - Inscription" }
+  ];
+}
 
 interface RegisterFormData {
   firstName: string;
@@ -118,7 +125,6 @@ export default function RegisterPage() {
         password: formData.password,
         password_confirmation: formData.confirmPassword,
       });
-      console.log(response.message);
       // Succès - Rediriger vers la page de connexion
       navigate('/login', { 
         state: { 

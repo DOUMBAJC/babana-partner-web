@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { user, token } = response.data;
 
       // Sauvegarder dans le localStorage
-      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      // localStorage.setItem(AUTH_TOKEN_KEY, token);
       // localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
 
       setState({

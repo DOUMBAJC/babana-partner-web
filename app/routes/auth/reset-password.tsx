@@ -3,6 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { authService } from '~/lib/auth.service';
+import type { ApiError } from '~/lib/axios';
+import type { Route } from "./+types/reset-password";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "BABANA - Réinitialisation de mot de passe" }
+  ];
+}
 
 interface ResetPasswordData {
   password: string;
@@ -23,7 +32,7 @@ export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
   const token = searchParams.get('token');
-
+  const email = searchParams.get('email');
   const [formData, setFormData] = useState<ResetPasswordData>({
     password: '',
     confirmPassword: '',
@@ -103,29 +112,29 @@ export default function ResetPasswordPage() {
     setErrors({});
 
     try {
-      // TODO: Implémenter l'appel API de réinitialisation
-      // await authService.resetPassword(token, formData.password);
-
-      // Simulation d'un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await authService.resetPassword(token, formData.password, formData.confirmPassword, email);
+      if (response.success) {
+        navigate('/login', {
+          state: {
+            message: response.message,
+          },
+        });
+      } else {
+        setErrors({
+          general: response.message,
+        });
+      }
 
       // Succès - Rediriger vers la connexion avec message
       navigate('/login', {
         state: {
-          message: t(
-            'Mot de passe réinitialisé avec succès ! Vous pouvez maintenant vous connecter.',
-            'Password reset successfully! You can now sign in.'
-          ),
+          message: response.message,
         },
       });
     } catch (err) {
       setErrors({
-        general: t(
-          'Une erreur est survenue lors de la réinitialisation. Le lien est peut-être expiré.',
-          'An error occurred during reset. The link may have expired.'
-        ),
+        general: (err as unknown as ApiError).message,
       });
-      console.error('Reset password error:', err);
     } finally {
       setIsSubmitting(false);
     }

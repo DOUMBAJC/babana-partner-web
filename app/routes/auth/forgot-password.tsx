@@ -3,6 +3,8 @@ import { Link } from 'react-router';
 import { useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { authService } from '~/lib/auth.service';
+import type { ApiError } from '~/lib/axios';
 
 /**
  * Page de demande de réinitialisation de mot de passe
@@ -35,21 +37,15 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      // TODO: Implémenter l'appel API de réinitialisation
-      // await authService.forgotPassword(email);
-      
-      // Simulation d'un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Succès
-      setIsSuccess(true);
+      const response = await authService.forgotPassword(email);
+      console.log(response);
+      if (response.success) {
+        setIsSuccess(true);
+      } else {
+        setError(response.message);
+      }
     } catch (err) {
-      setError(
-        t(
-          'Une erreur est survenue. Veuillez réessayer.',
-          'An error occurred. Please try again.'
-        )
-      );
+      setError((err as unknown as ApiError).message);
       console.error('Forgot password error:', err);
     } finally {
       setIsSubmitting(false);

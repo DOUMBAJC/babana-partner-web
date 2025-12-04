@@ -10,8 +10,7 @@ import { authService } from '~/lib/auth.service';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "BABANA - Connexion" },
-    { name: "description", content: "Plateforme partenaire BABANA ETS DAIROU pour une gestion moderne et efficace" },
+    { title: "BABANA - Connexion" }
   ];
 }
 
@@ -40,7 +39,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await authService.login(credentials);
+       await authService.login(credentials);
       navigate('/');
     } catch (err) {
       setCredentials(prev => ({ ...prev, password: '' }));

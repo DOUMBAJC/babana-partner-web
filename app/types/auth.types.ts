@@ -80,7 +80,11 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  account_status: AccountStatus;
+  roles: RoleSlug[];
+  permissions?: Permission[];
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
 
   // Relations (chargées via include)
   activator?: {
