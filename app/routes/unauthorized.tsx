@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { ShieldAlert } from 'lucide-react';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components';
-import { useAuth } from '~/hooks';
+import { useAuth, useTranslation, usePageTitle } from '~/hooks';
 
 /**
  * Page 401 - Non autorisé
@@ -11,6 +11,8 @@ import { useAuth } from '~/hooks';
 export default function UnauthorizedPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
+  usePageTitle(t.pages.unauthorized.title);
 
   const handleGoBack = () => {
     navigate(-1);

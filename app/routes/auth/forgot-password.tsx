@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { useLanguage } from '~/hooks';
+import { useLanguage, useTranslation, usePageTitle } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
@@ -11,6 +11,9 @@ import type { ApiError } from '~/lib/axios';
  */
 export default function ForgotPasswordPage() {
   const { language } = useLanguage();
+  const { t: translations } = useTranslation();
+  usePageTitle(translations.pages.forgotPassword.title);
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);

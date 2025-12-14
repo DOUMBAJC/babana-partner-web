@@ -1,0 +1,14 @@
+{
+  "title": "Page introuvable",
+  "error_code": "Erreur 404",
+  "description": "Oups ! La page que vous recherchez semble avoir disparu dans l'espace numérique.",
+  "message": "Il semble que cette page n'existe pas ou a été déplacée.",
+  "go_back": "Retour",
+  "go_home": "Retour à l'accueil",
+  "suggestions": {
+    "title": "Que pouvez-vous faire ?",
+    "check_url": "Vérifiez l'URL pour détecter les erreurs de frappe",
+    "use_navigation": "Utilisez la navigation pour trouver ce que vous cherchez",
+    "contact": "Contactez-nous si vous pensez qu'il s'agit d'une erreur"
+  }
+}

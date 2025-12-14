@@ -13,4 +13,7 @@ export default [
   // Routes protégées
   route("unauthorized", "routes/unauthorized.tsx"),
   route("admin", "routes/admin.tsx"),
+  
+  // Route 404 - doit être la dernière pour capturer toutes les routes non définies
+  route("*", "routes/$.tsx"),
 ] satisfies RouteConfig;

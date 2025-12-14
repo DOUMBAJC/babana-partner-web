@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { Layout, Welcome } from "~/components";
+import { useTranslation, usePageTitle } from "~/hooks";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,6 +10,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const { t } = useTranslation();
+  usePageTitle(t.pages.home.title);
+
   return (
     <Layout>
       <Welcome />

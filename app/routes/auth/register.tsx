@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import {  useLanguage } from '~/hooks';
+import {  useLanguage, useTranslation, usePageTitle } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
@@ -35,6 +35,9 @@ interface FormErrors {
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { t: translations } = useTranslation();
+  usePageTitle(translations.pages.register.title);
+
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: '',
     lastName: '',

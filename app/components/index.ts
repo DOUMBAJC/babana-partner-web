@@ -12,6 +12,7 @@ export { ProtectedRoute } from './ProtectedRoute';
 export { UserMenu } from './UserMenu';
 export { AuthLayout } from './AuthLayout';
 export { FormInput } from './FormInput';
+export { NotFound } from './NotFound';
 
 // shadcn/ui Components
 export { Button } from './ui/button';

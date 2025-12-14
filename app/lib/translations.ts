@@ -141,6 +141,56 @@ export interface Translations {
     dark: string;
     system: string;
   };
+  // 404 Page
+  notFound: {
+    title: string;
+    errorCode: string;
+    description: string;
+    message: string;
+    goBack: string;
+    goHome: string;
+    suggestions: {
+      title: string;
+      checkUrl: string;
+      useNavigation: string;
+      contact: string;
+    };
+  };
+  // Pages Metadata
+  pages: {
+    home: {
+      title: string;
+      description: string;
+    };
+    login: {
+      title: string;
+      description: string;
+    };
+    register: {
+      title: string;
+      description: string;
+    };
+    forgotPassword: {
+      title: string;
+      description: string;
+    };
+    resetPassword: {
+      title: string;
+      description: string;
+    };
+    admin: {
+      title: string;
+      description: string;
+    };
+    notFound: {
+      title: string;
+      description: string;
+    };
+    unauthorized: {
+      title: string;
+      description: string;
+    };
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -270,6 +320,54 @@ export const translations: Record<Language, Translations> = {
       dark: "Sombre",
       system: "Système",
     },
+    notFound: {
+      title: "Page introuvable",
+      errorCode: "Erreur 404",
+      description: "Oups ! La page que vous recherchez semble avoir disparu dans l'espace numérique.",
+      message: "Il semble que cette page n'existe pas ou a été déplacée.",
+      goBack: "Retour",
+      goHome: "Retour à l'accueil",
+      suggestions: {
+        title: "Que pouvez-vous faire ?",
+        checkUrl: "Vérifiez l'URL pour détecter les erreurs de frappe",
+        useNavigation: "Utilisez la navigation pour trouver ce que vous cherchez",
+        contact: "Contactez-nous si vous pensez qu'il s'agit d'une erreur",
+      },
+    },
+    pages: {
+      home: {
+        title: "BABANA - Plateforme Partenaire",
+        description: "Plateforme partenaire BABANA ETS DAIROU pour une gestion moderne et efficace de vos ventes SIM et partenaires",
+      },
+      login: {
+        title: "Connexion - BABANA Partner",
+        description: "Connectez-vous à votre espace partenaire BABANA pour gérer vos activités",
+      },
+      register: {
+        title: "Inscription - BABANA Partner",
+        description: "Créez votre compte partenaire BABANA et commencez à gérer vos ventes",
+      },
+      forgotPassword: {
+        title: "Mot de passe oublié - BABANA Partner",
+        description: "Réinitialisez votre mot de passe BABANA Partner",
+      },
+      resetPassword: {
+        title: "Réinitialisation - BABANA Partner",
+        description: "Définissez votre nouveau mot de passe BABANA Partner",
+      },
+      admin: {
+        title: "Administration - BABANA Partner",
+        description: "Panneau d'administration de la plateforme BABANA Partner",
+      },
+      notFound: {
+        title: "Page introuvable - BABANA Partner",
+        description: "La page que vous recherchez n'existe pas",
+      },
+      unauthorized: {
+        title: "Accès refusé - BABANA Partner",
+        description: "Vous n'avez pas les permissions nécessaires pour accéder à cette page",
+      },
+    },
   },
   en: {
     nav: {
@@ -396,6 +494,54 @@ export const translations: Record<Language, Translations> = {
       light: "Light",
       dark: "Dark",
       system: "System",
+    },
+    notFound: {
+      title: "Page not found",
+      errorCode: "Error 404",
+      description: "Oops! The page you're looking for seems to have disappeared into digital space.",
+      message: "It seems this page doesn't exist or has been moved.",
+      goBack: "Go back",
+      goHome: "Back to home",
+      suggestions: {
+        title: "What can you do?",
+        checkUrl: "Check the URL for typos",
+        useNavigation: "Use the navigation to find what you're looking for",
+        contact: "Contact us if you think this is an error",
+      },
+    },
+    pages: {
+      home: {
+        title: "BABANA - Partner Platform",
+        description: "BABANA ETS DAIROU partner platform for modern and efficient management of your SIM sales and partners",
+      },
+      login: {
+        title: "Login - BABANA Partner",
+        description: "Sign in to your BABANA partner area to manage your activities",
+      },
+      register: {
+        title: "Sign Up - BABANA Partner",
+        description: "Create your BABANA partner account and start managing your sales",
+      },
+      forgotPassword: {
+        title: "Forgot Password - BABANA Partner",
+        description: "Reset your BABANA Partner password",
+      },
+      resetPassword: {
+        title: "Reset Password - BABANA Partner",
+        description: "Set your new BABANA Partner password",
+      },
+      admin: {
+        title: "Administration - BABANA Partner",
+        description: "BABANA Partner platform administration panel",
+      },
+      notFound: {
+        title: "Page Not Found - BABANA Partner",
+        description: "The page you are looking for does not exist",
+      },
+      unauthorized: {
+        title: "Access Denied - BABANA Partner",
+        description: "You do not have the necessary permissions to access this page",
+      },
     },
   },
 };

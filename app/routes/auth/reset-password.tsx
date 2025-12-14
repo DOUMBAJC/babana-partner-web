@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useLanguage } from '~/hooks';
+import { useLanguage, useTranslation, usePageTitle } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
@@ -31,6 +31,9 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
+  const { t: translations } = useTranslation();
+  usePageTitle(translations.pages.resetPassword.title);
+  
   const token = searchParams.get('token');
   const email = searchParams.get('email');
   const [formData, setFormData] = useState<ResetPasswordData>({

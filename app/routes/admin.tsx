@@ -8,7 +8,7 @@ import {
   CardTitle,
   Button,
 } from '~/components';
-import { useAuth, usePermissions } from '~/hooks';
+import { useAuth, usePermissions, useTranslation, usePageTitle } from '~/hooks';
 import {
   Users,
   Package,
@@ -24,6 +24,9 @@ import {
  * Accessible uniquement aux utilisateurs avec le rôle admin ou super_admin
  */
 export default function AdminPage() {
+  const { t } = useTranslation();
+  usePageTitle(t.pages.admin.title);
+  
   return (
     <ProtectedRoute role={['admin', 'super_admin']} mode="any">
       <AdminContent />

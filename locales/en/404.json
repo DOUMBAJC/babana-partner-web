@@ -1,0 +1,14 @@
+{
+  "title": "Page not found",
+  "error_code": "Error 404",
+  "description": "Oops! The page you're looking for seems to have disappeared into digital space.",
+  "message": "It seems this page doesn't exist or has been moved.",
+  "go_back": "Go back",
+  "go_home": "Back to home",
+  "suggestions": {
+    "title": "What can you do?",
+    "check_url": "Check the URL for typos",
+    "use_navigation": "Use the navigation to find what you're looking for",
+    "contact": "Contact us if you think this is an error"
+  }
+}

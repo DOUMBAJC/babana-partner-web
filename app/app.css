@@ -118,3 +118,25 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(107 114 128);
 }
+
+/* Custom Animations */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 6s ease infinite;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
