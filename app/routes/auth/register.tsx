@@ -32,7 +32,7 @@ interface FormErrors {
 }
 
 /**
- * Page d'inscription moderne avec validation complète
+ * Page d'inscription
  */
 export default function RegisterPage() {
   const navigate = useNavigate();

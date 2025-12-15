@@ -14,6 +14,9 @@ export default [
   route("unauthorized", "routes/unauthorized.tsx"),
   route("admin", "routes/admin.tsx"),
   route("roles-matrix", "routes/roles-matrix.tsx"),
+  route("customers/search", "routes/customers/customers.search.tsx"),
+  route("customers/create", "routes/customers/customers.create.tsx"),
+  route("sales/activation", "routes/sales.activation.tsx"),
   
   // Route 404 - doit être la dernière pour capturer toutes les routes non définies
   route("*", "routes/$.tsx"),

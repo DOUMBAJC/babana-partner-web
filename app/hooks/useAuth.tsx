@@ -47,7 +47,7 @@ export function AuthProvider({
   const login = async (credentials: LoginCredentials) => {
     // Client-side login is deprecated in favor of Form actions.
     // If called, we redirect to login page.
-    window.location.href = "/auth/login";
+    window.location.href = "/login";
   };
 
   const logout = () => {

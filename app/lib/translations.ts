@@ -193,7 +193,23 @@ export interface Translations {
     rolesMatrix: {
       title: string;
       description: string;
-    }
+    };
+    customers: {
+      search: {
+        title: string;
+        description: string;
+      };
+      create: {
+        title: string;
+        description: string;
+      };
+    };
+    sales: {
+      activation: {
+        title: string;
+        description: string;
+      };
+    };
   };
   // Rôles
   roles: Record<string, {
@@ -220,7 +236,85 @@ export interface Translations {
     keyPoints: string;
     active: string;
   };
-}
+  // Customer Search
+  customerSearch: {
+    title: string;
+    subtitle: string;
+    securePortal: string;
+    searchCriteria: string;
+    fillFields: string;
+    advancedSearch: string;
+    standardSearch: string;
+    fields: {
+      idCard: string;
+      idCardPlaceholder: string;
+      name: string;
+      namePlaceholder: string;
+      phone: string;
+      phonePlaceholder: string;
+    };
+    searchButton: string;
+    searching: string;
+    accessDenied: {
+      title: string;
+      message: string;
+      backHome: string;
+    };
+    results: {
+      notFound: string;
+      notFoundMessage: string;
+      createCustomer: string;
+      cancel: string;
+      found: string;
+      foundMessage: string;
+      sellSim: string;
+      newSearch: string;
+    };
+  };
+  // Customer Create
+  customerCreate: {
+    title: string;
+    subtitle: string;
+    personalInfo: string;
+    contactInfo: string;
+    fields: {
+      firstName: string;
+      lastName: string;
+      idCard: string;
+      phone: string;
+      email: string;
+      address: string;
+    };
+    success: string;
+    save: string;
+  };
+  // SIM Activation
+  simActivation: {
+    title: string;
+    subtitle: string;
+    customerInfo: string;
+    simInfo: string;
+    fields: {
+      simNumber: string;
+      simNumberPlaceholder: string;
+      iccid: string;
+      iccidPlaceholder: string;
+      imei: string;
+      imeiPlaceholder: string;
+      notes: string;
+      notesPlaceholder: string;
+    };
+    errors: {
+      simNumber: string;
+      iccid: string;
+      imei: string;
+      required: string;
+    };
+    activate: string;
+    success: string;
+    backToSearch: string;
+  };
+};
 
 export const translations: Record<Language, Translations> = {
   fr: {
@@ -400,6 +494,22 @@ export const translations: Record<Language, Translations> = {
         title: "Matrice des Rôles - BABANA Partner",
         description: "Matrice détaillée des rôles et permissions de la plateforme",
       },
+      customers: {
+        search: {
+          title: "Recherche de Clients - BABANA Partner",
+          description: "Recherchez des clients dans la plateforme BABANA Partner",
+        },
+        create: {
+          title: "Création de Client - BABANA Partner",
+          description: "Créez un nouveau client dans la plateforme BABANA Partner",
+        },
+      },
+      sales: {
+        activation: {
+          title: "Activation - BABANA Partner",
+          description: "Activez un client dans la plateforme BABANA Partner",
+        },
+      },
     },
     roles: {
       super_admin: { name: "Super Administrateur", description: "Accès complet à toutes les fonctionnalités de la plateforme" },
@@ -409,7 +519,7 @@ export const translations: Record<Language, Translations> = {
       pos: { name: "Point de Vente (POS)", description: "Point de vente avec les droits des BA et des droits supplémentaires" },
       dsm: { name: "District Sales Manager (DSM)", description: "Gère les points de vente (POS)" },
       vendeur: { name: "Vendeur", description: "Vend les produits aux BA" },
-      client: { name: "Client", description: "Client de la plateforme" },
+      customer: { name: "Client", description: "Client de la plateforme" },
       autre: { name: "Autre", description: "Utilisateur avec accès limité à la gestion de leurs tâches" },
     },
     permissionGroups: {
@@ -473,7 +583,82 @@ export const translations: Record<Language, Translations> = {
       manageRole: "Gérer ce rôle (Admin)",
       keyPoints: "Points Clés",
       active: "Active",
-    }
+    },
+    customerSearch: {
+      title: "Recherche Client",
+      subtitle: "Accédez rapidement aux informations clients pour faciliter vos opérations.",
+      securePortal: "Portail Partenaire Sécurisé",
+      searchCriteria: "Critères de Recherche",
+      fillFields: "Utilisez les filtres ci-dessous pour trouver un client.",
+      advancedSearch: "Recherche Avancée",
+      standardSearch: "Recherche Standard",
+      fields: {
+        idCard: "Numéro CNI / Identifiant",
+        idCardPlaceholder: "Ex: AA233445566",
+        name: "Nom Complet",
+        namePlaceholder: "Nom du client",
+        phone: "Téléphone",
+        phonePlaceholder: "Ex: 622037000",
+      },
+      searchButton: "Lancer la recherche",
+      searching: "Recherche en cours...",
+      accessDenied: {
+        title: "Accès Refusé",
+        message: "Vous n'avez pas les permissions nécessaires pour accéder à cette page.",
+        backHome: "Retour à l'accueil",
+      },
+      results: {
+        notFound: "Client non trouvé",
+        notFoundMessage: "Aucun client ne correspond à ces critères.",
+        createCustomer: "Créer un nouveau client",
+        cancel: "Annuler",
+        found: "Client Vérifié",
+        foundMessage: "Ce client est enregistré dans la base de données.",
+        sellSim: "Vendre une SIM",
+        newSearch: "Nouvelle Recherche",
+      }
+    },
+    customerCreate: {
+      title: "Nouveau Client",
+      subtitle: "Enregistrez un nouveau client pour effectuer des opérations.",
+      personalInfo: "Informations Personnelles",
+      contactInfo: "Coordonnées",
+      fields: {
+        firstName: "Prénom",
+        lastName: "Nom",
+        idCard: "Numéro CNI",
+        phone: "Téléphone",
+        email: "Email (Optionnel)",
+        address: "Adresse (Optionnel)",
+      },
+      success: "Client créé avec succès !",
+      save: "Enregistrer Client",
+    },
+    simActivation: {
+      title: "Activation SIM",
+      subtitle: "Remplissez le formulaire pour activer une nouvelle carte SIM",
+      customerInfo: "Informations Client",
+      simInfo: "Informations SIM",
+      fields: {
+        simNumber: "Numéro SIM",
+        simNumberPlaceholder: "9 chiffres commençant par 62...",
+        iccid: "ICCID",
+        iccidPlaceholder: "19 chiffres commençant par 6240501000...",
+        imei: "IMEI",
+        imeiPlaceholder: "15 chiffres...",
+        notes: "Notes (Optionnel)",
+        notesPlaceholder: "Ajouter des notes pertinentes ici...",
+      },
+      errors: {
+        simNumber: "Doit contenir 9 chiffres et commencer par 62",
+        iccid: "Doit contenir 19 chiffres et commencer par 6240501000",
+        imei: "Doit contenir exactement 15 chiffres",
+        required: "Ce champ est requis",
+      },
+      activate: "Activer la SIM",
+      success: "Demande d'activation SIM soumise avec succès !",
+      backToSearch: "Retour à la recherche client",
+    },
   },
   en: {
     nav: {
@@ -652,6 +837,22 @@ export const translations: Record<Language, Translations> = {
         title: "Roles Matrix - BABANA Partner",
         description: "Detailed matrix of platform roles and permissions",
       },
+      customers: {
+        search: {
+          title: "Search Customers - BABANA Partner",
+          description: "Search for customers in the BABANA partner platform",
+        },
+        create: {
+          title: "Create Customer - BABANA Partner",
+          description: "Create a new customer in the BABANA partner platform",
+        },
+      },
+      sales: {
+        activation: {
+          title: "Activation - BABANA Partner",
+          description: "Activate a customer in the BABANA partner platform",
+        },
+      },
     },
     roles: {
       super_admin: { name: "Super Administrator", description: "Full access to all platform features" },
@@ -661,7 +862,7 @@ export const translations: Record<Language, Translations> = {
       pos: { name: "Point of Sale (POS)", description: "Point of sale with BA rights and additional rights" },
       dsm: { name: "District Sales Manager (DSM)", description: "Manages Points of Sale (POS)" },
       vendeur: { name: "Vendor", description: "Sells products to BAs" },
-      client: { name: "Client", description: "Platform client" },
+      customer: { name: "Client", description: "Platform client" },
       autre: { name: "Other", description: "User with limited access to manage their tasks" },
     },
     permissionGroups: {
@@ -725,7 +926,82 @@ export const translations: Record<Language, Translations> = {
       manageRole: "Manage this role (Admin)",
       keyPoints: "Key Points",
       active: "Active",
-    }
+    },
+    customerSearch: {
+      title: "Customer Search",
+      subtitle: "Quickly access customer information to facilitate your operations.",
+      securePortal: "Secure Partner Portal",
+      searchCriteria: "Search Criteria",
+      fillFields: "Use the filters below to find a customer.",
+      advancedSearch: "Advanced Search",
+      standardSearch: "Standard Search",
+      fields: {
+        idCard: "ID Card Number / Identifier",
+        idCardPlaceholder: "Ex: 112233445566",
+        name: "Full Name",
+        namePlaceholder: "Customer Name",
+        phone: "Phone",
+        phonePlaceholder: "Ex: 612345678",
+      },
+      searchButton: "Start Search",
+      searching: "Searching...",
+      accessDenied: {
+        title: "Access Denied",
+        message: "You do not have the necessary permissions to access this page.",
+        backHome: "Back to Home",
+      },
+      results: {
+        notFound: "Customer Not Found",
+        notFoundMessage: "No customer matches these criteria.",
+        createCustomer: "Create New Customer",
+        cancel: "Cancel",
+        found: "Customer Verified",
+        foundMessage: "This customer is registered in the database.",
+        sellSim: "Sell SIM",
+        newSearch: "New Search",
+      }
+    },
+    customerCreate: {
+      title: "New Customer",
+      subtitle: "Register a new customer to perform operations.",
+      personalInfo: "Personal Information",
+      contactInfo: "Contact Details",
+      fields: {
+        firstName: "First Name",
+        lastName: "Last Name",
+        idCard: "ID Card Number",
+        phone: "Phone",
+        email: "Email (Optional)",
+        address: "Address (Optional)",
+      },
+      success: "Customer created successfully!",
+      save: "Save Customer",
+    },
+    simActivation: {
+      title: "SIM Activation",
+      subtitle: "Complete the form to activate a new SIM card",
+      customerInfo: "Customer Information",
+      simInfo: "SIM Information",
+      fields: {
+        simNumber: "SIM Number",
+        simNumberPlaceholder: "9 digits starting with 62...",
+        iccid: "ICCID",
+        iccidPlaceholder: "19 digits starting with 6240501000...",
+        imei: "IMEI",
+        imeiPlaceholder: "15 digits...",
+        notes: "Notes (Optional)",
+        notesPlaceholder: "Add any relevant notes here...",
+      },
+      errors: {
+        simNumber: "Must be 9 digits and start with 62",
+        iccid: "Must be 19 digits and start with 6240501000",
+        imei: "Must be exactly 15 digits",
+        required: "This field is required",
+      },
+      activate: "Activate SIM",
+      success: "SIM Activation Request Submitted Successfully!",
+      backToSearch: "Back to Customer Search",
+    },
   },
 };
 
