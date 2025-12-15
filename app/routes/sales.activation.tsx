@@ -57,7 +57,7 @@ export default function SimActivationPage() {
       setCustomer(location.state.customer);
     } else {
       // If no custoner data, redirect back to search
-      // navigate("/customers/search"); // Commented out for dev/testing ease, but strictly should be enabled
+      navigate("/customers/search"); 
     }
   }, [location.state, navigate]);
 
@@ -141,10 +141,10 @@ export default function SimActivationPage() {
                 <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" />
               </div>
             </div>
-            <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-500">
               {t.common.success}
             </h2>
-            <p className="mb-8 text-gray-600 dark:text-gray-300">
+            <p className="mb-8 text-gray-600 dark:text-gray-500">
               {t.simActivation.success}
             </p>
             <Button
@@ -183,7 +183,7 @@ export default function SimActivationPage() {
             </div>
             {/* Show Customer Badge/Info if available */}
             {customer && (
-               <Badge variant="outline" className="flex w-fit gap-2 border-orange-200 bg-orange-50 px-4 py-2 text-base font-normal text-orange-800 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-200">
+               <Badge variant="outline" className="flex w-fit gap-2 border-orange-200 bg-orange-50 px-4 py-2 text-base font-normal text-orange-800 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-900">
                   <User className="h-4 w-4" />
                   <span>{getCustomerName()}</span>
                   <span className="opacity-60">|</span>
