@@ -24,8 +24,17 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
+import { getCurrentUser } from "~/services/api.server";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getCurrentUser(request);
+  return { user };
+}
+
+import { useLoaderData } from "react-router";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useLoaderData<typeof loader>();
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
@@ -51,7 +60,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="min-h-screen bg-background font-sans antialiased">
         <LanguageProvider defaultLanguage="fr" storageKey="babana-language">
           <ThemeProvider defaultTheme="system" storageKey="babana-ui-theme">
-            <AuthProvider>
+            <AuthProvider initialUser={user}>
               <LanguageSync />
               {children}
             </AuthProvider>

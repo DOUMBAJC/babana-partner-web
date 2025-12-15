@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
+import { translations, type Language } from "~/lib/translations";
 
 export interface ApiError {
   message: string;
@@ -10,12 +11,12 @@ export interface ApiError {
 
 
 
-
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api",
-  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || "30000", 10),
+  baseURL: import.meta.env.VITE_APP_API_BASE_URL || "http://localhost:8000/api",
+  timeout: parseInt(import.meta.env.VITE_APP_API_TIMEOUT || "30000", 10),
   headers: {
     "Content-Type": "application/json",
+    "X-API-Key": import.meta.env.VITE_APP_API_KEY,
   },
 });
 
@@ -37,12 +38,12 @@ axiosInstance.interceptors.request.use(
       }
     }
 
-    const apiKey = import.meta.env.VITE_API_KEY;
+    const apiKey = import.meta.env.VITE_APP_API_KEY;
     if (apiKey) {
       config.headers["X-API-Key"] = apiKey;
     }
 
-    if (import.meta.env.VITE_MODE === 'development') {
+    if (import.meta.env.VITE_APP_MODE === 'development') {
       console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
     }
 
@@ -69,41 +70,44 @@ axiosInstance.interceptors.response.use(
 
     if (error.response) {
       const data = error.response.data as any;
-      apiError.message = data?.message || data?.error || "Erreur serveur";
+      apiError.message = data?.error?.message || data?.message || data?.error || translations[currentLanguage as Language].common.serverError;
       apiError.code = data?.code;
       apiError.details = data?.details;
+      console.log('Error message : ', data?.error?.message);
+      
+      const common = translations[currentLanguage as Language].common;
 
       switch (error.response.status) {
         case 401:
           if (typeof window !== "undefined") {
             localStorage.removeItem("babana-auth-token");
           }
-          apiError.message = data?.message || "Session expirée, veuillez vous reconnecter";
+          apiError.message = data?.message || common.sessionExpired;
           break;
         case 403:
-          apiError.message = data?.message || "Accès refusé";
+          apiError.message = data?.message || common.accessDenied;
           break;
         case 404:
-          apiError.message = data?.message || "Ressource introuvable";
+          apiError.message = data?.message || common.resourceNotFound;
           break;
         case 422:
-          apiError.message = data?.message || "Données invalides";
+          apiError.message = data?.error?.message || common.invalidData;
           break;
         case 429:
-          apiError.message = data?.message || "Trop de requêtes, veuillez réessayer plus tard";
+          apiError.message = data?.message || common.tooManyRequests;
           break;
         case 500:
         case 502:
         case 503:
         case 504:
-          apiError.message = data?.message || "Erreur serveur, veuillez réessayer plus tard";
+          apiError.message = data?.message || common.serverError;
           break;
       }
     } else if (error.request) {
-      apiError.message = "Impossible de contacter le serveur";
+      apiError.message = translations[currentLanguage as Language].common.unableToContactServer;
       apiError.code = "NETWORK_ERROR";
     } else {
-      apiError.message = error.message || "Erreur lors de la préparation de la requête";
+      apiError.message = error.message || translations[currentLanguage as Language].common.errorPreparingRequest;
     }
 
     if (import.meta.env.VITE_MODE === 'development') {

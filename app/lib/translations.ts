@@ -190,6 +190,35 @@ export interface Translations {
       title: string;
       description: string;
     };
+    rolesMatrix: {
+      title: string;
+      description: string;
+    }
+  };
+  // Rôles
+  roles: Record<string, {
+    name: string;
+    description: string;
+  }>;
+  // Permissions
+  permissionGroups: Record<string, string>;
+  permissions: Record<string, {
+    name: string;
+    description: string;
+  }>;
+  // Matrix Page specific
+  matrix: {
+    title: string;
+    subtitle: string;
+    systemDocs: string;
+    accessLevel: {
+      unlimited: string;
+      limited: string;
+    };
+    manageRole: string;
+    status: string;
+    keyPoints: string;
+    active: string;
   };
 }
 
@@ -266,9 +295,9 @@ export const translations: Record<Language, Translations> = {
       contact: "Contact",
     },
     home: {
-      title: "Bienvenue sur BABANA SIM",
+      title: "Bienvenue sur BABANA Mobile",
       subtitle: "Gérez vos ventes de SIM en toute simplicité",
-      welcomeMessage: "Bienvenue sur votre espace vente de SIM BABANA",
+      welcomeMessage: "Bienvenue sur votre espace vente de SIM BABANA Mobile",
       getStarted: "Commencer",
       learnMore: "En savoir plus",
     },
@@ -367,7 +396,84 @@ export const translations: Record<Language, Translations> = {
         title: "Accès refusé - BABANA Partner",
         description: "Vous n'avez pas les permissions nécessaires pour accéder à cette page",
       },
+      rolesMatrix: {
+        title: "Matrice des Rôles - BABANA Partner",
+        description: "Matrice détaillée des rôles et permissions de la plateforme",
+      },
     },
+    roles: {
+      super_admin: { name: "Super Administrateur", description: "Accès complet à toutes les fonctionnalités de la plateforme" },
+      admin: { name: "Administrateur", description: "Accès à la plupart des fonctionnalités administratives" },
+      ba: { name: "Brand Ambassador (BA)", description: "Ambassadeur de marque avec accès aux fonctionnalités de base" },
+      activateur: { name: "Activateur", description: "Gère et traite les requêtes des BA" },
+      pos: { name: "Point de Vente (POS)", description: "Point de vente avec les droits des BA et des droits supplémentaires" },
+      dsm: { name: "District Sales Manager (DSM)", description: "Gère les points de vente (POS)" },
+      vendeur: { name: "Vendeur", description: "Vend les produits aux BA" },
+      client: { name: "Client", description: "Client de la plateforme" },
+      autre: { name: "Autre", description: "Utilisateur avec accès limité à la gestion de leurs tâches" },
+    },
+    permissionGroups: {
+      users: "Utilisateurs",
+      products: "Produits",
+      orders: "Commandes",
+      requests: "Requêtes & Demandes",
+      inventory: "Stocks & Inventaire",
+      reports: "Rapports & Analytics",
+      sales: "Ventes",
+      pos: "Points de Vente",
+      tasks: "Tâches",
+      system: "Administration Système",
+    },
+    permissions: {
+      "view-users": { name: "Voir les utilisateurs", description: "Permet de voir la liste des utilisateurs" },
+      "create-users": { name: "Créer des utilisateurs", description: "Permet de créer de nouveaux utilisateurs" },
+      "edit-users": { name: "Modifier des utilisateurs", description: "Permet de modifier les informations des utilisateurs" },
+      "delete-users": { name: "Supprimer des utilisateurs", description: "Permet de supprimer des utilisateurs" },
+      "view-products": { name: "Voir les produits", description: "Permet de voir la liste des produits" },
+      "create-products": { name: "Créer des produits", description: "Permet de créer de nouveaux produits" },
+      "edit-products": { name: "Modifier des produits", description: "Permet de modifier les produits" },
+      "delete-products": { name: "Supprimer des produits", description: "Permet de supprimer des produits" },
+      "view-orders": { name: "Voir les commandes", description: "Permet de voir les commandes" },
+      "create-orders": { name: "Créer des commandes", description: "Permet de créer des commandes" },
+      "edit-orders": { name: "Modifier des commandes", description: "Permet de modifier des commandes" },
+      "delete-orders": { name: "Supprimer des commandes", description: "Permet de supprimer des commandes" },
+      "approve-orders": { name: "Valider des commandes", description: "Permet de valider des commandes" },
+      "view-requests": { name: "Voir les requêtes", description: "Permet de voir les requêtes des BA" },
+      "create-requests": { name: "Créer des requêtes", description: "Permet de créer des requêtes" },
+      "process-requests": { name: "Traiter des requêtes", description: "Permet de traiter les requêtes des BA" },
+      "approve-requests": { name: "Approuver des requêtes", description: "Permet d'approuver des requêtes" },
+      "reject-requests": { name: "Rejeter des requêtes", description: "Permet de rejeter des requêtes" },
+      "view-inventory": { name: "Voir les stocks", description: "Permet de voir l'état des stocks" },
+      "manage-inventory": { name: "Gérer les stocks", description: "Permet de gérer les stocks" },
+      "view-reports": { name: "Voir les rapports", description: "Permet de voir les rapports" },
+      "create-reports": { name: "Créer des rapports", description: "Permet de créer des rapports" },
+      "export-reports": { name: "Exporter des rapports", description: "Permet d'exporter des rapports" },
+      "view-sales": { name: "Voir les ventes", description: "Permet de voir les ventes" },
+      "create-sales": { name: "Créer des ventes", description: "Permet de créer des ventes" },
+      "edit-sales": { name: "Modifier des ventes", description: "Permet de modifier des ventes" },
+      "manage-pos": { name: "Gérer les POS", description: "Permet de gérer les points de vente" },
+      "view-pos": { name: "Voir les POS", description: "Permet de voir les points de vente" },
+      "view-own-tasks": { name: "Voir ses tâches", description: "Permet de voir ses propres tâches" },
+      "manage-own-tasks": { name: "Gérer ses tâches", description: "Permet de gérer ses propres tâches" },
+      "view-all-tasks": { name: "Voir toutes les tâches", description: "Permet de voir toutes les tâches" },
+      "assign-tasks": { name: "Assigner des tâches", description: "Permet d'assigner des tâches" },
+      "manage-roles": { name: "Gérer les rôles", description: "Permet de gérer les rôles et permissions" },
+      "manage-settings": { name: "Gérer les paramètres", description: "Permet de gérer les paramètres système" },
+      "admin-access": { name: "Accès administrateur", description: "Accès complet à l'administration" },
+    },
+    matrix: {
+      title: "Rôles & Permissions",
+      subtitle: "Matrice détaillée des droits d'accès pour chaque rôle de la plateforme Babana.",
+      systemDocs: "Documentation Système",
+      status: "Statut",
+      accessLevel: {
+        unlimited: "Accès Illimité",
+        limited: "{count} Permissions Actives",
+      },
+      manageRole: "Gérer ce rôle (Admin)",
+      keyPoints: "Points Clés",
+      active: "Active",
+    }
   },
   en: {
     nav: {
@@ -441,9 +547,9 @@ export const translations: Record<Language, Translations> = {
       contact: "Contact",
     },
     home: {
-      title: "Welcome to BABANA SIM",
+      title: "Welcome to BABANA Mobile",
       subtitle: "Manage your SIM sales with ease",
-      welcomeMessage: "Welcome to your BABANA SIM sales space",
+      welcomeMessage: "Welcome to your BABANA Mobile sales space",
       getStarted: "Get Started",
       learnMore: "Learn More",
     },
@@ -542,7 +648,84 @@ export const translations: Record<Language, Translations> = {
         title: "Access Denied - BABANA Partner",
         description: "You do not have the necessary permissions to access this page",
       },
+      rolesMatrix: {
+        title: "Roles Matrix - BABANA Partner",
+        description: "Detailed matrix of platform roles and permissions",
+      },
     },
+    roles: {
+      super_admin: { name: "Super Administrator", description: "Full access to all platform features" },
+      admin: { name: "Administrator", description: "Access to most administrative features" },
+      ba: { name: "Brand Ambassador (BA)", description: "Brand Ambassador with basic feature access" },
+      activateur: { name: "Activator", description: "Manages and processes BA requests" },
+      pos: { name: "Point of Sale (POS)", description: "Point of sale with BA rights and additional rights" },
+      dsm: { name: "District Sales Manager (DSM)", description: "Manages Points of Sale (POS)" },
+      vendeur: { name: "Vendor", description: "Sells products to BAs" },
+      client: { name: "Client", description: "Platform client" },
+      autre: { name: "Other", description: "User with limited access to manage their tasks" },
+    },
+    permissionGroups: {
+      users: "Users",
+      products: "Products",
+      orders: "Orders",
+      requests: "Requests & Inquiries",
+      inventory: "Inventory & Stock",
+      reports: "Reports & Analytics",
+      sales: "Sales",
+      pos: "Points of Sale",
+      tasks: "Tasks",
+      system: "System Administration",
+    },
+    permissions: {
+      "view-users": { name: "View users", description: "Allows viewing the user list" },
+      "create-users": { name: "Create users", description: "Allows creating new users" },
+      "edit-users": { name: "Edit users", description: "Allows editing user information" },
+      "delete-users": { name: "Delete users", description: "Allows deleting users" },
+      "view-products": { name: "View products", description: "Allows viewing the product list" },
+      "create-products": { name: "Create products", description: "Allows creating new products" },
+      "edit-products": { name: "Edit products", description: "Allows editing products" },
+      "delete-products": { name: "Delete products", description: "Allows deleting products" },
+      "view-orders": { name: "View orders", description: "Allows viewing orders" },
+      "create-orders": { name: "Create orders", description: "Allows creating orders" },
+      "edit-orders": { name: "Edit orders", description: "Allows editing orders" },
+      "delete-orders": { name: "Delete orders", description: "Allows deleting orders" },
+      "approve-orders": { name: "Approve orders", description: "Allows approving orders" },
+      "view-requests": { name: "View requests", description: "Allows viewing BA requests" },
+      "create-requests": { name: "Create requests", description: "Allows creating requests" },
+      "process-requests": { name: "Process requests", description: "Allows processing BA requests" },
+      "approve-requests": { name: "Approve requests", description: "Allows approving requests" },
+      "reject-requests": { name: "Reject requests", description: "Allows rejecting requests" },
+      "view-inventory": { name: "View inventory", description: "Allows viewing stock status" },
+      "manage-inventory": { name: "Manage inventory", description: "Allows managing stock" },
+      "view-reports": { name: "View reports", description: "Allows viewing reports" },
+      "create-reports": { name: "Create reports", description: "Allows creating reports" },
+      "export-reports": { name: "Export reports", description: "Allows exporting reports" },
+      "view-sales": { name: "View sales", description: "Allows viewing sales" },
+      "create-sales": { name: "Create sales", description: "Allows creating sales" },
+      "edit-sales": { name: "Edit sales", description: "Allows editing sales" },
+      "manage-pos": { name: "Manage POS", description: "Allows managing points of sale" },
+      "view-pos": { name: "View POS", description: "Allows viewing points of sale" },
+      "view-own-tasks": { name: "View own tasks", description: "Allows viewing own tasks" },
+      "manage-own-tasks": { name: "Manage own tasks", description: "Allows managing own tasks" },
+      "view-all-tasks": { name: "View all tasks", description: "Allows viewing all tasks" },
+      "assign-tasks": { name: "Assign tasks", description: "Allows assigning tasks" },
+      "manage-roles": { name: "Manage roles", description: "Allows managing roles and permissions" },
+      "manage-settings": { name: "Manage settings", description: "Allows managing system settings" },
+      "admin-access": { name: "Admin access", description: "Full administration access" },
+    },
+    matrix: {
+      title: "Roles & Permissions",
+      subtitle: "Detailed matrix of access rights for each role on the Babana platform.",
+      systemDocs: "System Documentation",
+      status: "Status",
+      accessLevel: {
+        unlimited: "Unlimited Access",
+        limited: "{count} Active Permissions",
+      },
+      manageRole: "Manage this role (Admin)",
+      keyPoints: "Key Points",
+      active: "Active",
+    }
   },
 };
 

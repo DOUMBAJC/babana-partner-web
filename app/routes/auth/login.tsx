@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router';
-import { useAuth, useLanguage, usePageTitle, useTranslation } from '~/hooks';
+import { useAuth, useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import type { LoginCredentials } from '~/types';
 import type { Route } from "./+types/login";
@@ -19,9 +19,6 @@ export default function LoginPage() {
   const location = useLocation();
   const { isLoading } = useAuth();
   const { language } = useLanguage();
-  const { t: translations } = useTranslation();
-  usePageTitle(translations.pages.login.title);
-
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -199,4 +196,3 @@ export default function LoginPage() {
     </AuthLayout>
   );
 }
-

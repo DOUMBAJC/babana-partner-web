@@ -5,8 +5,8 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
+import { useSubmit } from 'react-router';
 import type { AuthState, User, LoginCredentials } from '~/types/auth.types';
-import { api } from '~/lib/axios';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -16,90 +16,45 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_TOKEN_KEY = 'babana_auth_token';
-const AUTH_USER_KEY = 'babana_auth_user';
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ 
+  children, 
+  initialUser 
+}: { 
+  children: ReactNode;
+  initialUser: User | null;
+}) {
+  const submit = useSubmit();
+  
+  // State is derived from initialUser prop (which comes from loader)
+  // We can use state to allow optimistic updates, but primarily it syncs with loader data.
   const [state, setState] = useState<AuthState>({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    isLoading: true,
+    user: initialUser,
+    token: null, // Token is HTTP Only, not accessible to JS.
+    isAuthenticated: !!initialUser,
+    isLoading: false,
   });
 
-  // Charger l'utilisateur et le token depuis le localStorage au montage
+  // Sync state with prop if it changes (revalidation)
   useEffect(() => {
-    const loadAuth = () => {
-      try {
-        const token = localStorage.getItem(AUTH_TOKEN_KEY);
-        const userStr = localStorage.getItem(AUTH_USER_KEY);
-
-        if (token && userStr) {
-          const user = JSON.parse(userStr) as User;
-          setState({
-            user,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } else {
-          setState({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-        }
-      } catch (error) {
-        console.error('Error loading auth state:', error);
-        setState({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-      }
-    };
-
-    loadAuth();
-  }, []);
+    setState({
+        user: initialUser,
+        token: null,
+        isAuthenticated: !!initialUser,
+        isLoading: false,
+    });
+  }, [initialUser]);
 
   const login = async (credentials: LoginCredentials) => {
-    try {
-      const response = await api.post('/auth/login', credentials);
-      const { user, token } = response.data;
-
-      // Sauvegarder dans le localStorage
-      // localStorage.setItem(AUTH_TOKEN_KEY, token);
-      // localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-
-      setState({
-        user: user,
-        token: token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+    // Client-side login is deprecated in favor of Form actions.
+    // If called, we redirect to login page.
+    window.location.href = "/auth/login";
   };
 
   const logout = () => {
-    // Supprimer du localStorage
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-
-    setState({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
+    submit(null, { method: "post", action: "/auth/logout" });
   };
 
   const updateUser = (user: User) => {
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
     setState((prev) => ({
       ...prev,
       user,
@@ -127,4 +82,3 @@ export function useAuth() {
   }
   return context;
 }
-

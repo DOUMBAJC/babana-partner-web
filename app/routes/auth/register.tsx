@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import {  useLanguage, useTranslation, usePageTitle } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2, Phone } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
 import type { Route } from "./+types/register";
 
@@ -16,6 +16,7 @@ interface RegisterFormData {
   firstName: string;
   lastName: string;
   email: string;
+  personal_phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -24,6 +25,7 @@ interface FormErrors {
   firstName?: string;
   lastName?: string;
   email?: string;
+  personal_phone?: string;
   password?: string;
   confirmPassword?: string;
   general?: string;
@@ -42,6 +44,7 @@ export default function RegisterPage() {
     firstName: '',
     lastName: '',
     email: '',
+    personal_phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -76,6 +79,17 @@ export default function RegisterPage() {
       newErrors.email = t('L\'email est requis', 'Email is required');
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = t('Email invalide', 'Invalid email address');
+    }
+
+    // Validation du téléphone
+    const phoneRegex = /^6[245789][0-9]{7}$/;
+    if (!formData.personal_phone.trim()) {
+      newErrors.personal_phone = t('Le numéro de téléphone est requis', 'Phone number is required');
+    } else if (!phoneRegex.test(formData.personal_phone.replace(/\s/g, ''))) {
+      newErrors.personal_phone = t(
+        'Veuillez entrer un numéro valide (Blue, MTN ou Orange)',
+        'Please enter a valid number (Blue, MTN or Orange)'
+      );
     }
 
     // Validation du mot de passe
@@ -123,8 +137,9 @@ export default function RegisterPage() {
 
     try {
       const response = await authService.register({
-        name: `${formData.firstName} ${formData.lastName}`,
+        name: `${formData.firstName} @ ${formData.lastName}`,
         email: formData.email,
+        personal_phone: formData.personal_phone.replace(/\s/g, ''),
         password: formData.password,
         password_confirmation: formData.confirmPassword,
       });
@@ -134,9 +149,9 @@ export default function RegisterPage() {
           message: response.message
         } 
       });
-    } catch (err) {
+    } catch (err: any) {
       setErrors({
-        general: t(
+        general: err?.message || t(
           'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.',
           'An error occurred during registration. Please try again.'
         )
@@ -228,6 +243,20 @@ export default function RegisterPage() {
           error={errors.email}
           required
           autoComplete="email"
+        />
+
+        {/* Téléphone */}
+        <FormInput
+          label={t('Téléphone personnel', 'Personal phone')}
+          name="personal_phone"
+          type="tel"
+          placeholder={t('692129212', '622037000')}
+          value={formData.personal_phone}
+          onChange={handleChange}
+          icon={<Phone className="w-5 h-5" />}
+          error={errors.personal_phone}
+          required
+          autoComplete="tel"
         />
 
         {/* Mot de passe */}
