@@ -22,6 +22,8 @@ import {
 import { useTranslation, usePageTitle } from '~/hooks'; 
 // import { useAuth } from '~/hooks/useAuth'; // Commented out for mock
 import type { RoleSlug } from '~/types/auth.types';
+import { customerService } from '~/lib/customer.service'
+import type { Customer } from '~/types/customer.types'
 
 
 // --- Configuration ---
@@ -32,8 +34,6 @@ const EXTENDED_SEARCH_ROLES: RoleSlug[] = ['super_admin', 'admin', 'activateur']
 // Roles with limited search access (ID only)
 const LIMITED_SEARCH_ROLES: RoleSlug[] = ['ba', 'dsm'];
 
-// All allowed roles
-const ALLOWED_ROLES = [...EXTENDED_SEARCH_ROLES, ...LIMITED_SEARCH_ROLES];
 
 export default function CustomerSearchPage() {
   const { t } = useTranslation();
@@ -53,6 +53,7 @@ export default function CustomerSearchPage() {
   });
   const [searchStatus, setSearchStatus] = useState<'idle' | 'loading' | 'found' | 'not_found'>('idle');
   const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
+  const [customer, setCustomer] = useState<Customer | null>(null);
 
   // Access Control
   const hasAccess = user?.roles.some(role => 
@@ -65,9 +66,9 @@ export default function CustomerSearchPage() {
 
   // Redirect if unauthorized logic
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
+    // if (!isAuthenticated) {
+    //   navigate('/login');
+    // }
   }, [isAuthenticated, navigate]);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -75,19 +76,27 @@ export default function CustomerSearchPage() {
     setSearchStatus('loading');
     
     // Simulate API Call
-    setTimeout(() => {
-      // Mock Logic: 
-      // If ID Card end with '9', return Not Found. 
-      // Else return Found.
-      const isNotFound = searchQuery.idCard.endsWith('9');
+    // setTimeout(() => {
+    //   // Mock Logic: 
+    //   // If ID Card end with '9', return Not Found. 
+    //   // Else return Found.
+    //   const isNotFound = searchQuery.idCard.endsWith('9');
       
-      if (isNotFound) {
-        setSearchStatus('not_found');
-        setShowNotFoundDialog(true);
-      } else {
-        setSearchStatus('found');
-      }
-    }, 1500);
+    //   if (isNotFound) {
+    //     setSearchStatus('not_found');
+    //     setShowNotFoundDialog(true);
+    //   } else {
+    //     setSearchStatus('found');
+    //   }
+    // }, 1500);
+
+    try {
+      const customer = await customerService.getCustomers(searchQuery);
+
+      console.log(customer);
+    } catch (error) {
+      
+    }
   };
 
   const handleReset = () => {

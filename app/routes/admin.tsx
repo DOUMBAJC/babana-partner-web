@@ -35,7 +35,12 @@ export default function AdminPage() {
 }
 
 function AdminContent() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
+  const user = {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    roles: ['admin', 'super_admin'],
+  };
   const permissions = usePermissions();
 
   const adminFeatures = [

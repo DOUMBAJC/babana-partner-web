@@ -100,7 +100,7 @@ export const customerService = {
   ): Promise<Customer | null> => {
     try {
       const response = await api.get<ApiResponse<Customer | null>>(
-        '/customers/search/id-card',
+        '/customers/search-by-id-card',
         {
           params: {
             idCardTypeId,
@@ -124,7 +124,7 @@ export const customerService = {
   searchByPhone: async (phone: string): Promise<Customer | null> => {
     try {
       const response = await api.get<ApiResponse<Customer | null>>(
-        '/customers/search/phone',
+        '/customers',
         {
           params: { phone },
         }
@@ -136,18 +136,6 @@ export const customerService = {
         return null;
       }
       throw error;
-    }
-  },
-
-  /**
-   * Récupérer les types de carte d'identité
-   */
-  getIdCardTypes: async (): Promise<IdCardType[]> => {
-    try {
-      const response = await api.get<ApiResponse<IdCardType[]>>('/id-card-types');
-      return response.data;
-    } catch (error) {
-      throw error as ApiError;
     }
   },
 
