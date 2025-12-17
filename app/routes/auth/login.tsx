@@ -39,8 +39,9 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-       await authService.login(credentials);
-      navigate('/');
+       const response = await authService.login(credentials);
+       localStorage.setItem('babana-auth-token', response.data.token);
+      // navigate('/');
     } catch (err) {
       setCredentials(prev => ({ ...prev, password: '' }));
       setError((err as unknown as ApiError).message);

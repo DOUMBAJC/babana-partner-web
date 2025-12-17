@@ -11,6 +11,7 @@ export const createApi = (token?: string | null) => {
       "Content-Type": "application/json",
       Authorization: token ? `Bearer ${token}` : "",
       "X-API-Key": import.meta.env.VITE_APP_API_KEY || "",
+      "withCredentials": true,
     },
   });
 

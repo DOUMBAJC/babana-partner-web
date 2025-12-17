@@ -5,9 +5,11 @@ import type { User, LoginCredentials, RegisterData } from '~/types';
  * Réponse de l'API pour la connexion
  */
 export interface LoginResponse {
-  user: User;
-  token: string;
-  expiresIn?: number;
+  data: {
+    user: User;
+    token: string;
+    expiresIn?: number;
+  };
 }
 
 /**
