@@ -861,8 +861,8 @@ export const translations: Record<Language, Translations> = {
       activateur: { name: "Activator", description: "Manages and processes BA requests" },
       pos: { name: "Point of Sale (POS)", description: "Point of sale with BA rights and additional rights" },
       dsm: { name: "District Sales Manager (DSM)", description: "Manages Points of Sale (POS)" },
-      vendeur: { name: "Vendor", description: "Sells products to BAs" },
-      customer: { name: "Client", description: "Platform client" },
+      vendeur: { name: "Seller", description: "Sells products to BAs" },
+      customer: { name: "Customer", description: "Platform customer" },
       autre: { name: "Other", description: "User with limited access to manage their tasks" },
     },
     permissionGroups: {

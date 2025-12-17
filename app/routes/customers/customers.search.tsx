@@ -91,11 +91,12 @@ export default function CustomerSearchPage() {
     // }, 1500);
 
     try {
-      const customer = await customerService.getCustomers(searchQuery);
-
-      console.log(customer);
+      const response = await customerService.getCustomerByIdCard(searchQuery.idCard);
+      
     } catch (error) {
       
+    }finally{
+      setSearchStatus('found');
     }
   };
 

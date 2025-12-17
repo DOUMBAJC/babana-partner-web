@@ -112,11 +112,21 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface RegisterData {
-  name: string;
+export interface RegisterFormData {
+  firstName: string;
+  lastName: string;
   email: string;
-  password: string;
-  password_confirmation: string;
   personal_phone: string;
+  password: string;
+  confirmPassword: string;
 }
 
+export interface RegisterFormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  personal_phone?: string;
+  password?: string;
+  confirmPassword?: string;
+  general?: string;
+}

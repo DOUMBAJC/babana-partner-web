@@ -18,6 +18,7 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
     "X-API-Key": import.meta.env.VITE_APP_API_KEY,
   },
+  withCredentials: true
 });
 
 let currentLanguage = "fr";

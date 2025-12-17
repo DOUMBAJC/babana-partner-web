@@ -18,6 +18,7 @@ import {
   Layout
 } from '~/components';
 import { useTranslation, usePageTitle } from '~/hooks';
+import { customerService } from '~/lib/customer.service'
 
 export default function CustomerCreatePage() {
   const { t } = useTranslation();
@@ -37,16 +38,29 @@ export default function CustomerCreatePage() {
     e.preventDefault();
     setLoading(true);
 
-    // Mock API Call
-    setTimeout(() => {
+    try {
+        const response = customerService.createCustomer({
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            id_card_type_id: 1, // Default type, should be selectable in real app
+            id_card_number: formData.idCard,
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address
+         })
+
+         console.log(response);
+         
+
         setLoading(false);
         // In real app: save to DB, then navigate
-        navigate('/sales/activation', { 
-            state: { 
-                customer: { ...formData, name: `${formData.firstName} ${formData.lastName}` } 
-            } 
-        });
-    }, 1500);
+        // navigate('/sales/activation', { 
+        //     state: { 
+        //         customer: { ...formData, name: `${formData.firstName} ${formData.lastName}` } 
+        //     } 
+        // });
+    } catch (error) {
+        
+    }
   };
 
   return (

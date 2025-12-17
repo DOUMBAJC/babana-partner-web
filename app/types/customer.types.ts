@@ -45,11 +45,10 @@ export interface Customer {
  * Données pour créer un client
  */
 export interface CreateCustomerData {
-  fullName: string;
-  idCardTypeId: number;
-  idCardNumber: string;
+  full_name: string;
+  id_card_type_id: number;
+  id_card_number: string;
   phone: string;
-  phoneOperator: string;
   address?: string;
   email?: string;
   metadata?: Record<string, any>;
