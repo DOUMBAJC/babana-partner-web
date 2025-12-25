@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useActionData, useNavigation, Form, data } from 'react-router';
 import { useAuth, useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import type { LoginCredentials } from '~/types';
 import type { Route } from "./+types/login";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
-import type { ApiError } from '~/lib/axios';
-import { authService } from '~/lib/auth.service';
+import { createUserSession, getLanguage } from '~/services/session.server';
+import { createApiFromRequest } from '~/services/api.server';
+import { getTranslations, type Language } from '~/lib/translations';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -14,47 +15,79 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+// Action côté serveur pour gérer le login de manière sécurisée
+export async function action({ request }: Route.ActionArgs) {
+  // Récupérer la langue de l'utilisateur pour les messages d'erreur
+  const language = (await getLanguage(request)) as Language;
+  const t = getTranslations(language);
+
+  const formData = await request.formData();
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  if (!email || !password) {
+    return data(
+      { success: false, error: t.auth.login.errors.emailPasswordRequired },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Créer l'API avec la langue extraite de la requête
+    const api = await createApiFromRequest(request);
+    const response = await api.post('/auth/login', { email, password });
+    const { token } = response.data.data;
+
+    console.log(response);
+    
+    // Stocker le token dans un cookie HttpOnly sécurisé
+    // et rediriger vers la page d'accueil
+    return createUserSession(token, '/');
+  } catch (error: any) {
+    const message = error.response?.data?.message 
+      || error.response?.data?.error?.message 
+      || error.response?.data?.error
+      || t.auth.login.errors.loginFailed;
+    
+    return data(
+      { success: false, error: message },
+      { status: 401 }
+    );
+  }
+}
+
 export default function LoginPage() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
   const { isLoading } = useAuth();
   const { language } = useLanguage();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: '',
   });
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(
     location.state?.message || null
   );
 
+  const isSubmitting = navigation.state === 'submitting';
+  const error = actionData?.success === false ? actionData.error : null;
+
   const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-    setIsSubmitting(true);
-
-    try {
-      await authService.login(credentials);
-      navigate('/');
-    } catch (err) {
+  // Réinitialiser le mot de passe en cas d'erreur
+  useEffect(() => {
+    if (error) {
       setCredentials(prev => ({ ...prev, password: '' }));
-      setError((err as unknown as ApiError).message);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+  }, [error]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials(prev => ({ ...prev, [name]: value }));
     
-    // Effacer les messages quand l'utilisateur tape
-    if (error) setError(null);
+    // Effacer le message de succès quand l'utilisateur tape
     if (successMessage) setSuccessMessage(null);
   };
 
@@ -74,7 +107,7 @@ export default function LoginPage() {
       title={t('Connexion', 'Sign In')}
       description={t('Entrez vos identifiants pour accéder à votre compte', 'Enter your credentials to access your account')}
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <Form method="post" className="space-y-5">
         {/* Message de succès */}
         {successMessage && (
           <div className="form-element rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 flex items-start space-x-3">
@@ -168,7 +201,7 @@ export default function LoginPage() {
             </>
           )}
         </Button>
-      </form>
+      </Form>
 
       {/* Lien vers l'inscription */}
       <div className="mt-6 text-center text-sm form-element">

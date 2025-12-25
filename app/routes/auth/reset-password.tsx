@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useLanguage, useTranslation, usePageTitle } from '~/hooks';
+import { useTranslation, usePageTitle } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
@@ -30,9 +30,8 @@ interface FormErrors {
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { language } = useLanguage();
-  const { t: translations } = useTranslation();
-  usePageTitle(translations.pages.resetPassword.title);
+  const { t } = useTranslation();
+  usePageTitle(t.pages.resetPassword.title);
   
   const token = searchParams.get('token');
   const email = searchParams.get('email');
@@ -45,38 +44,24 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
-
   // Validation du formulaire
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
     // Validation du mot de passe
     if (!formData.password) {
-      newErrors.password = t('Le mot de passe est requis', 'Password is required');
+      newErrors.password = t.auth.resetPassword.validation.passwordRequired;
     } else if (formData.password.length < 8) {
-      newErrors.password = t(
-        'Le mot de passe doit contenir au moins 8 caractères',
-        'Password must be at least 8 characters'
-      );
+      newErrors.password = t.auth.resetPassword.validation.passwordTooShort;
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = t(
-        'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre',
-        'Password must contain at least one uppercase, one lowercase and one number'
-      );
+      newErrors.password = t.auth.resetPassword.validation.passwordWeak;
     }
 
     // Validation de la confirmation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = t(
-        'La confirmation du mot de passe est requise',
-        'Password confirmation is required'
-      );
+      newErrors.confirmPassword = t.auth.resetPassword.validation.confirmPasswordRequired;
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t(
-        'Les mots de passe ne correspondent pas',
-        'Passwords do not match'
-      );
+      newErrors.confirmPassword = t.auth.resetPassword.validation.passwordMismatch;
     }
 
     setErrors(newErrors);
@@ -103,10 +88,7 @@ export default function ResetPasswordPage() {
     // Vérifier le token
     if (!token) {
       setErrors({
-        general: t(
-          'Lien de réinitialisation invalide ou expiré',
-          'Invalid or expired reset link'
-        ),
+        general: t.auth.resetPassword.validation.invalidLink,
       });
       return;
     }
@@ -157,19 +139,19 @@ export default function ResetPasswordPage() {
     if (strength <= 2) {
       return {
         strength: 33,
-        label: t('Faible', 'Weak'),
+        label: t.auth.resetPassword.strength.weak,
         color: 'bg-red-500',
       };
     } else if (strength <= 3) {
       return {
         strength: 66,
-        label: t('Moyen', 'Medium'),
+        label: t.auth.resetPassword.strength.medium,
         color: 'bg-yellow-500',
       };
     } else {
       return {
         strength: 100,
-        label: t('Fort', 'Strong'),
+        label: t.auth.resetPassword.strength.strong,
         color: 'bg-green-500',
       };
     }
@@ -181,8 +163,8 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <AuthLayout
-        title={t('Lien invalide', 'Invalid link')}
-        description={t('Ce lien de réinitialisation est invalide', 'This reset link is invalid')}
+        title={t.auth.resetPassword.invalid.title}
+        description={t.auth.resetPassword.invalid.subtitle}
       >
         <div className="space-y-6">
           <div className="form-element rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-6 flex flex-col items-center text-center space-y-4">
@@ -193,13 +175,10 @@ export default function ResetPasswordPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
-                {t('Lien de réinitialisation invalide', 'Invalid reset link')}
+                {t.auth.resetPassword.invalid.title}
               </h3>
               <p className="text-sm text-red-600 dark:text-red-400">
-                {t(
-                  'Ce lien est invalide ou a expiré. Veuillez demander un nouveau lien.',
-                  'This link is invalid or has expired. Please request a new link.'
-                )}
+                {t.auth.resetPassword.invalid.message}
               </p>
             </div>
           </div>
@@ -212,7 +191,7 @@ export default function ResetPasswordPage() {
             }}
             className="w-full h-12 font-semibold shadow-babana-cyan/25 duration-300 form-button"
           >
-            {t('Demander un nouveau lien', 'Request new link')}
+            {t.auth.resetPassword.buttons.requestNewLink}
           </Button>
         </div>
       </AuthLayout>
@@ -221,17 +200,14 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout
-      title={t('Nouveau mot de passe', 'New password')}
-      description={t(
-        'Créez un nouveau mot de passe sécurisé',
-        'Create a new secure password'
-      )}
+      title={t.auth.resetPassword.title}
+      description={t.auth.resetPassword.subtitle}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Nouveau mot de passe */}
         <div className="space-y-2 form-element">
           <FormInput
-            label={t('Nouveau mot de passe', 'New password')}
+            label={t.auth.resetPassword.labels.newPassword}
             name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
@@ -258,7 +234,7 @@ export default function ResetPasswordPage() {
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">
-                  {t('Force du mot de passe', 'Password strength')}
+                  {t.auth.resetPassword.labels.passwordStrength}
                 </span>
                 <span
                   className={`font-medium ${
@@ -284,7 +260,7 @@ export default function ResetPasswordPage() {
 
         {/* Confirmation du mot de passe */}
         <FormInput
-          label={t('Confirmer le mot de passe', 'Confirm password')}
+          label={t.auth.resetPassword.labels.confirmPassword}
           name="confirmPassword"
           type={showConfirmPassword ? 'text' : 'password'}
           placeholder="••••••••"
@@ -309,7 +285,7 @@ export default function ResetPasswordPage() {
         <div className="form-element bg-muted/50 backdrop-blur-sm border border-border rounded-lg p-4">
           <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <Lock className="w-4 h-4 text-babana-cyan" />
-            {t('Conseils pour un mot de passe sûr', 'Tips for a secure password')}
+            {t.auth.resetPassword.tips.title}
           </h4>
           <ul className="text-xs text-muted-foreground space-y-1">
             <li className="flex items-center gap-2">
@@ -318,7 +294,7 @@ export default function ResetPasswordPage() {
                   formData.password.length >= 8 ? 'text-green-500' : 'text-muted-foreground'
                 }`}
               />
-              {t('Au moins 8 caractères', 'At least 8 characters')}
+              {t.auth.resetPassword.tips.minLength}
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2
@@ -326,7 +302,7 @@ export default function ResetPasswordPage() {
                   /[A-Z]/.test(formData.password) ? 'text-green-500' : 'text-muted-foreground'
                 }`}
               />
-              {t('Une lettre majuscule', 'One uppercase letter')}
+              {t.auth.resetPassword.tips.uppercase}
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2
@@ -334,7 +310,7 @@ export default function ResetPasswordPage() {
                   /[a-z]/.test(formData.password) ? 'text-green-500' : 'text-muted-foreground'
                 }`}
               />
-              {t('Une lettre minuscule', 'One lowercase letter')}
+              {t.auth.resetPassword.tips.lowercase}
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2
@@ -342,7 +318,7 @@ export default function ResetPasswordPage() {
                   /\d/.test(formData.password) ? 'text-green-500' : 'text-muted-foreground'
                 }`}
               />
-              {t('Un chiffre', 'One number')}
+              {t.auth.resetPassword.tips.number}
             </li>
           </ul>
         </div>
@@ -377,12 +353,12 @@ export default function ResetPasswordPage() {
           {isSubmitting ? (
             <>
               <span className="mr-2 inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              {t('Réinitialisation...', 'Resetting...')}
+              {t.auth.resetPassword.buttons.resetting}
             </>
           ) : (
             <>
               <CheckCircle2 className="mr-2 w-5 h-5" />
-              {t('Réinitialiser le mot de passe', 'Reset password')}
+              {t.auth.resetPassword.buttons.resetPassword}
             </>
           )}
         </Button>
@@ -391,12 +367,12 @@ export default function ResetPasswordPage() {
       {/* Footer */}
       <div className="mt-6 text-center text-xs text-muted-foreground form-element">
         <p>
-          {t('Vous vous souvenez de votre mot de passe ?', 'Remember your password?')}{' '}
+          {t.auth.resetPassword.messages.rememberPassword}{' '}
           <button
             onClick={() => navigate('/login')}
             className="text-babana-cyan hover:underline font-medium"
           >
-            {t('Se connecter', 'Sign in')}
+            {t.auth.resetPassword.messages.signIn}
           </button>
         </p>
       </div>

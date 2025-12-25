@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import {  useLanguage, useTranslation, usePageTitle } from '~/hooks';
+import { useTranslation, usePageTitle } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2, Phone } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
@@ -36,9 +36,8 @@ interface FormErrors {
  */
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const { t: translations } = useTranslation();
-  usePageTitle(translations.pages.register.title);
+  const { t } = useTranslation();
+  usePageTitle(t.pages.register.title);
 
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: '',
@@ -53,62 +52,54 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
-
   // Validation du formulaire
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
     // Validation du prénom
     if (!formData.firstName.trim()) {
-      newErrors.firstName = t('Le prénom est requis', 'First name is required');
+      newErrors.firstName = t.auth.register.validation.firstNameRequired;
     } else if (formData.firstName.length < 2) {
-      newErrors.firstName = t('Le prénom doit contenir au moins 2 caractères', 'First name must be at least 2 characters');
+      newErrors.firstName = t.auth.register.validation.firstNameTooShort;
     }
 
     // Validation du nom
     if (!formData.lastName.trim()) {
-      newErrors.lastName = t('Le nom est requis', 'Last name is required');
+      newErrors.lastName = t.auth.register.validation.lastNameRequired;
     } else if (formData.lastName.length < 2) {
-      newErrors.lastName = t('Le nom doit contenir au moins 2 caractères', 'Last name must be at least 2 characters');
+      newErrors.lastName = t.auth.register.validation.lastNameTooShort;
     }
 
     // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      newErrors.email = t('L\'email est requis', 'Email is required');
+      newErrors.email = t.auth.register.validation.emailRequired;
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = t('Email invalide', 'Invalid email address');
+      newErrors.email = t.auth.register.validation.invalidEmail;
     }
 
     // Validation du téléphone
     const phoneRegex = /^6[245789][0-9]{7}$/;
     if (!formData.personal_phone.trim()) {
-      newErrors.personal_phone = t('Le numéro de téléphone est requis', 'Phone number is required');
+      newErrors.personal_phone = t.auth.register.validation.phoneRequired;
     } else if (!phoneRegex.test(formData.personal_phone.replace(/\s/g, ''))) {
-      newErrors.personal_phone = t(
-        'Veuillez entrer un numéro valide (Blue, MTN ou Orange)',
-        'Please enter a valid number (Blue, MTN or Orange)'
-      );
+      newErrors.personal_phone = t.auth.register.validation.invalidPhone;
     }
 
     // Validation du mot de passe
     if (!formData.password) {
-      newErrors.password = t('Le mot de passe est requis', 'Password is required');
+      newErrors.password = t.auth.register.validation.passwordRequired;
     } else if (formData.password.length < 8) {
-      newErrors.password = t('Le mot de passe doit contenir au moins 8 caractères', 'Password must be at least 8 characters');
+      newErrors.password = t.auth.register.validation.passwordTooShort;
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = t(
-        'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre',
-        'Password must contain at least one uppercase, one lowercase and one number'
-      );
+      newErrors.password = t.auth.register.validation.passwordWeak;
     }
 
     // Validation de la confirmation du mot de passe
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = t('La confirmation du mot de passe est requise', 'Password confirmation is required');
+      newErrors.confirmPassword = t.auth.register.validation.confirmPasswordRequired;
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t('Les mots de passe ne correspondent pas', 'Passwords do not match');
+      newErrors.confirmPassword = t.auth.register.validation.passwordMismatch;
     }
 
     setErrors(newErrors);
@@ -151,10 +142,7 @@ export default function RegisterPage() {
       });
     } catch (err: any) {
       setErrors({
-        general: err?.message || t(
-          'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.',
-          'An error occurred during registration. Please try again.'
-        )
+        general: err?.message || t.auth.register.messages.registrationError
       });
       console.error('Register error:', err);
     } finally {
@@ -176,19 +164,19 @@ export default function RegisterPage() {
     if (strength <= 2) {
       return { 
         strength: 33, 
-        label: t('Faible', 'Weak'), 
+        label: t.auth.register.strength.weak, 
         color: 'bg-red-500' 
       };
     } else if (strength <= 3) {
       return { 
         strength: 66, 
-        label: t('Moyen', 'Medium'), 
+        label: t.auth.register.strength.medium, 
         color: 'bg-yellow-500' 
       };
     } else {
       return { 
         strength: 100, 
-        label: t('Fort', 'Strong'), 
+        label: t.auth.register.strength.strong, 
         color: 'bg-green-500' 
       };
     }
@@ -198,17 +186,17 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout
-      title={t('Créer un compte', 'Create an account')}
-      description={t('Inscrivez-vous pour accéder à BABANA Partner', 'Sign up to access BABANA Partner')}
+      title={t.auth.register.title}
+      description={t.auth.register.subtitle}
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Nom et Prénom */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
-            label={t('Prénom', 'First name')}
+            label={t.auth.register.labels.firstName}
             name="firstName"
             type="text"
-            placeholder={t('Jean', 'John')}
+            placeholder={t.auth.register.placeholders.firstName}
             value={formData.firstName}
             onChange={handleChange}
             icon={<User className="w-5 h-5" />}
@@ -218,10 +206,10 @@ export default function RegisterPage() {
           />
 
           <FormInput
-            label={t('Nom', 'Last name')}
+            label={t.auth.register.labels.lastName}
             name="lastName"
             type="text"
-            placeholder={t('Dupont', 'Doe')}
+            placeholder={t.auth.register.placeholders.lastName}
             value={formData.lastName}
             onChange={handleChange}
             icon={<User className="w-5 h-5" />}
@@ -233,10 +221,10 @@ export default function RegisterPage() {
 
         {/* Email */}
         <FormInput
-          label={t('Adresse email', 'Email address')}
+          label={t.auth.register.labels.email}
           name="email"
           type="email"
-          placeholder={t('votre.email@example.com', 'your.email@example.com')}
+          placeholder={t.auth.register.placeholders.email}
           value={formData.email}
           onChange={handleChange}
           icon={<Mail className="w-5 h-5" />}
@@ -247,10 +235,10 @@ export default function RegisterPage() {
 
         {/* Téléphone */}
         <FormInput
-          label={t('Téléphone personnel', 'Personal phone')}
+          label={t.auth.register.labels.personalPhone}
           name="personal_phone"
           type="tel"
-          placeholder={t('692129212', '622037000')}
+          placeholder={t.auth.register.placeholders.phone}
           value={formData.personal_phone}
           onChange={handleChange}
           icon={<Phone className="w-5 h-5" />}
@@ -262,7 +250,7 @@ export default function RegisterPage() {
         {/* Mot de passe */}
         <div className="space-y-2 form-element">
           <FormInput
-            label={t('Mot de passe', 'Password')}
+            label={t.auth.register.labels.password}
             name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
@@ -288,7 +276,7 @@ export default function RegisterPage() {
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">
-                  {t('Force du mot de passe', 'Password strength')}
+                  {t.auth.register.labels.passwordStrength}
                 </span>
                 <span className={`font-medium ${
                   passwordStrength.strength === 33 ? 'text-red-500' :
@@ -310,7 +298,7 @@ export default function RegisterPage() {
 
         {/* Confirmation du mot de passe */}
         <FormInput
-          label={t('Confirmer le mot de passe', 'Confirm password')}
+          label={t.auth.register.labels.confirmPassword}
           name="confirmPassword"
           type={showConfirmPassword ? 'text' : 'password'}
           placeholder="••••••••"
@@ -356,12 +344,12 @@ export default function RegisterPage() {
           {isSubmitting ? (
             <>
               <span className="mr-2 inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              {t('Inscription en cours...', 'Signing up...')}
+              {t.auth.register.buttons.signingUp}
             </>
           ) : (
             <>
               <CheckCircle2 className="mr-2 w-5 h-5" />
-              {t('S\'inscrire', 'Sign Up')}
+              {t.auth.register.buttons.signUp}
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </>
           )}
@@ -371,12 +359,12 @@ export default function RegisterPage() {
       {/* Lien vers la connexion */}
       <div className="mt-6 text-center text-sm form-element">
         <p className="text-muted-foreground">
-          {t('Vous avez déjà un compte ?', 'Already have an account?')}{' '}
+          {t.auth.register.messages.alreadyHaveAccount}{' '}
           <Link 
             to="/login" 
             className="text-babana-cyan hover:underline font-medium inline-flex items-center gap-1"
           >
-            {t('Se connecter', 'Sign in')}
+            {t.auth.register.messages.signIn}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </p>
@@ -385,13 +373,13 @@ export default function RegisterPage() {
       {/* Conditions d'utilisation */}
       <div className="mt-6 text-center text-xs text-muted-foreground form-element">
         <p>
-          {t("En vous inscrivant, vous acceptez nos", "By signing up, you agree to our")}{' '}
+          {t.auth.register.messages.bySigningUp}{' '}
           <button className="text-babana-cyan hover:underline font-medium">
-            {t("Conditions d'utilisation", "Terms of Service")}
+            {t.auth.register.messages.termsOfService}
           </button>
-          {' '}{t('et notre', 'and our')}{' '}
+          {' '}{t.auth.register.messages.and}{' '}
           <button className="text-babana-cyan hover:underline font-medium">
-            {t('Politique de confidentialité', 'Privacy Policy')}
+            {t.auth.register.messages.privacyPolicy}
           </button>
         </p>
       </div>

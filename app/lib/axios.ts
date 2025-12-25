@@ -9,10 +9,34 @@ export interface ApiError {
   error?: any;
 }
 
+/**
+ * Liste des endpoints publics qui n'ont pas besoin d'authentification
+ * Ces routes ne recevront pas le header Authorization
+ */
+const PUBLIC_ENDPOINTS = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/verify-email",
+  "/auth/resend-verification",
+  "/public/",
+];
+
+/**
+ * Vérifie si une URL est un endpoint public
+ */
+const isPublicEndpoint = (url: string | undefined): boolean => {
+  if (!url) return false;
+  return PUBLIC_ENDPOINTS.some(
+    (endpoint) => url === endpoint || url.startsWith(endpoint)
+  );
+};
+
 
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_BASE_URL || "http://localhost:8000/api",
+  baseURL: import.meta.env.VITE_APP_API_URL || "http://localhost:8000/api",
   timeout: parseInt(import.meta.env.VITE_APP_API_TIMEOUT || "30000", 10),
   headers: {
     "Content-Type": "application/json",
@@ -32,12 +56,9 @@ axiosInstance.interceptors.request.use(
   (config) => {
     config.headers["Accept-Language"] = currentLanguage;
 
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("babana-auth-token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
+    // Note: Le token est géré côté serveur via les cookies HttpOnly
+    // Les requêtes authentifiées doivent passer par les loaders/actions SSR
+    // Cette instance axios côté client est utilisée uniquement pour les endpoints publics
 
     const apiKey = import.meta.env.VITE_APP_API_KEY;
     if (apiKey) {
@@ -45,7 +66,13 @@ axiosInstance.interceptors.request.use(
     }
 
     if (import.meta.env.VITE_APP_MODE === 'development') {
-      console.log("📤 API Request:", config.method?.toUpperCase(), config.url);
+      const isPublic = isPublicEndpoint(config.url);
+      console.log(
+        "📤 API Request:",
+        config.method?.toUpperCase(),
+        config.url,
+        isPublic ? "(public)" : "(⚠️ requires SSR for auth)"
+      );
     }
 
     return config;
@@ -80,8 +107,9 @@ axiosInstance.interceptors.response.use(
 
       switch (error.response.status) {
         case 401:
+          // Rediriger vers la page de login si la session a expiré
           if (typeof window !== "undefined") {
-            localStorage.removeItem("babana-auth-token");
+            window.location.href = "/login";
           }
           apiError.message = data?.message || common.sessionExpired;
           break;

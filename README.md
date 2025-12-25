@@ -4,6 +4,16 @@
 
 Version simplifiée pour apprendre React Router pas à pas.
 
+---
+
+## 🚨 NOUVEAU : Vous voyez des données bizarres dans le Network Inspector ?
+
+➡️ **Lisez ceci immédiatement :** [START_HERE.md](./START_HERE.md) ou [SUMMARY.md](./SUMMARY.md)
+
+**TL;DR :** C'est normal, c'est sécurisé, et on vous a créé des outils de debug ! ✨
+
+---
+
 ## 📖 À Propos
 
 Ce projet est configuré avec React Router 7, Tailwind CSS et TypeScript. Il est volontairement simple pour faciliter l'apprentissage.
@@ -36,12 +46,39 @@ npm run dev
 
 L'application sera accessible sur **http://localhost:5173**
 
+## ⚠️ NOTE IMPORTANTE : Format Turbo Stream
+
+> **"Les réponses du serveur sont bizarres dans le Network Inspector !"**
+
+**C'est NORMAL !** React Router 7 utilise le format **Turbo Stream** pour optimiser les performances (-38% de taille). Ce n'est PAS dangereux.
+
+➡️ **Lisez ceci :** [SUMMARY.md](./SUMMARY.md) ou [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
+
+**Outils de debug fournis :**
+- `<DebugPanel>` : Panneau visuel flottant
+- `logServer()` : Logs dans le terminal
+- `logClient()` : Logs dans la console
+
+**Vous n'avez rien à changer dans votre code !** 🎉
+
 ## 📚 Documentation
 
+### 🚨 Débogage et Format Turbo Stream (NOUVEAU)
+- **[SUMMARY.md](./SUMMARY.md)** - 📝 Réponse à votre question sur les réponses serveur
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - ⚡ Référence rapide (2 min)
+- **[DEBUG_QUICKSTART.md](./DEBUG_QUICKSTART.md)** - 🐛 Guide de démarrage rapide
+- **[TURBO_STREAM_EXPLAINED.md](./TURBO_STREAM_EXPLAINED.md)** - 📖 Explication détaillée
+- **[STREAMING_DEBUG_GUIDE.md](./STREAMING_DEBUG_GUIDE.md)** - 🔧 Guide technique complet
+- **[SECURITY_FAQ.md](./SECURITY_FAQ.md)** - 🔒 FAQ Sécurité et bonnes pratiques
+- **[EXAMPLE_DEBUG_PAGE.md](./EXAMPLE_DEBUG_PAGE.md)** - 🎯 Exemple pratique complet
+
+### 📖 Guides Généraux
+- **[DOCS_INDEX.md](./DOCS_INDEX.md)** - 📚 Index de toute la documentation
 - **[API_GUIDE.md](./API_GUIDE.md)** - Guide complet pour utiliser l'API avec axios
 - **[HTTP_CONFIG.md](./HTTP_CONFIG.md)** - Documentation de la configuration HTTP
 - **[SHADCN_GUIDE.md](./SHADCN_GUIDE.md)** - Guide des composants shadcn/ui
 - **[TRANSLATIONS_QUICKSTART.md](./TRANSLATIONS_QUICKSTART.md)** - Guide du système de traductions
+- **[AUTH_GUIDE.md](./AUTH_GUIDE.md)** - Guide d'authentification et permissions
 
 ## 🛠 Technologies
 
@@ -172,6 +209,59 @@ import { Button, Card, Dialog, Input, Select } from '~/components';
 ```
 
 Voir [SHADCN_GUIDE.md](./SHADCN_GUIDE.md) pour la liste complète.
+
+### 🐛 Outils de Débogage
+
+React Router 7 utilise un format de sérialisation optimisé (Turbo Stream) qui peut sembler étrange dans le Network Inspector. **C'est normal et sécurisé !**
+
+#### DebugPanel (Composant visuel)
+
+Affiche vos données en temps réel dans un panneau flottant :
+
+```tsx
+import { DebugPanel } from '~/components';
+
+export default function MyPage() {
+  const data = useLoaderData<typeof loader>();
+  
+  return (
+    <>
+      <DebugPanel data={data} label="Loader Data" />
+      <div>...</div>
+    </>
+  );
+}
+```
+
+#### Fonctions de logging
+
+```tsx
+import { logServer, logClient, PerformanceLogger } from '~/lib';
+
+// Côté serveur (visible dans le terminal)
+export async function loader({ request }: Route.LoaderArgs) {
+  const perf = new PerformanceLogger('User Loader');
+  const data = await fetchData();
+  
+  logServer('Users loaded', data);
+  perf.end();
+  
+  return data;
+}
+
+// Côté client (visible dans la console du navigateur)
+export default function MyComponent() {
+  const data = useLoaderData<typeof loader>();
+  
+  useEffect(() => {
+    logClient('Component data', data);
+  }, [data]);
+  
+  return <div>...</div>;
+}
+```
+
+**Documentation complète :** [STREAMING_DEBUG_GUIDE.md](./STREAMING_DEBUG_GUIDE.md)
 
 ## 📝 Commandes
 

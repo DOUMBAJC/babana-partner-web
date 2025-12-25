@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useLanguage } from '~/hooks';
+import { useTranslation } from '~/hooks';
 import { AuthLayout, Button } from '~/components';
 import { CheckCircle2, XCircle, Loader2, Mail } from 'lucide-react';
 
@@ -12,14 +12,12 @@ type VerificationStatus = 'verifying' | 'success' | 'error' | 'expired';
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { language } = useLanguage();
+  const { t } = useTranslation();
   const token = searchParams.get('token');
   const email = searchParams.get('email');
 
   const [status, setStatus] = useState<VerificationStatus>('verifying');
   const [isResending, setIsResending] = useState(false);
-
-  const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
   // Vérification automatique au chargement
   useEffect(() => {
@@ -46,10 +44,7 @@ export default function VerifyEmailPage() {
           setTimeout(() => {
             navigate('/login', {
               state: {
-                message: t(
-                  'Email vérifié avec succès ! Vous pouvez maintenant vous connecter.',
-                  'Email verified successfully! You can now sign in.'
-                ),
+                message: t.auth.verifyEmail.success.message,
               },
             });
           }, 3000);
@@ -89,11 +84,8 @@ export default function VerifyEmailPage() {
   if (status === 'verifying') {
     return (
       <AuthLayout
-        title={t('Vérification en cours...', 'Verifying...')}
-        description={t(
-          'Veuillez patienter pendant que nous vérifions votre email',
-          'Please wait while we verify your email'
-        )}
+        title={t.auth.verifyEmail.verifying.title}
+        description={t.auth.verifyEmail.verifying.subtitle}
       >
         <div className="space-y-6">
           <div className="form-element rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-8 flex flex-col items-center text-center space-y-6">
@@ -103,10 +95,10 @@ export default function VerifyEmailPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {t('Vérification de votre email', 'Verifying your email')}
+                {t.auth.verifyEmail.verifying.title}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {t('Cela ne prendra que quelques secondes...', 'This will only take a few seconds...')}
+                {t.auth.verifyEmail.verifying.message}
               </p>
             </div>
           </div>
@@ -119,8 +111,8 @@ export default function VerifyEmailPage() {
   if (status === 'success') {
     return (
       <AuthLayout
-        title={t('Email vérifié !', 'Email verified!')}
-        description={t('Votre compte a été activé avec succès', 'Your account has been activated successfully')}
+        title={t.auth.verifyEmail.success.title}
+        description={t.auth.verifyEmail.success.subtitle}
       >
         <div className="space-y-6">
           <div className="form-element rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-8 flex flex-col items-center text-center space-y-6">
@@ -136,13 +128,10 @@ export default function VerifyEmailPage() {
             </div>
             <div>
               <h3 className="text-2xl font-bold text-green-900 dark:text-green-100 mb-2">
-                {t('Vérification réussie !', 'Verification successful!')}
+                {t.auth.verifyEmail.success.title}
               </h3>
               <p className="text-sm text-green-600 dark:text-green-400">
-                {t(
-                  'Votre adresse email a été vérifiée. Vous allez être redirigé vers la page de connexion...',
-                  'Your email address has been verified. You will be redirected to the sign in page...'
-                )}
+                {t.auth.verifyEmail.success.message}
               </p>
             </div>
           </div>
@@ -150,20 +139,20 @@ export default function VerifyEmailPage() {
           {/* Avantages du compte vérifié */}
           <div className="form-element bg-muted/50 backdrop-blur-sm border border-border rounded-lg p-4">
             <h4 className="text-sm font-semibold mb-3">
-              {t('Votre compte est maintenant actif !', 'Your account is now active!')}
+              {t.auth.verifyEmail.success.accountActive}
             </h4>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                {t('Accès complet à toutes les fonctionnalités', 'Full access to all features')}
+                {t.auth.verifyEmail.success.feature1}
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                {t('Sécurité renforcée de votre compte', 'Enhanced account security')}
+                {t.auth.verifyEmail.success.feature2}
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                {t('Notifications importantes par email', 'Important email notifications')}
+                {t.auth.verifyEmail.success.feature3}
               </li>
             </ul>
           </div>
@@ -177,7 +166,7 @@ export default function VerifyEmailPage() {
             }}
             className="w-full h-12 font-semibold shadow-babana-cyan/25 duration-300 form-button"
           >
-            {t('Se connecter maintenant', 'Sign in now')}
+            {t.auth.verifyEmail.success.signInNow}
           </Button>
         </div>
       </AuthLayout>
@@ -188,8 +177,8 @@ export default function VerifyEmailPage() {
   if (status === 'expired') {
     return (
       <AuthLayout
-        title={t('Lien expiré', 'Link expired')}
-        description={t('Ce lien de vérification a expiré', 'This verification link has expired')}
+        title={t.auth.verifyEmail.expired.title}
+        description={t.auth.verifyEmail.expired.subtitle}
       >
         <div className="space-y-6">
           <div className="form-element rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-8 flex flex-col items-center text-center space-y-6">
@@ -198,13 +187,10 @@ export default function VerifyEmailPage() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-yellow-900 dark:text-yellow-100 mb-2">
-                {t('Lien de vérification expiré', 'Verification link expired')}
+                {t.auth.verifyEmail.expired.title}
               </h3>
               <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                {t(
-                  'Ce lien de vérification a expiré pour des raisons de sécurité. Demandez un nouveau lien pour vérifier votre email.',
-                  'This verification link has expired for security reasons. Request a new link to verify your email.'
-                )}
+                {t.auth.verifyEmail.expired.message}
               </p>
             </div>
           </div>
@@ -214,7 +200,7 @@ export default function VerifyEmailPage() {
             <>
               <div className="form-element bg-muted/50 backdrop-blur-sm border border-border rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">
-                  {t('Email :', 'Email:')} <strong>{email}</strong>
+                  {t.auth.verifyEmail.expired.email} <strong>{email}</strong>
                 </p>
               </div>
 
@@ -230,12 +216,12 @@ export default function VerifyEmailPage() {
                 {isResending ? (
                   <>
                     <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                    {t('Envoi en cours...', 'Sending...')}
+                    {t.auth.verifyEmail.buttons.sending}
                   </>
                 ) : (
                   <>
                     <Mail className="mr-2 w-5 h-5" />
-                    {t('Renvoyer l\'email de vérification', 'Resend verification email')}
+                    {t.auth.verifyEmail.expired.resendButton}
                   </>
                 )}
               </Button>
@@ -245,9 +231,9 @@ export default function VerifyEmailPage() {
           {/* Lien vers le support */}
           <div className="form-element text-center text-sm text-muted-foreground">
             <p>
-              {t('Besoin d\'aide ?', 'Need help?')}{' '}
+              {t.auth.verifyEmail.messages.needHelp}{' '}
               <button className="text-babana-cyan hover:underline font-medium">
-                {t('Contactez le support', 'Contact support')}
+                {t.auth.verifyEmail.messages.contactSupport}
               </button>
             </p>
           </div>
@@ -259,8 +245,8 @@ export default function VerifyEmailPage() {
   // État: Erreur
   return (
     <AuthLayout
-      title={t('Erreur de vérification', 'Verification error')}
-      description={t('Impossible de vérifier votre email', 'Unable to verify your email')}
+      title={t.auth.verifyEmail.error.title}
+      description={t.auth.verifyEmail.error.subtitle}
     >
       <div className="space-y-6">
         <div className="form-element rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-8 flex flex-col items-center text-center space-y-6">
@@ -269,13 +255,10 @@ export default function VerifyEmailPage() {
           </div>
           <div>
             <h3 className="text-xl font-bold text-red-900 dark:text-red-100 mb-2">
-              {t('Vérification impossible', 'Verification failed')}
+              {t.auth.verifyEmail.error.title}
             </h3>
             <p className="text-sm text-red-600 dark:text-red-400">
-              {t(
-                'Le lien de vérification est invalide ou a déjà été utilisé.',
-                'The verification link is invalid or has already been used.'
-              )}
+              {t.auth.verifyEmail.error.message}
             </p>
           </div>
         </div>
@@ -283,23 +266,20 @@ export default function VerifyEmailPage() {
         {/* Actions possibles */}
         <div className="form-element bg-muted/50 backdrop-blur-sm border border-border rounded-lg p-4">
           <h4 className="text-sm font-semibold mb-2">
-            {t('Que faire maintenant ?', 'What to do now?')}
+            {t.auth.verifyEmail.error.whatToDo}
           </h4>
           <ul className="text-sm text-muted-foreground space-y-2">
             <li className="flex items-start gap-2">
               <span className="text-babana-cyan">•</span>
-              {t(
-                'Vérifiez que vous avez cliqué sur le bon lien dans l\'email',
-                'Check that you clicked the correct link in the email'
-              )}
+              {t.auth.verifyEmail.error.tip1}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-babana-cyan">•</span>
-              {t('Demandez un nouveau lien de vérification', 'Request a new verification link')}
+              {t.auth.verifyEmail.error.tip2}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-babana-cyan">•</span>
-              {t('Contactez notre support si le problème persiste', 'Contact our support if the problem persists')}
+              {t.auth.verifyEmail.error.tip3}
             </li>
           </ul>
         </div>
@@ -319,12 +299,12 @@ export default function VerifyEmailPage() {
               {isResending ? (
                 <>
                   <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                  {t('Envoi en cours...', 'Sending...')}
+                  {t.auth.verifyEmail.buttons.sending}
                 </>
               ) : (
                 <>
                   <Mail className="mr-2 w-5 h-5" />
-                  {t('Renvoyer l\'email', 'Resend email')}
+                  {t.auth.verifyEmail.error.resendButton}
                 </>
               )}
             </Button>
@@ -335,7 +315,7 @@ export default function VerifyEmailPage() {
             variant="outline"
             className="w-full h-12 form-element"
           >
-            {t('Retour à la connexion', 'Back to sign in')}
+            {t.auth.verifyEmail.error.backToSignIn}
           </Button>
         </div>
       </div>

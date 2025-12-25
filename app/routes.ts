@@ -5,6 +5,7 @@ export default [
   
   // Routes d'authentification
   route("login", "routes/auth/login.tsx"),
+  route("auth/logout", "routes/auth/logout.tsx"),
   route("register", "routes/auth/register.tsx"),
   route("forgot-password", "routes/auth/forgot-password.tsx"),
   route("reset-password", "routes/auth/reset-password.tsx"),

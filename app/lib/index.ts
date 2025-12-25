@@ -6,7 +6,7 @@ export { default as axiosInstance, api, setApiLanguage, getApiLanguage } from '.
 export type { ApiError, HttpMethod, RequestOptions } from './axios';
 
 // Translations
-export { translations, interpolate } from './translations';
+export { translations, interpolate, getTranslations } from './translations';
 export type { Language, Translations } from './translations';
 
 // Roles and Permissions

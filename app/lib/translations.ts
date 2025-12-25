@@ -2,16 +2,197 @@
 
 export type Language = "fr" | "en";
 
+/**
+ * Obtenir les traductions pour une langue donnée
+ * Utilisable côté serveur et côté client
+ */
+export function getTranslations(language: Language = "fr"): Translations {
+  return translations[language];
+}
+
 export interface Translations {
   // Auth
   auth: {
     login: {
       title: string;
       subtitle: string;
+      errors: {
+        emailPasswordRequired: string;
+        loginFailed: string;
+      };
     };
     register: {
       title: string;
       subtitle: string;
+      labels: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        personalPhone: string;
+        password: string;
+        confirmPassword: string;
+        passwordStrength: string;
+      };
+      placeholders: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+      };
+      validation: {
+        firstNameRequired: string;
+        firstNameTooShort: string;
+        lastNameRequired: string;
+        lastNameTooShort: string;
+        emailRequired: string;
+        invalidEmail: string;
+        phoneRequired: string;
+        invalidPhone: string;
+        passwordRequired: string;
+        passwordTooShort: string;
+        passwordWeak: string;
+        confirmPasswordRequired: string;
+        passwordMismatch: string;
+      };
+      strength: {
+        weak: string;
+        medium: string;
+        strong: string;
+      };
+      buttons: {
+        signUp: string;
+        signingUp: string;
+      };
+      messages: {
+        alreadyHaveAccount: string;
+        signIn: string;
+        bySigningUp: string;
+        termsOfService: string;
+        and: string;
+        privacyPolicy: string;
+        registrationError: string;
+      };
+    };
+    forgotPassword: {
+      title: string;
+      subtitle: string;
+      description: string;
+      labels: {
+        email: string;
+      };
+      placeholders: {
+        email: string;
+      };
+      validation: {
+        emailRequired: string;
+        invalidEmail: string;
+      };
+      buttons: {
+        sendLink: string;
+        sending: string;
+        backToSignIn: string;
+        resend: string;
+      };
+      success: {
+        title: string;
+        subtitle: string;
+        emailSent: string;
+        sentTo: string;
+        nextSteps: string;
+        step1: string;
+        step2: string;
+        step3: string;
+        didntReceive: string;
+      };
+      messages: {
+        needHelp: string;
+        contactSupport: string;
+      };
+    };
+    resetPassword: {
+      title: string;
+      subtitle: string;
+      labels: {
+        newPassword: string;
+        confirmPassword: string;
+        passwordStrength: string;
+      };
+      validation: {
+        passwordRequired: string;
+        passwordTooShort: string;
+        passwordWeak: string;
+        confirmPasswordRequired: string;
+        passwordMismatch: string;
+        invalidLink: string;
+      };
+      strength: {
+        weak: string;
+        medium: string;
+        strong: string;
+      };
+      tips: {
+        title: string;
+        minLength: string;
+        uppercase: string;
+        lowercase: string;
+        number: string;
+      };
+      buttons: {
+        resetPassword: string;
+        resetting: string;
+        requestNewLink: string;
+      };
+      invalid: {
+        title: string;
+        subtitle: string;
+        message: string;
+      };
+      messages: {
+        rememberPassword: string;
+        signIn: string;
+      };
+    };
+    verifyEmail: {
+      verifying: {
+        title: string;
+        subtitle: string;
+        message: string;
+      };
+      success: {
+        title: string;
+        subtitle: string;
+        message: string;
+        accountActive: string;
+        feature1: string;
+        feature2: string;
+        feature3: string;
+        signInNow: string;
+      };
+      expired: {
+        title: string;
+        subtitle: string;
+        message: string;
+        email: string;
+        resendButton: string;
+      };
+      error: {
+        title: string;
+        subtitle: string;
+        message: string;
+        whatToDo: string;
+        tip1: string;
+        tip2: string;
+        tip3: string;
+        resendButton: string;
+        backToSignIn: string;
+      };
+      buttons: {
+        sending: string;
+      };
+      messages: {
+        needHelp: string;
+        contactSupport: string;
+      };
     };
   };
   // Navigation
@@ -348,10 +529,183 @@ export const translations: Record<Language, Translations> = {
       login: {
         title: "Connexion",
         subtitle: "Connectez-vous à votre compte",
+        errors: {
+          emailPasswordRequired: "Email et mot de passe requis",
+          loginFailed: "Une erreur est survenue lors de la connexion",
+        },
       },
       register: {
         title: "Créer un compte",
         subtitle: "Inscrivez-vous pour accéder à BABANA Partner",
+        labels: {
+          firstName: "Prénom",
+          lastName: "Nom",
+          email: "Adresse email",
+          personalPhone: "Téléphone personnel",
+          password: "Mot de passe",
+          confirmPassword: "Confirmer le mot de passe",
+          passwordStrength: "Force du mot de passe",
+        },
+        placeholders: {
+          firstName: "Jean",
+          lastName: "Dupont",
+          email: "votre.email@example.com",
+          phone: "692129212",
+        },
+        validation: {
+          firstNameRequired: "Le prénom est requis",
+          firstNameTooShort: "Le prénom doit contenir au moins 2 caractères",
+          lastNameRequired: "Le nom est requis",
+          lastNameTooShort: "Le nom doit contenir au moins 2 caractères",
+          emailRequired: "L'email est requis",
+          invalidEmail: "Email invalide",
+          phoneRequired: "Le numéro de téléphone est requis",
+          invalidPhone: "Veuillez entrer un numéro valide (Blue, MTN ou Orange)",
+          passwordRequired: "Le mot de passe est requis",
+          passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères",
+          passwordWeak: "Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre",
+          confirmPasswordRequired: "La confirmation du mot de passe est requise",
+          passwordMismatch: "Les mots de passe ne correspondent pas",
+        },
+        strength: {
+          weak: "Faible",
+          medium: "Moyen",
+          strong: "Fort",
+        },
+        buttons: {
+          signUp: "S'inscrire",
+          signingUp: "Inscription en cours...",
+        },
+        messages: {
+          alreadyHaveAccount: "Vous avez déjà un compte ?",
+          signIn: "Se connecter",
+          bySigningUp: "En vous inscrivant, vous acceptez nos",
+          termsOfService: "Conditions d'utilisation",
+          and: "et notre",
+          privacyPolicy: "Politique de confidentialité",
+          registrationError: "Une erreur est survenue lors de l'inscription. Veuillez réessayer.",
+        },
+      },
+      forgotPassword: {
+        title: "Mot de passe oublié ?",
+        subtitle: "Entrez votre email pour recevoir un lien de réinitialisation",
+        description: "Nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+        labels: {
+          email: "Adresse email",
+        },
+        placeholders: {
+          email: "votre.email@example.com",
+        },
+        validation: {
+          emailRequired: "L'email est requis",
+          invalidEmail: "Email invalide",
+        },
+        buttons: {
+          sendLink: "Envoyer le lien",
+          sending: "Envoi en cours...",
+          backToSignIn: "Retour à la connexion",
+          resend: "Renvoyer",
+        },
+        success: {
+          title: "Email envoyé !",
+          subtitle: "Consultez votre boîte de réception",
+          emailSent: "Email de réinitialisation envoyé",
+          sentTo: "Nous avons envoyé un lien de réinitialisation à",
+          nextSteps: "Prochaines étapes :",
+          step1: "Vérifiez votre boîte de réception (et le dossier spam)",
+          step2: "Cliquez sur le lien dans l'email reçu",
+          step3: "Créez votre nouveau mot de passe",
+          didntReceive: "Vous n'avez pas reçu l'email ?",
+        },
+        messages: {
+          needHelp: "Besoin d'aide ?",
+          contactSupport: "Contactez le support",
+        },
+      },
+      resetPassword: {
+        title: "Nouveau mot de passe",
+        subtitle: "Créez un nouveau mot de passe sécurisé",
+        labels: {
+          newPassword: "Nouveau mot de passe",
+          confirmPassword: "Confirmer le mot de passe",
+          passwordStrength: "Force du mot de passe",
+        },
+        validation: {
+          passwordRequired: "Le mot de passe est requis",
+          passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères",
+          passwordWeak: "Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre",
+          confirmPasswordRequired: "La confirmation du mot de passe est requise",
+          passwordMismatch: "Les mots de passe ne correspondent pas",
+          invalidLink: "Lien de réinitialisation invalide ou expiré",
+        },
+        strength: {
+          weak: "Faible",
+          medium: "Moyen",
+          strong: "Fort",
+        },
+        tips: {
+          title: "Conseils pour un mot de passe sûr",
+          minLength: "Au moins 8 caractères",
+          uppercase: "Une lettre majuscule",
+          lowercase: "Une lettre minuscule",
+          number: "Un chiffre",
+        },
+        buttons: {
+          resetPassword: "Réinitialiser le mot de passe",
+          resetting: "Réinitialisation...",
+          requestNewLink: "Demander un nouveau lien",
+        },
+        invalid: {
+          title: "Lien invalide",
+          subtitle: "Ce lien de réinitialisation est invalide",
+          message: "Ce lien est invalide ou a expiré. Veuillez demander un nouveau lien.",
+        },
+        messages: {
+          rememberPassword: "Vous vous souvenez de votre mot de passe ?",
+          signIn: "Se connecter",
+        },
+      },
+      verifyEmail: {
+        verifying: {
+          title: "Vérification en cours...",
+          subtitle: "Veuillez patienter pendant que nous vérifions votre email",
+          message: "Cela ne prendra que quelques secondes...",
+        },
+        success: {
+          title: "Email vérifié !",
+          subtitle: "Votre compte a été activé avec succès",
+          message: "Votre adresse email a été vérifiée. Vous allez être redirigé vers la page de connexion...",
+          accountActive: "Votre compte est maintenant actif !",
+          feature1: "Accès complet à toutes les fonctionnalités",
+          feature2: "Sécurité renforcée de votre compte",
+          feature3: "Notifications importantes par email",
+          signInNow: "Se connecter maintenant",
+        },
+        expired: {
+          title: "Lien expiré",
+          subtitle: "Ce lien de vérification a expiré",
+          message: "Ce lien de vérification a expiré pour des raisons de sécurité. Demandez un nouveau lien pour vérifier votre email.",
+          email: "Email :",
+          resendButton: "Renvoyer l'email de vérification",
+        },
+        error: {
+          title: "Erreur de vérification",
+          subtitle: "Impossible de vérifier votre email",
+          message: "Le lien de vérification est invalide ou a déjà été utilisé.",
+          whatToDo: "Que faire maintenant ?",
+          tip1: "Vérifiez que vous avez cliqué sur le bon lien dans l'email",
+          tip2: "Demandez un nouveau lien de vérification",
+          tip3: "Contactez notre support si le problème persiste",
+          resendButton: "Renvoyer l'email",
+          backToSignIn: "Retour à la connexion",
+        },
+        buttons: {
+          sending: "Envoi en cours...",
+        },
+        messages: {
+          needHelp: "Besoin d'aide ?",
+          contactSupport: "Contactez le support",
+        },
       },
     },
     common: {
@@ -691,10 +1045,183 @@ export const translations: Record<Language, Translations> = {
       login: {
         title: "Login",
         subtitle: "Sign in to your account",
+        errors: {
+          emailPasswordRequired: "Email and password required",
+          loginFailed: "An error occurred during login",
+        },
       },
       register: {
         title: "Create an account",
         subtitle: "Sign up to access BABANA Partner",
+        labels: {
+          firstName: "First name",
+          lastName: "Last name",
+          email: "Email address",
+          personalPhone: "Personal phone",
+          password: "Password",
+          confirmPassword: "Confirm password",
+          passwordStrength: "Password strength",
+        },
+        placeholders: {
+          firstName: "John",
+          lastName: "Doe",
+          email: "your.email@example.com",
+          phone: "622037000",
+        },
+        validation: {
+          firstNameRequired: "First name is required",
+          firstNameTooShort: "First name must be at least 2 characters",
+          lastNameRequired: "Last name is required",
+          lastNameTooShort: "Last name must be at least 2 characters",
+          emailRequired: "Email is required",
+          invalidEmail: "Invalid email address",
+          phoneRequired: "Phone number is required",
+          invalidPhone: "Please enter a valid number (Blue, MTN or Orange)",
+          passwordRequired: "Password is required",
+          passwordTooShort: "Password must be at least 8 characters",
+          passwordWeak: "Password must contain at least one uppercase, one lowercase and one number",
+          confirmPasswordRequired: "Password confirmation is required",
+          passwordMismatch: "Passwords do not match",
+        },
+        strength: {
+          weak: "Weak",
+          medium: "Medium",
+          strong: "Strong",
+        },
+        buttons: {
+          signUp: "Sign Up",
+          signingUp: "Signing up...",
+        },
+        messages: {
+          alreadyHaveAccount: "Already have an account?",
+          signIn: "Sign in",
+          bySigningUp: "By signing up, you agree to our",
+          termsOfService: "Terms of Service",
+          and: "and our",
+          privacyPolicy: "Privacy Policy",
+          registrationError: "An error occurred during registration. Please try again.",
+        },
+      },
+      forgotPassword: {
+        title: "Forgot password?",
+        subtitle: "Enter your email to receive a reset link",
+        description: "We'll send you a link to reset your password.",
+        labels: {
+          email: "Email address",
+        },
+        placeholders: {
+          email: "your.email@example.com",
+        },
+        validation: {
+          emailRequired: "Email is required",
+          invalidEmail: "Invalid email address",
+        },
+        buttons: {
+          sendLink: "Send reset link",
+          sending: "Sending...",
+          backToSignIn: "Back to sign in",
+          resend: "Resend",
+        },
+        success: {
+          title: "Email sent!",
+          subtitle: "Check your inbox",
+          emailSent: "Reset email sent",
+          sentTo: "We have sent a reset link to",
+          nextSteps: "Next steps:",
+          step1: "Check your inbox (and spam folder)",
+          step2: "Click the link in the email",
+          step3: "Create your new password",
+          didntReceive: "Didn't receive the email?",
+        },
+        messages: {
+          needHelp: "Need help?",
+          contactSupport: "Contact support",
+        },
+      },
+      resetPassword: {
+        title: "New password",
+        subtitle: "Create a new secure password",
+        labels: {
+          newPassword: "New password",
+          confirmPassword: "Confirm password",
+          passwordStrength: "Password strength",
+        },
+        validation: {
+          passwordRequired: "Password is required",
+          passwordTooShort: "Password must be at least 8 characters",
+          passwordWeak: "Password must contain at least one uppercase, one lowercase and one number",
+          confirmPasswordRequired: "Password confirmation is required",
+          passwordMismatch: "Passwords do not match",
+          invalidLink: "Invalid or expired reset link",
+        },
+        strength: {
+          weak: "Weak",
+          medium: "Medium",
+          strong: "Strong",
+        },
+        tips: {
+          title: "Tips for a secure password",
+          minLength: "At least 8 characters",
+          uppercase: "One uppercase letter",
+          lowercase: "One lowercase letter",
+          number: "One number",
+        },
+        buttons: {
+          resetPassword: "Reset password",
+          resetting: "Resetting...",
+          requestNewLink: "Request new link",
+        },
+        invalid: {
+          title: "Invalid link",
+          subtitle: "This reset link is invalid",
+          message: "This link is invalid or has expired. Please request a new link.",
+        },
+        messages: {
+          rememberPassword: "Remember your password?",
+          signIn: "Sign in",
+        },
+      },
+      verifyEmail: {
+        verifying: {
+          title: "Verifying...",
+          subtitle: "Please wait while we verify your email",
+          message: "This will only take a few seconds...",
+        },
+        success: {
+          title: "Email verified!",
+          subtitle: "Your account has been activated successfully",
+          message: "Your email address has been verified. You will be redirected to the sign in page...",
+          accountActive: "Your account is now active!",
+          feature1: "Full access to all features",
+          feature2: "Enhanced account security",
+          feature3: "Important email notifications",
+          signInNow: "Sign in now",
+        },
+        expired: {
+          title: "Link expired",
+          subtitle: "This verification link has expired",
+          message: "This verification link has expired for security reasons. Request a new link to verify your email.",
+          email: "Email:",
+          resendButton: "Resend verification email",
+        },
+        error: {
+          title: "Verification error",
+          subtitle: "Unable to verify your email",
+          message: "The verification link is invalid or has already been used.",
+          whatToDo: "What to do now?",
+          tip1: "Check that you clicked the correct link in the email",
+          tip2: "Request a new verification link",
+          tip3: "Contact our support if the problem persists",
+          resendButton: "Resend email",
+          backToSignIn: "Back to sign in",
+        },
+        buttons: {
+          sending: "Sending...",
+        },
+        messages: {
+          needHelp: "Need help?",
+          contactSupport: "Contact support",
+        },
       },
     },
     common: {
