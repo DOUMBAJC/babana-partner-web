@@ -39,7 +39,7 @@ export const customerService = {
    */
   getCustomerByIdCard: async (idCardNumber: string, include?: string[]): Promise<Customer> => {
     try {
-      const response = await api.get<ApiResponse<Customer>>(`/customers/by-id-card/${idCardNumber}`, {
+      const response = await api.get<ApiResponse<Customer>>(`/customers/searchByIdCard/${idCardNumber}`, {
         params: {
           include: include?.join(','),
         },
@@ -97,24 +97,40 @@ export const customerService = {
   searchByIdCard: async (
     idCardTypeId: number,
     idCardNumber: string
-  ): Promise<Customer | null> => {
+  ): Promise<{
+    success: boolean;
+    found: boolean;
+    message: string;
+    data: Customer | null;
+    activation_status?: {
+      can_activate: boolean;
+      activations_count: number;
+      remaining_activations: number;
+      max_activations: number;
+    };
+  }> => {
     try {
-      const response = await api.get<ApiResponse<Customer | null>>(
-        '/customers/search-by-id-card',
+      const response = await api.post<{
+        success: boolean;
+        found: boolean;
+        message: string;
+        data: Customer | null;
+        activation_status?: {
+          can_activate: boolean;
+          activations_count: number;
+          remaining_activations: number;
+          max_activations: number;
+        };
+      }>(
+        '/customers/searchByIdCard',
         {
-          params: {
-            idCardTypeId,
-            idCardNumber,
-          },
+          id_card_type_id: idCardTypeId,
+          id_card_number: idCardNumber,
         }
       );
-      return response.data;
+      return response;
     } catch (error) {
-      const apiError = error as ApiError;
-      if (apiError.status === 404) {
-        return null;
-      }
-      throw error;
+      throw error as ApiError;
     }
   },
 

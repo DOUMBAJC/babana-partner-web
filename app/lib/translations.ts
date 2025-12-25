@@ -421,18 +421,27 @@ export interface Translations {
   customerSearch: {
     title: string;
     subtitle: string;
+    subtitleIdCard: string;
     securePortal: string;
     searchCriteria: string;
+    searchCriteriaDescription: string;
     fillFields: string;
     advancedSearch: string;
     standardSearch: string;
     fields: {
       idCard: string;
       idCardPlaceholder: string;
+      idCardType: string;
+      idCardTypeRequired: string;
+      idCardNumber: string;
+      idCardNumberRequired: string;
+      idCardNumberPlaceholder: string;
       name: string;
       namePlaceholder: string;
       phone: string;
       phonePlaceholder: string;
+      selectType: string;
+      loading: string;
     };
     searchButton: string;
     searching: string;
@@ -450,6 +459,27 @@ export interface Translations {
       foundMessage: string;
       sellSim: string;
       newSearch: string;
+      limitReached: string;
+    };
+    customerInfo: {
+      fullName: string;
+      phone: string;
+      idCardType: string;
+      idCardNumber: string;
+      address: string;
+    };
+    activationStatus: {
+      title: string;
+      activations: string;
+      remaining: string;
+      maximum: string;
+      canActivate: string;
+      limitReachedWarning: string;
+    };
+    errors: {
+      fillAllFields: string;
+      attention: string;
+      invalidFormat: string;
     };
   };
   // Customer Create
@@ -461,13 +491,28 @@ export interface Translations {
     fields: {
       firstName: string;
       lastName: string;
+      idCardType: string;
+      selectIdCardType: string;
       idCard: string;
       phone: string;
       email: string;
       address: string;
+      addressPlaceholder: string;
     };
     success: string;
     save: string;
+    saving: string;
+    errors: {
+      createFailed: string;
+    };
+    validation: {
+      required: string;
+      invalidPhone: string;
+      invalidEmail: string;
+      invalidName: string;
+      minLength: string;
+      maxLength: string;
+    };
   };
   // SIM Activation
   simActivation: {
@@ -941,18 +986,27 @@ export const translations: Record<Language, Translations> = {
     customerSearch: {
       title: "Recherche Client",
       subtitle: "Accédez rapidement aux informations clients pour faciliter vos opérations.",
+      subtitleIdCard: "Recherchez un client par son numéro de carte d'identité",
       securePortal: "Portail Partenaire Sécurisé",
       searchCriteria: "Critères de Recherche",
+      searchCriteriaDescription: "Saisissez les informations de la carte d'identité",
       fillFields: "Utilisez les filtres ci-dessous pour trouver un client.",
       advancedSearch: "Recherche Avancée",
       standardSearch: "Recherche Standard",
       fields: {
         idCard: "Numéro CNI / Identifiant",
         idCardPlaceholder: "Ex: AA233445566",
+        idCardType: "Type de carte d'identité",
+        idCardTypeRequired: "Type de carte d'identité *",
+        idCardNumber: "Numéro de carte d'identité",
+        idCardNumberRequired: "Numéro de carte d'identité *",
+        idCardNumberPlaceholder: "Ex: 123456789",
         name: "Nom Complet",
         namePlaceholder: "Nom du client",
         phone: "Téléphone",
         phonePlaceholder: "Ex: 622037000",
+        selectType: "Sélectionnez un type",
+        loading: "Chargement...",
       },
       searchButton: "Lancer la recherche",
       searching: "Recherche en cours...",
@@ -968,9 +1022,30 @@ export const translations: Record<Language, Translations> = {
         cancel: "Annuler",
         found: "Client Vérifié",
         foundMessage: "Ce client est enregistré dans la base de données.",
-        sellSim: "Vendre une SIM",
+        sellSim: "Vendre une carte SIM",
         newSearch: "Nouvelle Recherche",
-      }
+        limitReached: "Limite atteinte",
+      },
+      customerInfo: {
+        fullName: "Nom complet",
+        phone: "Téléphone",
+        idCardType: "Type de carte",
+        idCardNumber: "Numéro de carte",
+        address: "Adresse",
+      },
+      activationStatus: {
+        title: "Statut d'activation",
+        activations: "Activations",
+        remaining: "Restantes",
+        maximum: "Maximum",
+        canActivate: "Peut activer",
+        limitReachedWarning: "Ce client a atteint la limite maximale d'activations",
+      },
+      errors: {
+        fillAllFields: "Veuillez remplir tous les champs",
+        attention: "Attention",
+        invalidFormat: "Format de numéro de carte invalide",
+      },
     },
     customerCreate: {
       title: "Nouveau Client",
@@ -980,13 +1055,28 @@ export const translations: Record<Language, Translations> = {
       fields: {
         firstName: "Prénom",
         lastName: "Nom",
-        idCard: "Numéro CNI",
+        idCardType: "Type de carte d'identité",
+        selectIdCardType: "Sélectionnez le type",
+        idCard: "Numéro de carte d'identité",
         phone: "Téléphone",
         email: "Email (Optionnel)",
-        address: "Adresse (Optionnel)",
+        address: "Adresse",
+        addressPlaceholder: "Adresse complète",
       },
       success: "Client créé avec succès !",
       save: "Enregistrer Client",
+      saving: "Enregistrement...",
+      errors: {
+        createFailed: "Erreur lors de la création du client",
+      },
+      validation: {
+        required: "Ce champ est requis",
+        invalidPhone: "Numéro invalide. Format: +237 6XX XXX XXX (Orange, MTN, Blue)",
+        invalidEmail: "Adresse email invalide",
+        invalidName: "Le nom doit contenir au moins 2 caractères (lettres uniquement)",
+        minLength: "Minimum {min} caractères requis",
+        maxLength: "Maximum {max} caractères autorisés",
+      },
     },
     simActivation: {
       title: "Activation SIM",
@@ -1457,18 +1547,27 @@ export const translations: Record<Language, Translations> = {
     customerSearch: {
       title: "Customer Search",
       subtitle: "Quickly access customer information to facilitate your operations.",
+      subtitleIdCard: "Search for a customer by their ID card number",
       securePortal: "Secure Partner Portal",
       searchCriteria: "Search Criteria",
+      searchCriteriaDescription: "Enter the ID card information",
       fillFields: "Use the filters below to find a customer.",
       advancedSearch: "Advanced Search",
       standardSearch: "Standard Search",
       fields: {
         idCard: "ID Card Number / Identifier",
         idCardPlaceholder: "Ex: 112233445566",
+        idCardType: "ID Card Type",
+        idCardTypeRequired: "ID Card Type *",
+        idCardNumber: "ID Card Number",
+        idCardNumberRequired: "ID Card Number *",
+        idCardNumberPlaceholder: "Ex: 123456789",
         name: "Full Name",
         namePlaceholder: "Customer Name",
         phone: "Phone",
-        phonePlaceholder: "Ex: 612345678",
+        phonePlaceholder: "Ex: +237 622 037 000 (Orange, MTN, Camtel Blue)",
+        selectType: "Select a type",
+        loading: "Loading...",
       },
       searchButton: "Start Search",
       searching: "Searching...",
@@ -1484,9 +1583,30 @@ export const translations: Record<Language, Translations> = {
         cancel: "Cancel",
         found: "Customer Verified",
         foundMessage: "This customer is registered in the database.",
-        sellSim: "Sell SIM",
+        sellSim: "Sell SIM Card",
         newSearch: "New Search",
-      }
+        limitReached: "Limit Reached",
+      },
+      customerInfo: {
+        fullName: "Full Name",
+        phone: "Phone",
+        idCardType: "Card Type",
+        idCardNumber: "Card Number",
+        address: "Address",
+      },
+      activationStatus: {
+        title: "Activation Status",
+        activations: "Activations",
+        remaining: "Remaining",
+        maximum: "Maximum",
+        canActivate: "Can Activate",
+        limitReachedWarning: "This customer has reached the maximum activation limit",
+      },
+      errors: {
+        fillAllFields: "Please fill in all fields",
+        attention: "Warning",
+        invalidFormat: "Invalid card number format",
+      },
     },
     customerCreate: {
       title: "New Customer",
@@ -1496,13 +1616,28 @@ export const translations: Record<Language, Translations> = {
       fields: {
         firstName: "First Name",
         lastName: "Last Name",
+        idCardType: "ID Card Type",
+        selectIdCardType: "Select type",
         idCard: "ID Card Number",
         phone: "Phone",
         email: "Email (Optional)",
-        address: "Address (Optional)",
+        address: "Address",
+        addressPlaceholder: "Full address",
       },
       success: "Customer created successfully!",
       save: "Save Customer",
+      saving: "Saving...",
+      errors: {
+        createFailed: "Error creating customer",
+      },
+      validation: {
+        required: "This field is required",
+        invalidPhone: "Invalid number. Format: +237 6XX XXX XXX (Orange, MTN, Blue)",
+        invalidEmail: "Invalid email address",
+        invalidName: "Name must contain at least 2 characters (letters only)",
+        minLength: "Minimum {min} characters required",
+        maxLength: "Maximum {max} characters allowed",
+      },
     },
     simActivation: {
       title: "SIM Activation",

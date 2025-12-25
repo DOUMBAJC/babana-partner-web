@@ -30,5 +30,8 @@ export type { LoginResponse, RegisterResponse } from './auth.service';
 // Customer Service
 export { customerService } from './customer.service';
 
+// ID Card Type Service
+export { idCardTypeService } from './id-card-type.service';
+
 // Activation Request Service
 export { activationRequestService } from './activation-request.service';

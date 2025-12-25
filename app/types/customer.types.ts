@@ -10,6 +10,7 @@ export interface IdCardType {
   name: string;
   code: string;
   description?: string;
+  validation_pattern?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -19,9 +20,9 @@ export interface IdCardType {
  */
 export interface Customer {
   id: number;
-  fullName: string;
-  idCardTypeId: number;
-  idCardNumber: string;
+  full_name: string;
+  id_card_type_id: number;
+  id_card_number: string;
   phone: string;
   phoneOperator: string;
   address?: string;
@@ -32,7 +33,7 @@ export interface Customer {
   updatedAt: string;
 
   // Relations (chargées via include)
-  idCardType?: IdCardType;
+  id_card_type?: IdCardType;
   creator?: {
     id: number;
     name: string;

@@ -91,8 +91,26 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
   try {
     const api = await createAuthenticatedApi(request);
     const response = await api.get("/auth/user");
-    return response.data; // Assuming API returns the User object directly or data.user
-  } catch (error) {
+    
+    // L'API retourne { success: true, data: { user, roles, permissions } }
+    const apiData = response.data;
+    
+    // Si c'est un succès et qu'on a data.user
+    if (apiData.success && apiData.data) {
+      const { user, roles, permissions } = apiData.data;
+      
+      // Merger user avec roles transformés en objets { slug }
+      return {
+        ...user,
+        roles: roles.map((slug: string) => ({ slug })),
+        permissions: permissions || []
+      };
+    }
+    
+    // Fallback : si la structure est différente
+    return apiData.user || apiData.data?.user || null;
+  } catch (error: any) {
+    console.error('Error getting current user:', error.message);
     return null; 
   }
 }

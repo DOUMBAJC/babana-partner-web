@@ -1,245 +1,290 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, data, useLoaderData, useActionData, Form } from 'react-router';
 import { 
-  User as UserIcon, 
-  Phone, 
-  CreditCard,
   Loader2,
   Save,
-  Mail,
-  MapPin,
-  ArrowLeft
+  ArrowLeft,
+  CheckCircle,
+  Sparkles
 } from 'lucide-react';
 import {
   Card,
-  Input,
   Button,
-  Label,
   Layout
 } from '~/components';
 import { useTranslation, usePageTitle } from '~/hooks';
-import { customerService } from '~/lib/customer.service'
+import type { IdCardType } from '~/types/customer.types';
+import type { Route } from "./+types/customers.create";
+import { createAuthenticatedApi } from '~/services/api.server';
+import { getLanguage } from '~/services/session.server';
+import { getTranslations, type Language } from '~/lib/translations';
+
+// Import des composants et configurations modulaires
+import { INITIAL_FORM_DATA } from './_create/config';
+import { useCustomerForm } from './_create/hooks/useCustomerForm';
+import {
+  PersonalInfoSection,
+  ContactInfoSection
+} from './_create/components';
+
+// --- LOADER ---
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    const api = await createAuthenticatedApi(request);
+    const response = await api.get('/idCardTypes');
+    
+    const idCardTypes = Array.isArray(response.data) 
+      ? response.data 
+      : (response.data?.data || []);
+
+    return data({ idCardTypes });
+  } catch (error: any) {
+    console.error('Erreur lors du chargement des types de cartes:', error?.message);
+    return data({ idCardTypes: [] });
+  }
+}
+
+// --- ACTION ---
+export async function action({ request }: Route.ActionArgs) {
+  const language = (await getLanguage(request)) as Language;
+  const t = getTranslations(language);
+  
+  const formData = await request.formData();
+  const firstName = formData.get('firstName') as string;
+  const lastName = formData.get('lastName') as string;
+  const idCardTypeId = formData.get('idCardTypeId') as string;
+  const idCardNumber = formData.get('idCardNumber') as string;
+  const phone = formData.get('phone') as string;
+  const email = formData.get('email') as string;
+  const address = formData.get('address') as string;
+
+  if (!firstName || !lastName || !idCardTypeId || !idCardNumber || !phone || !address) {
+    return data({
+      success: false,
+      error: t.customerCreate.errors.createFailed || 'Veuillez remplir tous les champs requis',
+      customer: null
+    }, { status: 400 });
+  }
+
+  try {
+    const api = await createAuthenticatedApi(request);
+    
+    const response = await api.post('/customers', {
+      full_name: `${firstName.trim()} ${lastName.trim()}`,
+      id_card_type_id: parseInt(idCardTypeId),
+      id_card_number: idCardNumber.trim(),
+      phone: phone.trim(),
+      email: email.trim() || undefined,
+      address: address.trim()
+    });
+
+    const customer = response.data?.data || response.data;
+
+    return data({
+      success: true,
+      customer,
+      error: null
+    });
+  } catch (error: any) {
+    console.error('Erreur lors de la création du client:', error);
+    return data({
+      success: false,
+      error: error?.message || t.customerCreate.errors.createFailed || 'Une erreur est survenue',
+      customer: null
+    }, { status: 500 });
+  }
+}
 
 export default function CustomerCreatePage() {
   const { t } = useTranslation();
   usePageTitle(t.pages.customers.create.title);
   const navigate = useNavigate();
+  const { idCardTypes } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    idCard: '',
-    phone: '',
-    email: '',
-    address: ''
-  });
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const {
+    formData,
+    errors,
+    touchedFields,
+    updateField,
+    touchField,
+    validateForm,
+    resetForm,
+    isFormValid
+  } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation);
 
-    try {
-        const response = customerService.createCustomer({
-            full_name: `${formData.firstName} ${formData.lastName}`,
-            id_card_type_id: 1, // Default type, should be selectable in real app
-            id_card_number: formData.idCard,
-            phone: formData.phone,
-            email: formData.email,
-            address: formData.address
-         })
-
-         console.log(response);
-         
-
-        setLoading(false);
-        // In real app: save to DB, then navigate
-        // navigate('/sales/activation', { 
-        //     state: { 
-        //         customer: { ...formData, name: `${formData.firstName} ${formData.lastName}` } 
-        //     } 
-        // });
-    } catch (error) {
+  // Gérer la réponse de l'action
+  useEffect(() => {
+    if (actionData) {
+      setLoading(false);
+      
+      if (actionData.success && actionData.customer) {
+        setSuccessMessage(t.customerCreate.success);
+        setErrorMessage('');
         
+        // Rediriger vers la page d'activation après 1.5 secondes
+        const timeoutId = setTimeout(() => {
+          navigate('/sales/activation', { 
+            state: { 
+              customer: actionData.customer 
+            } 
+          });
+        }, 1500);
+        
+        return () => clearTimeout(timeoutId);
+      } else if (actionData.error) {
+        setErrorMessage(actionData.error);
+        setSuccessMessage('');
+      }
     }
+  }, [actionData, navigate, t.customerCreate.success]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    // La validation côté client avant soumission
+    if (!validateForm()) {
+      e.preventDefault();
+      setErrorMessage(t.customerCreate.errors.createFailed);
+      return;
+    }
+    
+    setLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   return (
     <Layout>
-       <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-         {/* Background Elements */}
+      <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow" />
-            <div className="absolute top-[40%] -left-[10%] w-[40%] h-[40%] bg-secondary/20 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse-slow delay-1000" />
+          <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow" />
+          <div className="absolute top-[40%] -left-[10%] w-[40%] h-[40%] bg-secondary/20 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse-slow delay-1000" />
         </div>
 
         <div className="max-w-4xl mx-auto relative z-10">
-          
+          {/* Bouton retour */}
           <div className="mb-8">
             <Button 
-                variant="ghost" 
-                onClick={() => navigate('/customers/search')}
-                className="group pl-0 hover:bg-transparent hover:text-primary transition-colors"
+              variant="ghost" 
+              onClick={() => navigate('/customers/search')}
+              className="group pl-0 hover:bg-transparent hover:text-primary transition-colors"
+              disabled={loading}
             >
-                <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-                {t.customerSearch.results.cancel}
+              <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+              {t.customerSearch.results.cancel}
             </Button>
           </div>
 
+          {/* Header */}
           <div className="text-center mb-12 space-y-4">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60 drop-shadow-sm">
-                {t.customerCreate.title}
+              {t.customerCreate.title}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {t.customerCreate.subtitle}
             </p>
           </div>
 
+          {/* Message de succès */}
+          {successMessage && (
+            <div className="mb-6 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <CheckCircle className="h-6 w-6 text-green-600 shrink-0" />
+              <p className="text-green-700 dark:text-green-400 font-medium">{successMessage}</p>
+            </div>
+          )}
+
+          {/* Message d'erreur */}
+          {errorMessage && (
+            <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <Sparkles className="h-6 w-6 text-red-600 shrink-0" />
+              <p className="text-red-700 dark:text-red-400 font-medium">{errorMessage}</p>
+            </div>
+          )}
+
+          {/* Carte du formulaire */}
           <Card className="border-0 shadow-2xl bg-card/50 backdrop-blur-xl ring-1 ring-white/10 dark:ring-white/5 overflow-hidden">
-             
-             {/* Card Top Decoration */}
-             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-primary" />
+            {/* Card Top Decoration */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-primary" />
 
-             <form onSubmit={handleSave}>
+            <Form method="post" onSubmit={handleSubmit}>
+              {/* Hidden inputs pour le FormData */}
+              <input type="hidden" name="firstName" value={formData.firstName} />
+              <input type="hidden" name="lastName" value={formData.lastName} />
+              <input type="hidden" name="idCardTypeId" value={formData.idCardTypeId} />
+              <input type="hidden" name="idCardNumber" value={formData.idCardNumber} />
+              <input type="hidden" name="phone" value={formData.phone} />
+              <input type="hidden" name="email" value={formData.email} />
+              <input type="hidden" name="address" value={formData.address} />
+              
               <div className="p-8 md:p-10 space-y-8">
-                
-                {/* Section: Personal Info */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3 border-b border-border/50 pb-2">
-                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                            <UserIcon className="w-5 h-5" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground">{t.customerCreate.personalInfo}</h3>
-                    </div>
+                {/* Section: Informations Personnelles */}
+                <PersonalInfoSection
+                  formData={formData}
+                  errors={errors}
+                  touchedFields={touchedFields}
+                  onFieldChange={updateField}
+                  onFieldBlur={touchField}
+                  idCardTypes={idCardTypes}
+                  t={t}
+                />
+
+                {/* Section: Coordonnées */}
+                <ContactInfoSection
+                  formData={formData}
+                  errors={errors}
+                  touchedFields={touchedFields}
+                  onFieldChange={updateField}
+                  onFieldBlur={touchField}
+                  t={t}
+                />
+
+                {/* Actions */}
+                <div className="pt-6 border-t border-border/40 flex flex-col sm:flex-row justify-end gap-4">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => navigate('/customers/search')}
+                    className="group h-12 rounded-xl px-6 border-2 hover:border-primary/50 transition-all"
+                    disabled={loading}
+                  >
+                    {t.customerSearch.results.cancel}
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={loading || !isFormValid}
+                    className="group relative h-12 rounded-xl px-8 font-semibold overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    style={{
+                      background: 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 100%)',
+                    }}
+                  >
+                    {/* Effet de brillance */}
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2 group">
-                            <Label htmlFor="firstName" className="text-sm font-medium text-muted-foreground group-focus-within:text-primary transition-colors">
-                                {t.customerCreate.fields.firstName}
-                            </Label>
-                            <Input 
-                                id="firstName"
-                                required
-                                value={formData.firstName}
-                                onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                                className="bg-background/50 border-input focus:ring-primary/20 h-11 rounded-xl"
-                            />
-                        </div>
-                        <div className="space-y-2 group">
-                            <Label htmlFor="lastName" className="text-sm font-medium text-muted-foreground group-focus-within:text-primary transition-colors">
-                                {t.customerCreate.fields.lastName}
-                            </Label>
-                            <Input 
-                                id="lastName"
-                                required
-                                value={formData.lastName}
-                                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                className="bg-background/50 border-input focus:ring-primary/20 h-11 rounded-xl"
-                            />
-                        </div>
-                         <div className="space-y-2 group md:col-span-2">
-                            <Label htmlFor="idCard" className="text-sm font-medium text-muted-foreground group-focus-within:text-primary transition-colors">
-                                {t.customerCreate.fields.idCard}
-                            </Label>
-                             <div className="relative">
-                                <CreditCard className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                                <Input 
-                                    id="idCard"
-                                    required
-                                    value={formData.idCard}
-                                    onChange={(e) => setFormData({...formData, idCard: e.target.value})}
-                                    className="pl-10 bg-background/50 border-input focus:ring-primary/20 h-11 rounded-xl"
-                                />
-                            </div>
-                        </div>
+                    {/* Contenu */}
+                    <div className="relative z-10 flex items-center justify-center text-white">
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          {t.customerCreate.saving}
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                          {t.customerCreate.save}
+                        </>
+                      )}
                     </div>
+                  </Button>
                 </div>
-
-                {/* Section: Contact Info */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3 border-b border-border/50 pb-2">
-                        <div className="p-2 bg-secondary/10 rounded-lg text-secondary-foreground">
-                            <Phone className="w-5 h-5" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground">{t.customerCreate.contactInfo}</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2 group">
-                             <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground group-focus-within:text-primary transition-colors">
-                                {t.customerCreate.fields.phone}
-                            </Label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                                <Input 
-                                    id="phone"
-                                    type="tel"
-                                    required
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                    className="pl-10 bg-background/50 border-input focus:ring-primary/20 h-11 rounded-xl"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2 group">
-                             <Label htmlFor="email" className="text-sm font-medium text-muted-foreground group-focus-within:text-primary transition-colors">
-                                {t.customerCreate.fields.email}
-                            </Label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                                <Input 
-                                    id="email"
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    className="pl-10 bg-background/50 border-input focus:ring-primary/20 h-11 rounded-xl"
-                                />
-                            </div>
-                        </div>
-                         <div className="space-y-2 group md:col-span-2">
-                             <Label htmlFor="address" className="text-sm font-medium text-muted-foreground group-focus-within:text-primary transition-colors">
-                                {t.customerCreate.fields.address}
-                            </Label>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                                <Input 
-                                    id="address"
-                                    value={formData.address}
-                                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                                    className="pl-10 bg-background/50 border-input focus:ring-primary/20 h-11 rounded-xl"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="pt-6 border-t border-border/40 flex justify-end gap-4">
-                     <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={() => navigate('/customers/search')}
-                        className="h-12 rounded-xl px-6"
-                    >
-                        {t.customerSearch.results.cancel}
-                    </Button>
-                    <Button 
-                        type="submit" 
-                        disabled={loading}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground h-12 rounded-xl px-8 font-semibold shadow-lg shadow-primary/20 transition-all"
-                    >
-                        {loading ? (
-                             <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                        ) : (
-                             <Save className="w-5 h-5 mr-2" />
-                        )}
-                        {t.customerCreate.save}
-                    </Button>
-                </div>
-
               </div>
-             </form>
+            </Form>
           </Card>
         </div>
-       </div>
+      </div>
     </Layout>
   );
 }
