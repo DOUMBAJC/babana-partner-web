@@ -1,78 +1,100 @@
+/**
+ * Configuration et instance Axios principale
+ * Gère les requêtes HTTP vers l'API backend
+ */
+
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
-import { translations, type Language } from "~/lib/translations";
+import {
+  generateCustomUserAgent,
+  addClientMetadataToHeaders,
+} from "./client-metadata";
+import {
+  addGeolocationToHeaders,
+  type GeolocationData,
+} from "./geolocation";
+import {
+  handleAxiosError,
+  logRequest,
+  logResponse,
+  setErrorLanguage,
+  getErrorLanguage,
+  type ApiError,
+} from "./api-error-handler";
+import { API_CONFIG, isPublicEndpoint } from "./api-constants";
 
-export interface ApiError {
-  message: string;
-  status?: number;
-  code?: string;
-  details?: any;
-  error?: any;
-}
+// Ré-exports pour compatibilité avec le code existant
+export type { ApiError, GeolocationData };
+export {
+  requestGeolocation,
+  clearGeolocation,
+  getCachedGeolocation,
+  hasGeolocation,
+} from "./geolocation";
+export {
+  getClientMetadata,
+  generateCustomUserAgent,
+  detectOS,
+  detectBrowser,
+} from "./client-metadata";
 
 /**
- * Liste des endpoints publics qui n'ont pas besoin d'authentification
- * Ces routes ne recevront pas le header Authorization
+ * Création de l'instance Axios configurée
  */
-const PUBLIC_ENDPOINTS = [
-  "/auth/login",
-  "/auth/register",
-  "/auth/forgot-password",
-  "/auth/reset-password",
-  "/auth/verify-email",
-  "/auth/resend-verification",
-  "/public/",
-];
-
-/**
- * Vérifie si une URL est un endpoint public
- */
-const isPublicEndpoint = (url: string | undefined): boolean => {
-  if (!url) return false;
-  return PUBLIC_ENDPOINTS.some(
-    (endpoint) => url === endpoint || url.startsWith(endpoint)
-  );
-};
-
-
-
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL || "http://localhost:8000/api",
-  timeout: parseInt(import.meta.env.VITE_APP_API_TIMEOUT || "30000", 10),
+  baseURL: API_CONFIG.baseURL,
+  timeout: API_CONFIG.timeout,
   headers: {
     "Content-Type": "application/json",
-    "X-API-Key": import.meta.env.VITE_APP_API_KEY,
+    "X-API-Key": API_CONFIG.apiKey,
+    "User-Agent": generateCustomUserAgent(),
   },
-  withCredentials: true
+  withCredentials: true,
 });
 
-let currentLanguage = "fr";
+/**
+ * Gestion de la langue pour l'API
+ */
+let currentLanguage: "fr" | "en" = "fr";
 
-export const setApiLanguage = (language: "fr" | "en") => {
+export const setApiLanguage = (language: "fr" | "en"): void => {
   currentLanguage = language;
+  setErrorLanguage(language);
 };
 
-export const getApiLanguage = () => currentLanguage;
+export const getApiLanguage = (): string => {
+  return currentLanguage;
+};
+
+/**
+ * Intercepteur de requête
+ * Ajoute les headers nécessaires et les métadonnées client
+ */
 axiosInstance.interceptors.request.use(
   (config) => {
+    // Langue de l'API
     config.headers["Accept-Language"] = currentLanguage;
 
-    // Note: Le token est géré côté serveur via les cookies HttpOnly
-    // Les requêtes authentifiées doivent passer par les loaders/actions SSR
-    // Cette instance axios côté client est utilisée uniquement pour les endpoints publics
-
-    const apiKey = import.meta.env.VITE_APP_API_KEY;
-    if (apiKey) {
-      config.headers["X-API-Key"] = apiKey;
+    // Clé API
+    if (API_CONFIG.apiKey) {
+      config.headers["X-API-Key"] = API_CONFIG.apiKey;
     }
 
-    if (import.meta.env.VITE_APP_MODE === 'development') {
+    // Ajout des métadonnées du client
+    if (typeof window !== "undefined") {
+      config.headers = addClientMetadataToHeaders(
+        config.headers as Record<string, string>
+      ) as any;
+
+      // Ajout de la géolocalisation si disponible
+      config.headers = addGeolocationToHeaders(
+        config.headers as Record<string, string>
+      ) as any;
+    }
+
+    // Log en développement
+    if (API_CONFIG.isDevelopment) {
       const isPublic = isPublicEndpoint(config.url);
-      console.log(
-        "📤 API Request:",
-        config.method?.toUpperCase(),
-        config.url,
-        isPublic ? "(public)" : "(⚠️ requires SSR for auth)"
-      );
+      logRequest(config.method, config.url, isPublic);
     }
 
     return config;
@@ -83,77 +105,37 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+/**
+ * Intercepteur de réponse
+ * Gère les erreurs et les logs
+ */
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (import.meta.env.VITE_MODE === 'development') {
-      console.log("📥 API Response:", response.status, response.config.url);
+    if (API_CONFIG.isDevelopment) {
+      logResponse(response.status, response.config.url);
     }
     return response;
   },
   (error: AxiosError) => {
-    const apiError: ApiError = {
-      message: "Une erreur est survenue",
-      status: error.response?.status,
-    };
-
-    if (error.response) {
-      const data = error.response.data as any;
-      apiError.message = data?.error?.message || data?.message || data?.error || translations[currentLanguage as Language].common.serverError;
-      apiError.code = data?.code;
-      apiError.details = data?.details;
-      console.log('Error message : ', data?.error?.message);
-      
-      const common = translations[currentLanguage as Language].common;
-
-      switch (error.response.status) {
-        case 401:
-          // Rediriger vers la page de login si la session a expiré
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
-          }
-          apiError.message = data?.message || common.sessionExpired;
-          break;
-        case 403:
-          apiError.message = data?.message || common.accessDenied;
-          break;
-        case 404:
-          apiError.message = data?.message || common.resourceNotFound;
-          break;
-        case 422:
-          apiError.message = data?.error?.message || common.invalidData;
-          break;
-        case 429:
-          apiError.message = data?.message || common.tooManyRequests;
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          apiError.message = data?.message || common.serverError;
-          break;
-      }
-    } else if (error.request) {
-      apiError.message = translations[currentLanguage as Language].common.unableToContactServer;
-      apiError.code = "NETWORK_ERROR";
-    } else {
-      apiError.message = error.message || translations[currentLanguage as Language].common.errorPreparingRequest;
-    }
-
-    if (import.meta.env.VITE_MODE === 'development') {
-      console.error("❌ API Error:", error.config?.url, apiError.status, apiError.message);
-    }
-
+    const apiError = handleAxiosError(error, API_CONFIG.isDevelopment);
     return Promise.reject(apiError);
   }
 );
 
+/**
+ * Types pour les requêtes API
+ */
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-export interface RequestOptions extends Omit<AxiosRequestConfig, "method" | "url"> {
+export interface RequestOptions
+  extends Omit<AxiosRequestConfig, "method" | "url"> {
   showLoader?: boolean;
   requiresAuth?: boolean;
 }
 
+/**
+ * Interface simplifiée pour les requêtes API
+ */
 export const api = {
   get: <T = any>(url: string, config?: RequestOptions) =>
     axiosInstance.get<T>(url, config).then((res) => res.data),
@@ -169,6 +151,21 @@ export const api = {
 
   delete: <T = any>(url: string, config?: RequestOptions) =>
     axiosInstance.delete<T>(url, config).then((res) => res.data),
+};
+
+/**
+ * Exporte les informations complètes du client
+ * Utile pour le débogage ou l'affichage dans l'interface
+ */
+export const getClientInfo = () => {
+  const { getClientMetadata } = require("./client-metadata");
+  const { getCachedGeolocation } = require("./geolocation");
+
+  return {
+    ...getClientMetadata(),
+    geolocation: getCachedGeolocation(),
+    customUserAgent: generateCustomUserAgent(),
+  };
 };
 
 export default axiosInstance;

@@ -5,7 +5,8 @@ import {
   Save,
   ArrowLeft,
   CheckCircle,
-  Sparkles
+  AlertTriangle,
+  UserCheck
 } from 'lucide-react';
 import {
   Card,
@@ -22,6 +23,7 @@ import { getTranslations, type Language } from '~/lib/translations';
 // Import des composants et configurations modulaires
 import { INITIAL_FORM_DATA } from './_create/config';
 import { useCustomerForm } from './_create/hooks/useCustomerForm';
+import { useIdCardValidation } from './_search/hooks/useIdCardValidation';
 import {
   PersonalInfoSection,
   ContactInfoSection
@@ -87,10 +89,53 @@ export async function action({ request }: Route.ActionArgs) {
     });
   } catch (error: any) {
     console.error('Erreur lors de la création du client:', error);
+    
+    // Gérer les erreurs spécifiques
+    const status = error?.response?.status;
+    const errorData = error?.response?.data;
+    
+    // 401 - Non authentifié
+    if (status === 401) {
+      return data({
+        success: false,
+        error: 'Vous devez être authentifié',
+        customer: null,
+        errorType: 'authentication'
+      }, { status: 401 });
+    }
+    
+    // 409 - Client existe déjà
+    if (status === 409) {
+      const existingCustomer = errorData?.data;
+      const errorMessage = errorData?.message || 'Ce client existe déjà';
+      
+      return data({
+        success: false,
+        error: errorMessage,
+        customer: null,
+        existingCustomer: existingCustomer,
+        errorType: 'duplicate',
+        validationErrors: errorData?.errors || null
+      }, { status: 409 });
+    }
+    
+    // 422 - Erreurs de validation
+    if (status === 422) {
+      return data({
+        success: false,
+        error: 'Erreurs de validation',
+        customer: null,
+        validationErrors: errorData?.errors || null,
+        errorType: 'validation'
+      }, { status: 422 });
+    }
+    
+    // Autres erreurs
     return data({
       success: false,
-      error: error?.message || t.customerCreate.errors.createFailed || 'Une erreur est survenue',
-      customer: null
+      error: error?.message || errorData?.message || t.customerCreate.errors.createFailed || 'Une erreur est survenue',
+      customer: null,
+      errorType: 'general'
     }, { status: 500 });
   }
 }
@@ -115,7 +160,18 @@ export default function CustomerCreatePage() {
     validateForm,
     resetForm,
     isFormValid
-  } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation);
+  } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
+
+  // Validation du numéro de carte selon le type sélectionné (comme dans customers.search.tsx)
+  const selectedCardType = idCardTypes.find(
+    (type: IdCardType) => type.id.toString() === formData.idCardTypeId
+  );
+
+  const { 
+    validationError: idCardValidationError, 
+    validateIdCardNumber, 
+    setValidationError: setIdCardValidationError 
+  } = useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
 
   // Gérer la réponse de l'action
   useEffect(() => {
@@ -128,24 +184,83 @@ export default function CustomerCreatePage() {
         
         // Rediriger vers la page d'activation après 1.5 secondes
         const timeoutId = setTimeout(() => {
-          navigate('/sales/activation', { 
-            state: { 
-              customer: actionData.customer 
-            } 
+          navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
+            state: {
+              customer: actionData.customer
+            }
           });
         }, 1500);
         
         return () => clearTimeout(timeoutId);
       } else if (actionData.error) {
-        setErrorMessage(actionData.error);
+        const errorType = (actionData as any).errorType;
+        
+        // Erreur de duplication - proposer d'activer le client existant
+        if (errorType === 'duplicate' && (actionData as any).existingCustomer) {
+          const existingCustomer = (actionData as any).existingCustomer;
+          setErrorMessage(
+            `${actionData.error} - Client: ${existingCustomer.full_name}. Souhaitez-vous l'activer ?`
+          );
+        } 
+        // Erreurs de validation backend
+        else if (errorType === 'validation' && (actionData as any).validationErrors) {
+          const validationErrors = (actionData as any).validationErrors;
+          const errorMessages = Object.entries(validationErrors)
+            .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+            .join(' | ');
+          setErrorMessage(`${actionData.error}: ${errorMessages}`);
+        }
+        // Erreur d'authentification
+        else if (errorType === 'authentication') {
+          setErrorMessage(actionData.error);
+          // Rediriger vers login après 2 secondes
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        }
+        // Autres erreurs
+        else {
+          setErrorMessage(actionData.error);
+        }
+        
         setSuccessMessage('');
       }
     }
   }, [actionData, navigate, t.customerCreate.success]);
 
+  // Gérer le changement du type de carte
+  const handleIdCardTypeChange = (value: string) => {
+    updateField('idCardTypeId', value);
+    
+    // Revalider le numéro de carte si déjà rempli
+    if (formData.idCardNumber) {
+      setTimeout(() => {
+        const newCardType = idCardTypes.find(
+          (type: IdCardType) => type.id.toString() === value
+        );
+        if (newCardType?.validation_pattern) {
+          validateIdCardNumber(formData.idCardNumber);
+        } else {
+          setIdCardValidationError('');
+        }
+      }, 100);
+    }
+  };
+
+  // Gérer le changement du numéro de carte
+  const handleIdCardNumberChange = (value: string) => {
+    updateField('idCardNumber', value);
+    
+    if (value.length > 0) {
+      validateIdCardNumber(value);
+    } else {
+      setIdCardValidationError('');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     // La validation côté client avant soumission
-    if (!validateForm()) {
+    if (!validateForm() || idCardValidationError) {
       e.preventDefault();
       setErrorMessage(t.customerCreate.errors.createFailed);
       return;
@@ -155,6 +270,9 @@ export default function CustomerCreatePage() {
     setErrorMessage('');
     setSuccessMessage('');
   };
+
+  // Vérifier si le formulaire est vraiment valide (tous les champs + pas d'erreur de validation carte)
+  const isFormReallyValid = isFormValid && !idCardValidationError && formData.idCardNumber.length >= 5;
 
   return (
     <Layout>
@@ -199,9 +317,48 @@ export default function CustomerCreatePage() {
 
           {/* Message d'erreur */}
           {errorMessage && (
-            <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-              <Sparkles className="h-6 w-6 text-red-600 shrink-0" />
-              <p className="text-red-700 dark:text-red-400 font-medium">{errorMessage}</p>
+            <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-5 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-red-500/20 rounded-full shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-1">
+                    Erreur
+                  </h4>
+                  <p className="text-red-600 dark:text-red-400 text-sm">{errorMessage}</p>
+                  
+                  {/* Si client existe, proposer d'aller à l'activation */}
+                  {(actionData as any)?.errorType === 'duplicate' && (actionData as any)?.existingCustomer && (
+                    <div className="mt-4 flex gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-red-500/30 hover:bg-red-500/10"
+                        onClick={() => {
+                          const customer = (actionData as any).existingCustomer;
+                          navigate(`/sales/activation?customerId=${customer.id}`, {
+                            state: { customer }
+                          });
+                        }}
+                      >
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Activer ce client
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => {
+                          setErrorMessage('');
+                          resetForm();
+                        }}
+                      >
+                        Réessayer
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -228,7 +385,11 @@ export default function CustomerCreatePage() {
                   touchedFields={touchedFields}
                   onFieldChange={updateField}
                   onFieldBlur={touchField}
+                  onIdCardTypeChange={handleIdCardTypeChange}
+                  onIdCardNumberChange={handleIdCardNumberChange}
                   idCardTypes={idCardTypes}
+                  idCardValidationError={idCardValidationError}
+                  selectedCardType={selectedCardType}
                   t={t}
                 />
 
@@ -255,7 +416,7 @@ export default function CustomerCreatePage() {
                   </Button>
                   <Button 
                     type="submit" 
-                    disabled={loading || !isFormValid}
+                    disabled={loading || !isFormReallyValid}
                     className="group relative h-12 rounded-xl px-8 font-semibold overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     style={{
                       background: 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 100%)',

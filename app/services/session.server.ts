@@ -42,14 +42,14 @@ export async function getUserToken(request: Request) {
 export async function requireUserToken(request: Request) {
   const token = await getUserToken(request);
   if (!token) {
-    throw redirect("/auth/login");
+    throw redirect("/login");
   }
   return token;
 }
 
 export async function logout(request: Request) {
   const session = await getSession(request.headers.get("Cookie"));
-  return redirect("/auth/login", {
+  return redirect("/login", {
     headers: {
       "Set-Cookie": await destroySession(session),
     },

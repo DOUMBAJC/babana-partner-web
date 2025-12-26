@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useActionData, useNavigation, Form, data } from 'react-router';
+import { Link, useLocation, useActionData, useNavigation, Form, data, redirect } from 'react-router';
 import { useAuth, useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import type { LoginCredentials } from '~/types';
 import type { Route } from "./+types/login";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { createUserSession, getLanguage } from '~/services/session.server';
+import { createUserSession, getLanguage, getUserToken } from '~/services/session.server';
 import { createApiFromRequest } from '~/services/api.server';
 import { getTranslations, type Language } from '~/lib/translations';
 
@@ -13,6 +13,18 @@ export function meta({}: Route.MetaArgs) {
   return [
     { title: "BABANA - Connexion" }
   ];
+}
+
+// Loader pour rediriger les utilisateurs déjà connectés
+export async function loader({ request }: Route.LoaderArgs) {
+  const token = await getUserToken(request);
+  
+  // Si l'utilisateur a déjà un token (est connecté), rediriger vers l'accueil
+  if (token) {
+    throw redirect('/');
+  }
+  
+  return null;
 }
 
 // Action côté serveur pour gérer le login de manière sécurisée

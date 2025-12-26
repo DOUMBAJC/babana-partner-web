@@ -390,6 +390,10 @@ export interface Translations {
         title: string;
         description: string;
       };
+      activationRequests: {
+        title: string;
+        description: string;
+      };
     };
   };
   // Rôles
@@ -539,6 +543,110 @@ export interface Translations {
     activate: string;
     success: string;
     backToSearch: string;
+  };
+  // Activation Requests
+  activationRequests: {
+    title: string;
+    subtitle: string;
+    stats: {
+      total: string;
+      totalDesc: string;
+      pending: string;
+      pendingDesc: string;
+      processing: string;
+      processingDesc: string;
+      activated: string;
+      activatedDesc: string;
+      rejected: string;
+      rejectedDesc: string;
+    };
+    filters: {
+      title: string;
+      search: string;
+      searchPlaceholder: string;
+      status: string;
+      allStatuses: string;
+      dateFrom: string;
+      dateTo: string;
+      datePlaceholder: string;
+      apply: string;
+      clear: string;
+    };
+    table: {
+      id: string;
+      customer: string;
+      simNumber: string;
+      iccid: string;
+      ba: string;
+      status: string;
+      date: string;
+      actions: string;
+      viewDetails: string;
+      accept: string;
+      reject: string;
+      noResults: string;
+      noResultsMessage: string;
+      page: string;
+      of: string;
+      results: string;
+      previous: string;
+      next: string;
+    };
+    status: {
+      pending: string;
+      processing: string;
+      activated: string;
+      rejected: string;
+      cancelled: string;
+      all: string;
+    };
+    details: {
+      title: string;
+      backToList: string;
+      customerInfo: string;
+      simInfo: string;
+      baInfo: string;
+      notesDetails: string;
+      fullName: string;
+      phone: string;
+      cardType: string;
+      cardNumber: string;
+      notProvided: string;
+      name: string;
+      email: string;
+      baNotes: string;
+      adminNotes: string;
+      rejectionReason: string;
+      processedBy: string;
+    };
+    accept: {
+      title: string;
+      request: string;
+      notes: string;
+      notesPlaceholder: string;
+      notesHelp: string;
+      cancel: string;
+      confirm: string;
+      processing: string;
+    };
+    reject: {
+      title: string;
+      request: string;
+      reason: string;
+      reasonPlaceholder: string;
+      reasonRequired: string;
+      notes: string;
+      notesPlaceholder: string;
+      cancel: string;
+      confirm: string;
+      processing: string;
+    };
+    accessDenied: {
+      title: string;
+      message: string;
+      backHome: string;
+    };
+    notFound: string;
   };
 };
 
@@ -908,6 +1016,10 @@ export const translations: Record<Language, Translations> = {
           title: "Activation - BABANA Partner",
           description: "Activez un client dans la plateforme BABANA Partner",
         },
+        activationRequests: {
+          title: "Requêtes d'Activation - BABANA Partner",
+          description: "Gérez et traitez les requêtes d'activation de cartes SIM",
+        },
       },
     },
     roles: {
@@ -1102,6 +1214,109 @@ export const translations: Record<Language, Translations> = {
       activate: "Activer la SIM",
       success: "Demande d'activation SIM soumise avec succès !",
       backToSearch: "Retour à la recherche client",
+    },
+    activationRequests: {
+      title: "Requêtes d'Activation",
+      subtitle: "Gérez et traitez les demandes d'activation de cartes SIM",
+      stats: {
+        total: "Total",
+        totalDesc: "Toutes les requêtes",
+        pending: "En Attente",
+        pendingDesc: "À traiter",
+        processing: "En Traitement",
+        processingDesc: "En cours",
+        activated: "Activées",
+        activatedDesc: "Complétées",
+        rejected: "Rejetées",
+        rejectedDesc: "Refusées",
+      },
+      filters: {
+        title: "Filtres",
+        search: "Recherche",
+        searchPlaceholder: "Numéro SIM, ICCID, client...",
+        status: "Statut",
+        allStatuses: "Tous les statuts",
+        dateFrom: "Date de début",
+        dateTo: "Date de fin",
+        datePlaceholder: "Sélectionner une date",
+        apply: "Filtrer",
+        clear: "Effacer",
+      },
+      table: {
+        id: "ID",
+        customer: "Client",
+        simNumber: "Numéro SIM",
+        iccid: "ICCID",
+        ba: "BA",
+        status: "Statut",
+        date: "Date",
+        actions: "Actions",
+        viewDetails: "Voir détails",
+        accept: "Accepter",
+        reject: "Rejeter",
+        noResults: "Aucune requête trouvée",
+        noResultsMessage: "Aucune requête d'activation ne correspond à vos critères de recherche.",
+        page: "Page",
+        of: "sur",
+        results: "résultat",
+        previous: "Précédent",
+        next: "Suivant",
+      },
+      status: {
+        pending: "En attente",
+        processing: "En traitement",
+        activated: "Activée",
+        rejected: "Rejetée",
+        cancelled: "Annulée",
+        all: "Tous les statuts",
+      },
+      details: {
+        title: "Requête d'Activation",
+        backToList: "Retour à la liste",
+        customerInfo: "Informations Client",
+        simInfo: "Informations SIM",
+        baInfo: "Brand Ambassador",
+        notesDetails: "Notes et Détails",
+        fullName: "Nom complet",
+        phone: "Téléphone",
+        cardType: "Type de carte",
+        cardNumber: "Numéro de carte",
+        notProvided: "Non renseigné",
+        name: "Nom",
+        email: "Email",
+        baNotes: "Notes BA",
+        adminNotes: "Notes Admin",
+        rejectionReason: "Raison du rejet",
+        processedBy: "Traité par",
+      },
+      accept: {
+        title: "Accepter la requête",
+        request: "Requête",
+        notes: "Notes (Optionnel)",
+        notesPlaceholder: "Ajouter des notes sur cette activation...",
+        notesHelp: "Ces notes seront visibles dans l'historique de la requête",
+        cancel: "Annuler",
+        confirm: "Accepter la requête",
+        processing: "Traitement...",
+      },
+      reject: {
+        title: "Rejeter la requête",
+        request: "Requête",
+        reason: "Raison du rejet",
+        reasonPlaceholder: "Ex: Document non valide, informations incorrectes...",
+        reasonRequired: "La raison du rejet est obligatoire",
+        notes: "Notes additionnelles (Optionnel)",
+        notesPlaceholder: "Notes internes...",
+        cancel: "Annuler",
+        confirm: "Rejeter la requête",
+        processing: "Traitement...",
+      },
+      accessDenied: {
+        title: "Accès Refusé",
+        message: "Vous n'avez pas les permissions nécessaires pour accéder à cette page. Seuls les Activateurs, Administrateurs et Super Administrateurs peuvent consulter les requêtes d'activation.",
+        backHome: "Retour à l'accueil",
+      },
+      notFound: "Requête introuvable",
     },
   },
   en: {
@@ -1469,6 +1684,10 @@ export const translations: Record<Language, Translations> = {
           title: "Activation - BABANA Partner",
           description: "Activate a customer in the BABANA partner platform",
         },
+        activationRequests: {
+          title: "Activation Requests - BABANA Partner",
+          description: "Manage and process SIM card activation requests",
+        },
       },
     },
     roles: {
@@ -1663,6 +1882,109 @@ export const translations: Record<Language, Translations> = {
       activate: "Activate SIM",
       success: "SIM Activation Request Submitted Successfully!",
       backToSearch: "Back to Customer Search",
+    },
+    activationRequests: {
+      title: "Activation Requests",
+      subtitle: "Manage and process SIM card activation requests",
+      stats: {
+        total: "Total",
+        totalDesc: "All requests",
+        pending: "Pending",
+        pendingDesc: "To process",
+        processing: "Processing",
+        processingDesc: "In progress",
+        activated: "Activated",
+        activatedDesc: "Completed",
+        rejected: "Rejected",
+        rejectedDesc: "Refused",
+      },
+      filters: {
+        title: "Filters",
+        search: "Search",
+        searchPlaceholder: "SIM number, ICCID, customer...",
+        status: "Status",
+        allStatuses: "All statuses",
+        dateFrom: "Start Date",
+        dateTo: "End Date",
+        datePlaceholder: "Select a date",
+        apply: "Filter",
+        clear: "Clear",
+      },
+      table: {
+        id: "ID",
+        customer: "Customer",
+        simNumber: "SIM Number",
+        iccid: "ICCID",
+        ba: "BA",
+        status: "Status",
+        date: "Date",
+        actions: "Actions",
+        viewDetails: "View Details",
+        accept: "Accept",
+        reject: "Reject",
+        noResults: "No requests found",
+        noResultsMessage: "No activation request matches your search criteria.",
+        page: "Page",
+        of: "of",
+        results: "result",
+        previous: "Previous",
+        next: "Next",
+      },
+      status: {
+        pending: "Pending",
+        processing: "Processing",
+        activated: "Activated",
+        rejected: "Rejected",
+        cancelled: "Cancelled",
+        all: "All statuses",
+      },
+      details: {
+        title: "Activation Request",
+        backToList: "Back to list",
+        customerInfo: "Customer Information", 
+        simInfo: "SIM Information",
+        baInfo: "Brand Ambassador",
+        notesDetails: "Notes and Details",
+        fullName: "Full name",
+        phone: "Phone",
+        cardType: "Card type",
+        cardNumber: "Card number",
+        notProvided: "Not provided",
+        name: "Name",
+        email: "Email",
+        baNotes: "BA Notes",
+        adminNotes: "Admin Notes",
+        rejectionReason: "Rejection reason",
+        processedBy: "Processed by",
+      },
+      accept: {
+        title: "Accept request",
+        request: "Request",
+        notes: "Notes (Optional)",
+        notesPlaceholder: "Add notes about this activation...",
+        notesHelp: "These notes will be visible in the request history",
+        cancel: "Cancel",
+        confirm: "Accept request",
+        processing: "Processing...",
+      },
+      reject: {
+        title: "Reject request",
+        request: "Request",
+        reason: "Rejection reason",
+        reasonPlaceholder: "E.g.: Invalid document, incorrect information...",
+        reasonRequired: "Rejection reason is required",
+        notes: "Additional notes (Optional)",
+        notesPlaceholder: "Internal notes...",
+        cancel: "Cancel",
+        confirm: "Reject request",
+        processing: "Processing...",
+      },
+      accessDenied: {
+        title: "Access Denied",
+        message: "You do not have the necessary permissions to access this page. Only Activators, Administrators and Super Administrators can view activation requests.",
+        backHome: "Back to home",
+      },
+      notFound: "Request not found",
     },
   },
 };

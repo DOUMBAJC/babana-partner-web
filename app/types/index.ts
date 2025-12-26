@@ -6,7 +6,7 @@ export type {
   User,
   AuthState,
   LoginCredentials,
-  RegisterData,
+  RegisterFormData,
   AccountStatus,
 } from './auth.types';
 
@@ -29,6 +29,7 @@ export type {
   ProcessActivationRequestData,
   ActivationRequestFilters,
   ActivationRequestStats,
+  ActivationRequestStatsResponse,
 } from './activation-request.types';
 
 // API types

@@ -22,7 +22,7 @@ export interface ActivationRequest {
   baId: number;
   customerId: number;
   processedBy?: number;
-  simNumber: string;
+  sim_number: string;
   iccid: string;
   imei?: string;
   status: ActivationRequestStatus;
@@ -84,7 +84,7 @@ export interface ActivationHistory {
  */
 export interface CreateActivationRequestData {
   customerId: number;
-  simNumber: string;
+  sim_number: string;
   iccid: string;
   imei?: string;
   baNotes?: string;
@@ -95,7 +95,7 @@ export interface CreateActivationRequestData {
  * Données pour modifier une requête d'activation (BA)
  */
 export interface UpdateActivationRequestData {
-  simNumber?: string;
+  sim_number?: string;
   iccid?: string;
   imei?: string;
   baNotes?: string;
@@ -120,7 +120,7 @@ export interface ActivationRequestFilters {
   baId?: number;
   customerId?: number;
   processedBy?: number;
-  simNumber?: string;
+  sim_number?: string;
   iccid?: string;
   submittedFrom?: string;
   submittedTo?: string;
@@ -131,7 +131,41 @@ export interface ActivationRequestFilters {
 }
 
 /**
- * Statistiques des requêtes d'activation
+ * Statistiques des requêtes d'activation (format serveur)
+ */
+export interface ActivationRequestStatsResponse {
+  overview: {
+    total: number;
+    pending: number;
+    processing: number;
+    approved?: number;
+    activated: number;
+    rejected: number;
+    cancelled: number;
+  };
+  temporal: {
+    today: { total: number; activated: number; rejected: number };
+    this_week: { total: number; activated: number; rejected: number };
+    this_month: { total: number; activated: number; rejected: number };
+  };
+  performance: {
+    success_rate: number;
+    avg_processing_time_minutes: number | null;
+    total_processed: number;
+  };
+  by_ba: Array<{
+    ba_id: number;
+    ba_name: string;
+    total: number;
+    activated: number;
+    rejected: number;
+    pending: number;
+  }>;
+  generated_at: string;
+}
+
+/**
+ * Statistiques des requêtes d'activation (format frontend)
  */
 export interface ActivationRequestStats {
   total: number;

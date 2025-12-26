@@ -1,4 +1,4 @@
-import { User as UserIcon, CreditCard, AlertCircle } from 'lucide-react';
+import { User as UserIcon, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
 import { FormSection } from './FormSection';
 import { FormField } from './FormField';
 import { Label } from '~/components';
@@ -12,7 +12,11 @@ interface PersonalInfoSectionProps {
   touchedFields: Set<keyof CustomerFormData>;
   onFieldChange: (field: keyof CustomerFormData, value: string) => void;
   onFieldBlur: (field: keyof CustomerFormData) => void;
+  onIdCardTypeChange: (value: string) => void;
+  onIdCardNumberChange: (value: string) => void;
   idCardTypes: IdCardType[];
+  idCardValidationError: string;
+  selectedCardType?: IdCardType;
   t: any;
 }
 
@@ -25,7 +29,11 @@ export function PersonalInfoSection({
   touchedFields,
   onFieldChange,
   onFieldBlur,
+  onIdCardTypeChange,
+  onIdCardNumberChange,
   idCardTypes,
+  idCardValidationError,
+  selectedCardType,
   t
 }: PersonalInfoSectionProps) {
   return (
@@ -67,15 +75,7 @@ export function PersonalInfoSection({
             <div className="pl-10">
               <EnhancedSelect
                 value={formData.idCardTypeId}
-                onValueChange={(value) => {
-                  onFieldChange('idCardTypeId', value);
-                }}
-                onOpenChange={(open) => {
-                  // Marquer comme touché seulement quand le dropdown se ferme
-                  if (!open && !touchedFields.has('idCardTypeId')) {
-                    onFieldBlur('idCardTypeId');
-                  }
-                }}
+                onValueChange={onIdCardTypeChange}
                 placeholder={t.customerCreate.fields.selectIdCardType}
                 required={true}
                 error={touchedFields.has('idCardTypeId') ? errors.idCardTypeId : undefined}
@@ -108,18 +108,34 @@ export function PersonalInfoSection({
           )}
         </div>
 
-        {/* Numéro de carte d'identité */}
-        <FormField
-          id="idCardNumber"
-          label={t.customerCreate.fields.idCard}
-          value={formData.idCardNumber}
-          onChange={(value) => onFieldChange('idCardNumber', value)}
-          onBlur={() => onFieldBlur('idCardNumber')}
-          error={touchedFields.has('idCardNumber') ? errors.idCardNumber : undefined}
-          icon={CreditCard}
-          required
-          showSuccess={touchedFields.has('idCardNumber') && !errors.idCardNumber}
-        />
+        {/* Numéro de carte d'identité - avec validation pattern comme customers.search.tsx */}
+        <div className="space-y-2">
+          <FormField
+            id="idCardNumber"
+            label={t.customerCreate.fields.idCard}
+            value={formData.idCardNumber}
+            onChange={(value) => onIdCardNumberChange(value)}
+            onBlur={() => onFieldBlur('idCardNumber')}
+            error={touchedFields.has('idCardNumber') ? errors.idCardNumber : undefined}
+            icon={CreditCard}
+            required
+            showSuccess={false}
+          />
+          {/* Message d'erreur de validation du pattern */}
+          {idCardValidationError && touchedFields.has('idCardNumber') && (
+            <div className="flex items-start gap-2 text-red-600 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <p className="text-sm">{idCardValidationError}</p>
+            </div>
+          )}
+          {/* Message de succès si pattern valide */}
+          {selectedCardType?.validation_pattern && !idCardValidationError && formData.idCardNumber && touchedFields.has('idCardNumber') && !errors.idCardNumber && (
+            <div className="flex items-start gap-2 text-green-600 dark:text-green-400 animate-in fade-in slide-in-from-top-1 duration-200">
+              <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <p className="text-sm">Format valide pour {selectedCardType.name}</p>
+            </div>
+          )}
+        </div>
       </div>
     </FormSection>
   );

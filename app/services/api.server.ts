@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { getUserToken, logout, getLanguage } from "./session.server";
 import type { User } from "~/types/auth.types";
+import type { Role } from "~/types/auth.types";
 
 /**
  * Liste des endpoints publics qui n'ont pas besoin d'authentification
@@ -102,7 +103,7 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
       // Merger user avec roles transformés en objets { slug }
       return {
         ...user,
-        roles: roles.map((slug: string) => ({ slug })),
+        roles: roles.map((role: Role) => role),
         permissions: permissions || []
       };
     }

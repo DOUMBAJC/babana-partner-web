@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CustomerFormData, CustomerFormErrors } from '../config';
-import { VALIDATION_PATTERNS } from '../config';
+import { VALIDATION_PATTERNS, validateCameroonPhone } from '../config';
+import type { IdCardType } from '~/types/customer.types';
 
 interface ValidationMessages {
   required: string;
@@ -17,7 +18,8 @@ interface ValidationMessages {
  */
 export function useCustomerForm(
   initialData: CustomerFormData,
-  validationMessages: ValidationMessages
+  validationMessages: ValidationMessages,
+  idCardTypes?: IdCardType[]
 ) {
   const [formData, setFormData] = useState<CustomerFormData>(initialData);
   const [errors, setErrors] = useState<CustomerFormErrors>({});
@@ -38,17 +40,24 @@ export function useCustomerForm(
     switch (field) {
       case 'firstName':
       case 'lastName':
+        if (value && value.trim().length < 2) {
+          return validationMessages.minLength.replace('{min}', '2');
+        }
         if (value && !VALIDATION_PATTERNS.name.test(value)) {
           return validationMessages.invalidName;
         }
-        if (value && value.length < 2) {
-          return validationMessages.minLength.replace('{min}', '2');
+        // Vérifier que ce n'est pas seulement des espaces
+        if (value && value.trim().length === 0) {
+          return validationMessages.required;
         }
         break;
 
       case 'phone':
-        if (value && !VALIDATION_PATTERNS.phone.test(value)) {
-          return validationMessages.invalidPhone;
+        if (value) {
+          const phoneValidation = validateCameroonPhone(value);
+          if (!phoneValidation.isValid) {
+            return phoneValidation.message || validationMessages.invalidPhone;
+          }
         }
         break;
 
@@ -63,6 +72,7 @@ export function useCustomerForm(
         if (value && value.length < 5) {
           return validationMessages.minLength.replace('{min}', '5');
         }
+        // Note: La validation du pattern est gérée séparément via useIdCardValidation
         break;
 
       case 'address':
@@ -101,11 +111,12 @@ export function useCustomerForm(
   const updateField = (field: keyof CustomerFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Valider le champ si déjà touché
-    if (touchedFields.has(field)) {
-      const error = validateField(field, value);
-      setErrors(prev => ({ ...prev, [field]: error }));
-    }
+    // Marquer le champ comme touché automatiquement
+    setTouchedFields(prev => new Set(prev).add(field));
+    
+    // Valider le champ immédiatement (onChange)
+    const error = validateField(field, value);
+    setErrors(prev => ({ ...prev, [field]: error }));
   };
 
   /**

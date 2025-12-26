@@ -1,5 +1,5 @@
 import { api, type ApiError } from './axios';
-import type { User, LoginCredentials, RegisterData } from '~/types';
+import type { User, LoginCredentials, RegisterFormData } from '~/types';
 
 /**
  * Réponse de l'API pour la connexion
@@ -60,7 +60,7 @@ export const authService = {
   /**
    * Enregistrement d'un nouvel utilisateur
    */
-  register: async (data: RegisterData): Promise<RegisterResponse> => {
+  register: async (data: RegisterFormData): Promise<RegisterResponse> => {
     try {
       const response = await api.post<RegisterResponse>('/auth/register', data);
       return response;

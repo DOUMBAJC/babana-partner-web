@@ -13,6 +13,7 @@ export { UserMenu } from './UserMenu';
 export { AuthLayout } from './AuthLayout';
 export { FormInput } from './FormInput';
 export { NotFound } from './NotFound';
+export { ClientInfoDebug } from './ClientInfoDebug';
 
 // shadcn/ui Components
 export { Button } from './ui/button';

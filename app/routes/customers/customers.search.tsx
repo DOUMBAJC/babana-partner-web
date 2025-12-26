@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, data, useActionData } from 'react-router';
 import { 
-  Loader2,
   AlertCircle,
   Sparkles,
   ShieldCheck,
@@ -24,7 +23,6 @@ import { getTranslations, type Language } from '~/lib/translations';
 import { AUTHORIZED_ROLES, type SearchQuery, type ActivationStatus } from './_search/config';
 import { useIdCardValidation } from './_search/hooks/useIdCardValidation';
 import {
-  AccessDenied,
   CustomerFoundCard,
   CustomerNotFoundCard,
   SearchForm
@@ -34,6 +32,7 @@ import {
 export async function loader({ request }: Route.LoaderArgs) {
   try {
     const user = await getCurrentUser(request);
+    console.log('user', user);
     
     if (!user) {
       return data({ 
@@ -44,9 +43,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       });
     }
 
-    const hasAccess = user.roles?.some((role: any) => 
-      AUTHORIZED_ROLES.includes(role.slug)
-    );
+    
+    const hasAccess = user.roles?.some((role) => AUTHORIZED_ROLES.includes(role))
 
     if (!hasAccess) {
       return data({ 
@@ -129,12 +127,54 @@ export async function action({ request }: Route.ActionArgs) {
     }
   } catch (error: any) {
     console.error('Erreur lors de la recherche:', error);
+    
+    const status = error?.response?.status;
+    const errorData = error?.response?.data;
+    
+    // 401 - Non authentifié
+    if (status === 401) {
+      return data({
+        success: false,
+        searchStatus: 'idle',
+        customer: null,
+        activationStatus: null,
+        error: 'Vous devez être authentifié',
+        errorType: 'authentication'
+      }, { status: 401 });
+    }
+    
+    // 403 - Non autorisé
+    if (status === 403) {
+      return data({
+        success: false,
+        searchStatus: 'idle',
+        customer: null,
+        activationStatus: null,
+        error: 'Vous n\'avez pas les permissions nécessaires',
+        errorType: 'authorization'
+      }, { status: 403 });
+    }
+    
+    // 422 - Erreurs de validation
+    if (status === 422) {
+      return data({
+        success: false,
+        searchStatus: 'idle',
+        customer: null,
+        activationStatus: null,
+        error: 'Erreurs de validation',
+        validationErrors: errorData?.errors || null,
+        errorType: 'validation'
+      }, { status: 422 });
+    }
+    
     return data({
       success: false,
       searchStatus: 'idle',
       customer: null,
       activationStatus: null,
-      error: error?.message || 'Une erreur est survenue lors de la recherche'
+      error: error?.message || errorData?.message || 'Une erreur est survenue lors de la recherche',
+      errorType: 'general'
     }, { status: 500 });
   }
 }
@@ -227,26 +267,19 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
 
   const handleActivateCustomer = () => {
     if (customer) {
-      navigate('/sales/activation', { state: { customer } });
+      navigate(`/sales/activation?customerId=${customer.id}`, { state: { customer } });
     }
   };
 
-  // --- ÉTATS D'AFFICHAGE ---
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (isAuthenticated && !hasAccess) {
-    return (
-      <Layout>
-        <AccessDenied onBackHome={() => navigate('/')} />
-      </Layout>
-    );
-  }
+  useEffect(()=>{
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  
+    if (isAuthenticated && !hasAccess) {
+      navigate('/unauthorized');
+    }
+  }, [isAuthenticated, hasAccess])
 
   const isLocked = searchStatus === 'found';
 
@@ -302,13 +335,48 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
 
               {/* Message d'erreur */}
               {errorMessage && searchStatus !== 'found' && (
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex items-start gap-4">
-                  <div className="p-2 bg-yellow-500/20 rounded-full text-yellow-600 mt-1">
+                <div className={`border rounded-xl p-5 flex items-start gap-4 ${
+                  (actionData as any)?.errorType === 'authentication' || (actionData as any)?.errorType === 'authorization'
+                    ? 'bg-red-500/10 border-red-500/20'
+                    : 'bg-yellow-500/10 border-yellow-500/20'
+                }`}>
+                  <div className={`p-2 rounded-full mt-1 ${
+                    (actionData as any)?.errorType === 'authentication' || (actionData as any)?.errorType === 'authorization'
+                      ? 'bg-red-500/20 text-red-600'
+                      : 'bg-yellow-500/20 text-yellow-600'
+                  }`}>
                     <AlertCircle className="h-5 w-5" />
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-yellow-700 dark:text-yellow-400">{t.customerSearch.errors.attention}</h4>
-                    <p className="text-sm text-yellow-600/90 dark:text-yellow-400/90 mt-1">{errorMessage}</p>
+                  <div className="flex-1">
+                    <h4 className={`font-semibold ${
+                      (actionData as any)?.errorType === 'authentication' || (actionData as any)?.errorType === 'authorization'
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-yellow-700 dark:text-yellow-400'
+                    }`}>
+                      {(actionData as any)?.errorType === 'authentication' || (actionData as any)?.errorType === 'authorization'
+                        ? 'Accès refusé'
+                        : t.customerSearch.errors.attention
+                      }
+                    </h4>
+                    <p className={`text-sm mt-1 ${
+                      (actionData as any)?.errorType === 'authentication' || (actionData as any)?.errorType === 'authorization'
+                        ? 'text-red-600/90 dark:text-red-400/90'
+                        : 'text-yellow-600/90 dark:text-yellow-400/90'
+                    }`}>
+                      {errorMessage}
+                    </p>
+                    
+                    {/* Afficher les erreurs de validation si disponibles */}
+                    {(actionData as any)?.validationErrors && (
+                      <ul className="mt-2 space-y-1 text-sm">
+                        {Object.entries((actionData as any).validationErrors).map(([field, errors]) => (
+                          <li key={field} className="flex items-start gap-2">
+                            <span className="font-medium">{field}:</span>
+                            <span>{Array.isArray(errors) ? errors.join(', ') : String(errors)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
               )}

@@ -80,11 +80,21 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  camtel_login?: string | null;
+  personal_phone?: string | null;
+  email_verified_at?: string | null;
+  account_status: AccountStatus;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
   roles: RoleSlug[];
   permissions?: Permission[];
   avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  activated_by?: number | null;
+  activated_at?: string | null;
+  rejection_reason?: string | null;
 
   // Relations (chargées via include)
   activator?: {
