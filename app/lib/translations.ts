@@ -202,6 +202,11 @@ export interface Translations {
     partners: string;
     transactions: string;
     help: string;
+    searchCustomer: string;
+    newCustomer: string;
+    simActivation: string;
+    activationRequests: string;
+    admin: string;
   };
   // Actions
   actions: {
@@ -375,6 +380,10 @@ export interface Translations {
       title: string;
       description: string;
     };
+    profile: {
+      title: string;
+      description: string;
+    };
     customers: {
       search: {
         title: string;
@@ -394,6 +403,114 @@ export interface Translations {
         title: string;
         description: string;
       };
+    };
+  };
+  // Profile Page
+  profile: {
+    title: string;
+    subtitle: string;
+    tabs: {
+      general: string;
+      security: string;
+      sessions: string;
+      preferences: string;
+      notifications: string;
+    };
+    general: {
+      title: string;
+      subtitle: string;
+      avatar: string;
+      changeAvatar: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+      roles: string;
+      accountStatus: string;
+      memberSince: string;
+      lastLogin: string;
+      saveChanges: string;
+      saving: string;
+    };
+    security: {
+      title: string;
+      subtitle: string;
+      currentPassword: string;
+      newPassword: string;
+      confirmPassword: string;
+      changePassword: string;
+      changing: string;
+      twoFactor: {
+        title: string;
+        description: string;
+        enable: string;
+        disable: string;
+        enabled: string;
+        disabled: string;
+      };
+      loginHistory: {
+        title: string;
+        device: string;
+        location: string;
+        date: string;
+        current: string;
+      };
+    };
+    sessions: {
+      title: string;
+      subtitle: string;
+      active: string;
+      device: string;
+      location: string;
+      lastActive: string;
+      current: string;
+      revoke: string;
+      revokeAll: string;
+      revoking: string;
+    };
+    preferences: {
+      title: string;
+      subtitle: string;
+      language: {
+        title: string;
+        description: string;
+      };
+      theme: {
+        title: string;
+        description: string;
+      };
+      timezone: {
+        title: string;
+        description: string;
+      };
+      dateFormat: {
+        title: string;
+        description: string;
+      };
+    };
+    notifications: {
+      title: string;
+      subtitle: string;
+      email: {
+        title: string;
+        marketing: string;
+        updates: string;
+        security: string;
+      };
+      push: {
+        title: string;
+        all: string;
+        important: string;
+        none: string;
+      };
+    };
+    messages: {
+      updateSuccess: string;
+      updateError: string;
+      passwordChanged: string;
+      passwordError: string;
+      sessionRevoked: string;
+      sessionsRevoked: string;
     };
   };
   // Rôles
@@ -658,6 +775,11 @@ export const translations: Record<Language, Translations> = {
       partners: "Partenaires",
       transactions: "Transactions",
       help: "Aide",
+      searchCustomer: "Recherche Client",
+      newCustomer: "Nouveau Client",
+      simActivation: "Activation SIM",
+      activationRequests: "Requêtes",
+      admin: "Admin",
     },
     actions: {
       login: "Connexion",
@@ -1001,6 +1123,10 @@ export const translations: Record<Language, Translations> = {
         title: "Matrice des Rôles - BABANA Partner",
         description: "Matrice détaillée des rôles et permissions de la plateforme",
       },
+      profile: {
+        title: "Mon Profil - BABANA Partner",
+        description: "Gérez vos informations personnelles, sécurité et préférences",
+      },
       customers: {
         search: {
           title: "Recherche de Clients - BABANA Partner",
@@ -1318,6 +1444,113 @@ export const translations: Record<Language, Translations> = {
       },
       notFound: "Requête introuvable",
     },
+    profile: {
+      title: "Mon Profil",
+      subtitle: "Gérez vos informations personnelles et vos préférences",
+      tabs: {
+        general: "Général",
+        security: "Sécurité",
+        sessions: "Sessions",
+        preferences: "Préférences",
+        notifications: "Notifications",
+      },
+      general: {
+        title: "Informations Générales",
+        subtitle: "Gérez vos informations personnelles et votre avatar",
+        avatar: "Photo de profil",
+        changeAvatar: "Changer",
+        firstName: "Prénom",
+        lastName: "Nom",
+        email: "Adresse email",
+        phone: "Téléphone",
+        roles: "Rôles",
+        accountStatus: "Statut du compte",
+        memberSince: "Membre depuis",
+        lastLogin: "Dernière connexion",
+        saveChanges: "Enregistrer les modifications",
+        saving: "Enregistrement...",
+      },
+      security: {
+        title: "Sécurité",
+        subtitle: "Gérez votre mot de passe et la sécurité de votre compte",
+        currentPassword: "Mot de passe actuel",
+        newPassword: "Nouveau mot de passe",
+        confirmPassword: "Confirmer le mot de passe",
+        changePassword: "Changer le mot de passe",
+        changing: "Modification...",
+        twoFactor: {
+          title: "Authentification à deux facteurs",
+          description: "Ajoutez une couche de sécurité supplémentaire à votre compte",
+          enable: "Activer",
+          disable: "Désactiver",
+          enabled: "Activée",
+          disabled: "Désactivée",
+        },
+        loginHistory: {
+          title: "Historique de connexion",
+          device: "Appareil",
+          location: "Localisation",
+          date: "Date",
+          current: "Session actuelle",
+        },
+      },
+      sessions: {
+        title: "Sessions Actives",
+        subtitle: "Gérez vos sessions actives sur différents appareils",
+        active: "sessions actives",
+        device: "Appareil",
+        location: "Localisation",
+        lastActive: "Dernière activité",
+        current: "Session actuelle",
+        revoke: "Révoquer",
+        revokeAll: "Révoquer toutes les sessions",
+        revoking: "Révocation...",
+      },
+      preferences: {
+        title: "Préférences",
+        subtitle: "Personnalisez votre expérience sur la plateforme",
+        language: {
+          title: "Langue",
+          description: "Choisissez votre langue préférée",
+        },
+        theme: {
+          title: "Thème",
+          description: "Choisissez le thème de l'interface",
+        },
+        timezone: {
+          title: "Fuseau horaire",
+          description: "Définissez votre fuseau horaire",
+        },
+        dateFormat: {
+          title: "Format de date",
+          description: "Choisissez comment afficher les dates",
+        },
+      },
+      notifications: {
+        title: "Notifications",
+        subtitle: "Configurez vos préférences de notification",
+        email: {
+          title: "Notifications par email",
+          marketing: "Emails marketing et promotionnels",
+          updates: "Mises à jour et nouveautés",
+          security: "Alertes de sécurité",
+        },
+        push: {
+          title: "Notifications push",
+          all: "Toutes les notifications",
+          important: "Seulement les notifications importantes",
+          none: "Aucune notification",
+        },
+      },
+      messages: {
+        updateSuccess: "Profil mis à jour avec succès",
+        updateError: "Erreur lors de la mise à jour du profil",
+        passwordChanged: "Mot de passe modifié avec succès",
+        passwordError: "Erreur lors de la modification du mot de passe",
+        sessionRevoked: "Session révoquée avec succès",
+        sessionsRevoked: "Toutes les sessions ont été révoquées",
+      },
+    },
   },
   en: {
     nav: {
@@ -1326,6 +1559,11 @@ export const translations: Record<Language, Translations> = {
       partners: "Partners",
       transactions: "Transactions",
       help: "Help",
+      searchCustomer: "Search Customer",
+      newCustomer: "New Customer",
+      simActivation: "SIM Activation",
+      activationRequests: "Requests",
+      admin: "Admin",
     },
     actions: {
       login: "Login",
@@ -1669,6 +1907,10 @@ export const translations: Record<Language, Translations> = {
         title: "Roles Matrix - BABANA Partner",
         description: "Detailed matrix of platform roles and permissions",
       },
+      profile: {
+        title: "My Profile - BABANA Partner",
+        description: "Manage your personal information, security and preferences",
+      },
       customers: {
         search: {
           title: "Search Customers - BABANA Partner",
@@ -1985,6 +2227,113 @@ export const translations: Record<Language, Translations> = {
         backHome: "Back to home",
       },
       notFound: "Request not found",
+    },
+    profile: {
+      title: "My Profile",
+      subtitle: "Manage your personal information and preferences",
+      tabs: {
+        general: "General",
+        security: "Security",
+        sessions: "Sessions",
+        preferences: "Preferences",
+        notifications: "Notifications",
+      },
+      general: {
+        title: "General Information",
+        subtitle: "Manage your personal information and avatar",
+        avatar: "Profile picture",
+        changeAvatar: "Change",
+        firstName: "First name",
+        lastName: "Last name",
+        email: "Email address",
+        phone: "Phone",
+        roles: "Roles",
+        accountStatus: "Account status",
+        memberSince: "Member since",
+        lastLogin: "Last login",
+        saveChanges: "Save changes",
+        saving: "Saving...",
+      },
+      security: {
+        title: "Security",
+        subtitle: "Manage your password and account security",
+        currentPassword: "Current password",
+        newPassword: "New password",
+        confirmPassword: "Confirm password",
+        changePassword: "Change password",
+        changing: "Changing...",
+        twoFactor: {
+          title: "Two-factor authentication",
+          description: "Add an extra layer of security to your account",
+          enable: "Enable",
+          disable: "Disable",
+          enabled: "Enabled",
+          disabled: "Disabled",
+        },
+        loginHistory: {
+          title: "Login history",
+          device: "Device",
+          location: "Location",
+          date: "Date",
+          current: "Current session",
+        },
+      },
+      sessions: {
+        title: "Active Sessions",
+        subtitle: "Manage your active sessions across different devices",
+        active: "active sessions",
+        device: "Device",
+        location: "Location",
+        lastActive: "Last active",
+        current: "Current session",
+        revoke: "Revoke",
+        revokeAll: "Revoke all sessions",
+        revoking: "Revoking...",
+      },
+      preferences: {
+        title: "Preferences",
+        subtitle: "Customize your platform experience",
+        language: {
+          title: "Language",
+          description: "Choose your preferred language",
+        },
+        theme: {
+          title: "Theme",
+          description: "Choose your interface theme",
+        },
+        timezone: {
+          title: "Timezone",
+          description: "Set your timezone",
+        },
+        dateFormat: {
+          title: "Date format",
+          description: "Choose how to display dates",
+        },
+      },
+      notifications: {
+        title: "Notifications",
+        subtitle: "Configure your notification preferences",
+        email: {
+          title: "Email notifications",
+          marketing: "Marketing and promotional emails",
+          updates: "Updates and news",
+          security: "Security alerts",
+        },
+        push: {
+          title: "Push notifications",
+          all: "All notifications",
+          important: "Only important notifications",
+          none: "No notifications",
+        },
+      },
+      messages: {
+        updateSuccess: "Profile updated successfully",
+        updateError: "Error updating profile",
+        passwordChanged: "Password changed successfully",
+        passwordError: "Error changing password",
+        sessionRevoked: "Session revoked successfully",
+        sessionsRevoked: "All sessions have been revoked",
+      },
     },
   },
 };

@@ -1,5 +1,18 @@
 import { api, type ApiError } from './axios';
-import type { User, LoginCredentials, RegisterFormData } from '~/types';
+import type { User, LoginCredentials, RegisterFormData, UserSession } from '~/types';
+
+/**
+ * Réponse de l'API pour les sessions
+ */
+export interface SessionsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    sessions: UserSession[];
+    total: number;
+    max_allowed: number;
+  };
+}
 
 /**
  * Réponse de l'API pour la connexion
@@ -161,40 +174,40 @@ export const authService = {
       throw error as ApiError;
     }
   },
+
+  /**
+   * Sessions
+   */
+  getSessions: async (): Promise<UserSession[]> => {
+    try {
+      const response = await api.get<SessionsResponse>('/auth/sessions');
+      return response.data.sessions;
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
+
+  revokeSession: async (tokenId: string): Promise<void> => {
+    try {
+      await api.delete(`/auth/sessions/${tokenId}`);
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
+
+  revokeOtherSessions: async (): Promise<void> => {
+    try {
+      await api.delete('/auth/sessions/other/revoke');
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
+
+  updateActivity: async (): Promise<void> => {
+    try {
+      await api.post('/auth/sessions/activity');
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
 };
-
-/**
- * Exemple d'utilisation dans un composant :
- *
- * ```tsx
- * import { authService } from '~/lib/auth.service';
- * import { useAuth } from '~/hooks';
- *
- * function LoginForm() {
- *   const { updateUser } = useAuth();
- *
- *   const handleLogin = async (credentials: LoginCredentials) => {
- *     try {
- *       const { user, token } = await authService.login(credentials);
- *       
- *       // Sauvegarder le token et l'utilisateur
- *       localStorage.setItem('babana_auth_token', token);
- *       localStorage.setItem('babana_auth_user', JSON.stringify(user));
- *       
- *       // Mettre à jour le contexte
- *       updateUser(user);
- *       
- *       // Rediriger vers le dashboard
- *       navigate('/dashboard');
- *     } catch (error) {
- *       console.error('Login failed:', error);
- *       setError(error.message);
- *     }
- *   };
- *
- *   return <form onSubmit={handleSubmit(handleLogin)}>...</form>;
- * }
- * ```
- */
-
-

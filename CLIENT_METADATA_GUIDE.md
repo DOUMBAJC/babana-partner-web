@@ -237,3 +237,4 @@ Les métadonnées peuvent être utilisées pour :
 - [MDN - Navigator](https://developer.mozilla.org/fr/docs/Web/API/Navigator)
 - [MDN - Screen](https://developer.mozilla.org/fr/docs/Web/API/Screen)
 
+

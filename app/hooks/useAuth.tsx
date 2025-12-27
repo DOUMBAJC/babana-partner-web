@@ -5,7 +5,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
-import { useSubmit } from 'react-router';
+import { redirect, useSubmit } from 'react-router';
 import type { AuthState, User, LoginCredentials } from '~/types/auth.types';
 
 interface AuthContextType extends AuthState {
@@ -47,11 +47,12 @@ export function AuthProvider({
   const login = async (credentials: LoginCredentials) => {
     // Client-side login is deprecated in favor of Form actions.
     // If called, we redirect to login page.
-    window.location.href = "/login";
+    redirect("/login");
+    return;
   };
 
   const logout = () => {
-    submit(null, { method: "post", action: "/auth/logout" });
+    submit(null, { method: "post", action: "/logout" });
   };
 
   const updateUser = (user: User) => {

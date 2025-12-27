@@ -1,6 +1,6 @@
-import { LogOut, User as UserIcon, Shield } from 'lucide-react';
+import { LogOut, User as UserIcon, Shield, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { useAuth, usePermissions } from '~/hooks';
+import { useAuth, usePermissions, useTranslation } from '~/hooks';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,18 +22,19 @@ export function UserMenu() {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
   const permissions = usePermissions();
+  const { t } = useTranslation();
 
   if (!isAuthenticated || !user) {
     return (
       <Button onClick={() => navigate('/login')} variant="default" size="sm">
-        Se connecter
+        <LogIn className="mr-2 h-4 w-4" />
+        {t.actions.login}
       </Button>
     );
   }
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    return logout();
   };
 
   const getInitials = (name: string) => {
@@ -75,13 +76,13 @@ export function UserMenu() {
 
         <DropdownMenuItem onClick={() => navigate('/profile')} className="hover:bg-accent hover:text-accent-foreground cursor-pointer">
           <UserIcon className="mr-2 h-4 w-4" />
-          <span>Profil</span>
+          <span>{t.profile.title}</span>
         </DropdownMenuItem>
 
         {permissions.isAdmin() && (
           <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-accent hover:text-accent-foreground cursor-pointer">
             <Shield className="mr-2 h-4 w-4" />
-            <span>Administration</span>
+            <span>{t.nav.admin}</span>
           </DropdownMenuItem>
         )}
 
@@ -89,7 +90,7 @@ export function UserMenu() {
 
         <DropdownMenuItem onClick={handleLogout} className="text-red-600 dark:text-red-400 hover:bg-accent hover:text-red-600 dark:hover:text-red-400 cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Se déconnecter</span>
+          <span>{t.actions.logout}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

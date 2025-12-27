@@ -8,6 +8,7 @@ export type {
   LoginCredentials,
   RegisterFormData,
   AccountStatus,
+  UserSession,
 } from './auth.types';
 
 // Customer types

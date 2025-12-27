@@ -1,5 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { getUserToken, logout, getLanguage } from "./session.server";
+import { getUserToken, logout, getLanguage, getAcceptLanguageHeader } from "./session.server";
 import type { User } from "~/types/auth.types";
 import type { Role } from "~/types/auth.types";
 
@@ -63,13 +63,13 @@ export const createApi = (options: CreateApiOptions = {}) => {
  * Crée une instance API avec la langue extraite de la requête
  */
 export const createApiFromRequest = async (request: Request) => {
-  const language = await getLanguage(request);
+  const language = await getAcceptLanguageHeader(request);
   return createApi({ language });
 };
 
 export const createAuthenticatedApi = async (request: Request) => {
   const token = await getUserToken(request);
-  const language = await getLanguage(request);
+  const language = await getAcceptLanguageHeader(request);
   const api = createApi({ token, language });
 
   api.interceptors.response.use(

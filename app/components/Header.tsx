@@ -3,29 +3,100 @@ import { Logo } from "~/components/Logo";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { LanguageToggle } from "~/components/LanguageToggle";
 import { MobileNav } from "~/components/MobileNav";
+import { UserMenu } from "~/components/UserMenu";
 import { Button } from "~/components/ui/button";
-import { useScrolled, useTranslation } from "~/hooks";
+import { useScrolled, useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Home, Users, FileText, ClipboardList, Settings } from "lucide-react";
 import logoUrl from "~/assets/logo.png";
+import { hasPermission, isAdmin } from "~/lib/permissions";
 
 interface NavLink {
   href: string;
-  labelKey: keyof ReturnType<typeof useTranslation>["t"]["nav"];
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  permission?: string;
+  requiresAuth?: boolean;
 }
 
 export function Header() {
   const location = useLocation();
   const scrolled = useScrolled(20);
   const { t } = useTranslation();
+  const { user, isAuthenticated } = useAuth();
 
-  const navLinks: NavLink[] = [
-    { href: "/", labelKey: "home" },
-    { href: "/dashboard", labelKey: "dashboard" },
-    { href: "/partenaires", labelKey: "partners" },
-    { href: "/transactions", labelKey: "transactions" },
-    { href: "/aide", labelKey: "help" },
-  ];
+  // Liens de navigation adaptés aux permissions
+  const getNavLinks = (): NavLink[] => {
+    const links: NavLink[] = [
+      { 
+        href: "/", 
+        label: t.nav.home,
+        icon: Home,
+        requiresAuth: false 
+      },
+    ];
+
+    if (isAuthenticated && user) {
+      // Lien recherche client (pour BA, Activateur, Admin, etc.)
+      if (hasPermission(user, 'view-orders') || hasPermission(user, 'create-orders')) {
+        links.push({
+          href: "/customers/search",
+          label: t.nav.searchCustomer,
+          icon: Users,
+          permission: 'view-orders',
+          requiresAuth: true
+        });
+      }
+
+      // Lien création client
+      if (hasPermission(user, 'create-orders')) {
+        links.push({
+          href: "/customers/create",
+          label: t.nav.newCustomer,
+          icon: FileText,
+          permission: 'create-orders',
+          requiresAuth: true
+        });
+      }
+
+      // Lien activation SIM (BA)
+      if (hasPermission(user, 'create-requests')) {
+        links.push({
+          href: "/sales/activation",
+          label: t.nav.simActivation,
+          icon: ClipboardList,
+          permission: 'create-requests',
+          requiresAuth: true
+        });
+      }
+
+      // Lien requêtes d'activation (Activateur, Admin)
+      if (hasPermission(user, 'process-requests') || hasPermission(user, 'approve-requests')) {
+        links.push({
+          href: "/sales/activation-requests",
+          label: t.nav.activationRequests,
+          icon: ClipboardList,
+          permission: 'process-requests',
+          requiresAuth: true
+        });
+      }
+
+      // Lien admin
+      if (isAdmin(user)) {
+        links.push({
+          href: "/admin",
+          label: t.nav.admin,
+          icon: Settings,
+          permission: 'admin-access',
+          requiresAuth: true
+        });
+      }
+    }
+
+    return links;
+  };
+
+  const navLinks = getNavLinks();
 
   return (
     <header
@@ -63,14 +134,18 @@ export function Header() {
           {/* Navigation Desktop */}
           <nav className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.href;
+              const isActive = location.pathname === link.href || 
+                              (link.href !== "/" && location.pathname.startsWith(link.href));
+              const Icon = link.icon;
+              
               return (
                 <Link
                   key={link.href}
                   to={link.href}
                   className={cn(
-                    "relative px-4 py-2 rounded-lg text-sm font-medium",
+                    "relative px-3 py-2 rounded-lg text-sm font-medium",
                     "transition-all duration-300 group",
+                    "flex items-center gap-2",
                     isActive
                       ? "text-babana-cyan dark:text-babana-cyan"
                       : "text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan"
@@ -84,7 +159,8 @@ export function Header() {
                   {/* Hover effect */}
                   <div className="absolute inset-0 bg-babana-cyan/5 dark:bg-babana-cyan/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
-                  <span className="relative z-10">{t.nav[link.labelKey]}</span>
+                  {Icon && <Icon className="w-4 h-4 relative z-10" />}
+                  <span className="relative z-10">{link.label}</span>
                   
                   {/* Bottom border on active */}
                   {isActive && (
@@ -106,30 +182,38 @@ export function Header() {
             {/* Separator */}
             <div className="hidden md:block w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1" />
 
-            {/* Action Buttons Desktop */}
+            {/* Action Buttons Desktop - Afficher selon l'authentification */}
             <div className="hidden md:flex items-center gap-2">
-              <Link to="/login">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/20 transition-all duration-300"
-                >
-                  {t.actions.login}
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button
-                  size="sm"
-                  className="relative overflow-hidden bg-linear-to-r from-babana-cyan to-babana-blue text-white shadow-md hover:shadow-lg hover:shadow-babana-cyan/30 dark:hover:shadow-babana-cyan/50 transition-all duration-300 group"
-                >
-                  <span className="relative z-10 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {t.actions.signup}
-                  </span>
-                  {/* Hover shine effect */}
-                  <div className="absolute inset-0 bg-linear-to-r from-babana-blue to-babana-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </Button>
-              </Link>
+              {isAuthenticated && user ? (
+                // Afficher le menu utilisateur si connecté
+                <UserMenu />
+              ) : (
+                // Afficher les boutons Login/Register si non connecté
+                <>
+                  <Link to="/login">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/20 transition-all duration-300"
+                    >
+                      {t.actions.login}
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button
+                      size="sm"
+                      className="relative overflow-hidden bg-linear-to-r from-babana-cyan to-babana-blue text-white shadow-md hover:shadow-lg hover:shadow-babana-cyan/30 dark:hover:shadow-babana-cyan/50 transition-all duration-300 group"
+                    >
+                      <span className="relative z-10 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        {t.actions.signup}
+                      </span>
+                      {/* Hover shine effect */}
+                      <div className="absolute inset-0 bg-linear-to-r from-babana-blue to-babana-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Navigation */}

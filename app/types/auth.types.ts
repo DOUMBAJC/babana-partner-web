@@ -140,3 +140,28 @@ export interface RegisterFormErrors {
   confirmPassword?: string;
   general?: string;
 }
+
+export interface UserSession {
+  id: number;
+  device_name: string;
+  device_info: {
+    os: string;
+    os_version: string | null;
+    browser: string;
+    browser_version: string | null;
+    device_type: string;
+    platform: string;
+  };
+  client_info: {
+    screen_resolution: string | null;
+    timezone: string | null;
+    language: string | null;
+  };
+  location: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  last_used_at: string;
+  last_used_human: string;
+  created_at: string;
+  is_current: boolean;
+}

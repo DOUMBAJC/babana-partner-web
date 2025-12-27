@@ -49,12 +49,11 @@ export async function action({ request }: Route.ActionArgs) {
     const api = await createApiFromRequest(request);
     const response = await api.post('/auth/login', { email, password });
     const { token } = response.data.data;
-
-    console.log(response);
+    const welcomeMessage = response.data.message || response.data.data.message;
     
     // Stocker le token dans un cookie HttpOnly sécurisé
-    // et rediriger vers la page d'accueil
-    return createUserSession(token, '/');
+    // et rediriger vers la page d'accueil avec un message de bienvenue
+    return createUserSession(token, '/', welcomeMessage);
   } catch (error: any) {
     const message = error.response?.data?.message 
       || error.response?.data?.error?.message 

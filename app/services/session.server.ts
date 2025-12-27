@@ -24,9 +24,12 @@ export const languageCookie = createCookie("babana-language", {
 
 export const { getSession, commitSession, destroySession } = sessionStorage;
 
-export async function createUserSession(token: string, redirectTo: string) {
+export async function createUserSession(token: string, redirectTo: string, welcomeMessage?: string) {
   const session = await getSession();
   session.set("token", token);
+  if (welcomeMessage) {
+    session.flash("welcome", welcomeMessage);
+  }
   return redirect(redirectTo, {
     headers: {
       "Set-Cookie": await commitSession(session),
@@ -60,7 +63,7 @@ export async function logout(request: Request) {
  * Récupère la langue depuis le cookie ou le header Accept-Language
  */
 export async function getLanguage(request: Request): Promise<string> {
-  // D'abord, essayer de lire depuis le cookie
+  // D'abord, essayer de lire depuis le cookie (préférence utilisateur explicite)
   const cookieHeader = request.headers.get("Cookie");
   const language = await languageCookie.parse(cookieHeader);
   
@@ -71,12 +74,35 @@ export async function getLanguage(request: Request): Promise<string> {
   // Sinon, utiliser le header Accept-Language du navigateur
   const acceptLanguage = request.headers.get("Accept-Language");
   if (acceptLanguage) {
-    if (acceptLanguage.includes("fr")) return "fr";
-    if (acceptLanguage.includes("en")) return "en";
+    // Si l'anglais est plus prioritaire que le français ou si seul l'anglais est présent
+    const enIndex = acceptLanguage.indexOf("en");
+    const frIndex = acceptLanguage.indexOf("fr");
+    
+    if (enIndex !== -1 && (frIndex === -1 || enIndex < frIndex)) {
+      return "en";
+    }
+    if (frIndex !== -1) {
+      return "fr";
+    }
   }
   
   // Par défaut, français
   return "fr";
+}
+
+/**
+ * Récupère le header Accept-Language brut ou la langue choisie
+ * Utile pour transférer exactement ce que le navigateur demande à l'API backend
+ */
+export async function getAcceptLanguageHeader(request: Request): Promise<string> {
+  const cookieHeader = request.headers.get("Cookie");
+  const language = await languageCookie.parse(cookieHeader);
+  
+  if (language && (language === "fr" || language === "en")) {
+    return language;
+  }
+  
+  return request.headers.get("Accept-Language") || "fr";
 }
 
 /**

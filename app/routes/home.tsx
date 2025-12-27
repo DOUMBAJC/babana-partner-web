@@ -1,6 +1,8 @@
 import type { Route } from "./+types/home";
 import { Layout, Welcome } from "~/components";
 import { useTranslation, usePageTitle } from "~/hooks";
+import { getSession, commitSession } from "~/services/session.server";
+import { data, useLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,13 +11,32 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const welcomeMessage = session.get("welcome");
+  
+  if (welcomeMessage) {
+    return data(
+      { welcomeMessage },
+      {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
+      }
+    );
+  }
+  
+  return { welcomeMessage: null };
+}
+
 export default function Home() {
   const { t } = useTranslation();
+  const { welcomeMessage } = useLoaderData<typeof loader>();
   usePageTitle(t.pages.home.title);
 
   return (
     <Layout>
-      <Welcome />
+      <Welcome welcomeMessage={welcomeMessage} />
     </Layout>
   );
 }

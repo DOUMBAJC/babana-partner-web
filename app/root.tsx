@@ -25,18 +25,24 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 import { getCurrentUser } from "~/services/api.server";
+import { getLanguage } from "~/services/session.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getCurrentUser(request);
-  return { user };
+  const language = await getLanguage(request);
+  return { user, language };
 }
 
 import { useLoaderData } from "react-router";
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useLoaderData<typeof loader>();
+  // On récupère les données du loader de manière sécurisée
+  const data = useLoaderData<typeof loader>() as { user?: any, language?: string } | undefined;
+  const user = data?.user || null;
+  const language = data?.language || "fr";
+
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang={language} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -58,7 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <LanguageProvider defaultLanguage="fr" storageKey="babana-language">
+        <LanguageProvider defaultLanguage={language as any} storageKey="babana-language">
           <ThemeProvider defaultTheme="system" storageKey="babana-ui-theme">
             <AuthProvider initialUser={user}>
               <LanguageSync />

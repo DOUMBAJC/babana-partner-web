@@ -41,46 +41,24 @@ export function LanguageProvider({
   defaultLanguage = "fr",
   storageKey = "babana-language",
 }: LanguageProviderProps) {
-  const [language, setLanguage] = useState<Language>(() => {
-    if (typeof window === "undefined") {
-      return defaultLanguage;
-    }
-    try {
-      // D'abord essayer de lire le cookie
-      const cookieValue = getCookie(storageKey) as Language;
-      if (cookieValue && (cookieValue === "fr" || cookieValue === "en")) {
-        return cookieValue;
-      }
-      
-      // Rétrocompatibilité: lire localStorage
-      const stored = localStorage.getItem(storageKey) as Language;
-      if (stored && (stored === "fr" || stored === "en")) {
-        // Migrer vers le cookie
-        setCookie(storageKey, stored);
-        return stored;
-      }
-      
-      // Sinon, utiliser la langue du navigateur
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith("fr")) {
-        return "fr";
-      }
-      return defaultLanguage;
-    } catch {
-      return defaultLanguage;
-    }
-  });
+  // On initialise avec defaultLanguage (qui vient du serveur via le loader)
+  // pour éviter tout mismatch d'hydratation.
+  const [language, setLanguage] = useState<Language>(defaultLanguage);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        // Sauvegarder dans le cookie (accessible par le serveur)
-        setCookie(storageKey, language);
-        // Garder aussi dans localStorage pour compatibilité
-        localStorage.setItem(storageKey, language);
+        // Au montage, on vérifie s'il y a une préférence stockée
+        const stored = getCookie(storageKey) || localStorage.getItem(storageKey);
+        if (stored && (stored === "fr" || stored === "en") && stored !== language) {
+          setLanguage(stored as Language);
+        }
+        
         document.documentElement.lang = language;
+        localStorage.setItem(storageKey, language);
+        setCookie(storageKey, language);
       } catch (error) {
-        console.warn("Impossible de sauvegarder la langue:", error);
+        console.warn("Impossible de synchroniser la langue:", error);
       }
     }
   }, [language, storageKey]);
