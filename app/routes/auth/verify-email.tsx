@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from '~/hooks';
 import { AuthLayout, Button } from '~/components';
 import { CheckCircle2, XCircle, Loader2, Mail } from 'lucide-react';
+import { api, type ApiError } from '~/lib/axios';
 
 type VerificationStatus = 'verifying' | 'success' | 'error' | 'expired';
 
@@ -13,52 +14,78 @@ export default function VerifyEmailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t } = useTranslation();
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
+  const verifyUrl = searchParams.get('verify_url');
+  const emailParam = searchParams.get('email'); // Email passé en paramètre optionnel
 
   const [status, setStatus] = useState<VerificationStatus>('verifying');
   const [isResending, setIsResending] = useState(false);
+  const [email, setEmail] = useState<string | null>(emailParam);
+  const [requiresAdminActivation, setRequiresAdminActivation] = useState(false);
 
   // Vérification automatique au chargement
   useEffect(() => {
-    if (!token) {
+    if (!verifyUrl) {
       setStatus('error');
       return;
     }
 
     const verifyEmail = async () => {
       try {
-        // TODO: Implémenter l'appel API de vérification
-        // const result = await authService.verifyEmail(token);
-
-        // Simulation d'un délai d'API
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Simulation : succès aléatoire
-        const isSuccess = Math.random() > 0.3; // 70% de succès
+        // Décoder l'URL de vérification
+        const decodedUrl = decodeURIComponent(verifyUrl);
         
-        if (isSuccess) {
+        // Extraire le path relatif de l'URL complète
+        // Format: http://localhost/api/auth/email/verify/5/hash?expires=...&signature=...
+        const urlObj = new URL(decodedUrl);
+        const path = urlObj.pathname + urlObj.search;
+        
+        // Retirer le préfixe /api si présent (car axios l'ajoute automatiquement)
+        const apiPath = path.startsWith('/api') ? path.substring(4) : path;
+        
+        // Faire la requête GET via axios
+        const response = await api.get(apiPath);
+
+        // Gérer la structure de réponse Laravel: { success, message, data }
+        if (response.success) {
           setStatus('success');
+          
+          // Vérifier si l'activation admin est requise
+          if (response.data?.requires_admin_activation) {
+            setRequiresAdminActivation(true);
+          }
           
           // Rediriger vers la connexion après 3 secondes
           setTimeout(() => {
             navigate('/login', {
               state: {
-                message: t.auth.verifyEmail.success.message,
+                message: response.message || t.auth.verifyEmail.success.message,
               },
             });
           }, 3000);
         } else {
-          setStatus('expired');
+          // Si success est false mais status 200, traiter comme une erreur
+          setStatus('error');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Email verification error:', err);
-        setStatus('error');
+        
+        const apiError = err as ApiError;
+        
+        // Vérifier si le lien a expiré (403 Forbidden ou 410 Gone)
+        if (apiError.status === 403 || 
+            apiError.status === 410 || 
+            apiError.message?.toLowerCase().includes('expired') ||
+            apiError.message?.toLowerCase().includes('expiré') ||
+            apiError.message?.toLowerCase().includes('invalid')) {
+          setStatus('expired');
+        } else {
+          setStatus('error');
+        }
       }
     };
 
     verifyEmail();
-  }, [token, navigate, t]);
+  }, [verifyUrl, navigate, t]);
 
   // Renvoyer l'email de vérification
   const handleResendEmail = async () => {
@@ -66,15 +93,15 @@ export default function VerifyEmailPage() {
 
     setIsResending(true);
     try {
-      // TODO: Implémenter l'appel API de renvoi
-      // await authService.resendVerificationEmail(email);
+      // Appel API pour renvoyer l'email de vérification
+      const data = await api.post('/auth/email/resend', { email });
 
-      // Simulation d'un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      setStatus('success');
-    } catch (err) {
+      // Afficher un message de succès
+      alert(data.message || 'Email de vérification renvoyé avec succès');
+    } catch (err: any) {
       console.error('Resend verification error:', err);
+      const apiError = err as ApiError;
+      alert(apiError.message || 'Erreur lors du renvoi de l\'email. Veuillez réessayer.');
     } finally {
       setIsResending(false);
     }
@@ -135,6 +162,27 @@ export default function VerifyEmailPage() {
               </p>
             </div>
           </div>
+
+          {/* Message si activation admin requise */}
+          {requiresAdminActivation && (
+            <div className="form-element rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-1">
+                  <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                    Activation du compte en attente
+                  </h4>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">
+                    Votre email a été vérifié avec succès. Un administrateur doit maintenant activer votre compte avant que vous puissiez vous connecter.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Avantages du compte vérifié */}
           <div className="form-element bg-muted/50 backdrop-blur-sm border border-border rounded-lg p-4">
