@@ -5,11 +5,10 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
-import { redirect, useSubmit } from 'react-router';
-import type { AuthState, User, LoginCredentials } from '~/types/auth.types';
+import { useSubmit } from 'react-router';
+import type { AuthState, User } from '~/types/auth.types';
 
 interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -44,12 +43,19 @@ export function AuthProvider({
     });
   }, [initialUser]);
 
-  const login = async (credentials: LoginCredentials) => {
-    // Client-side login is deprecated in favor of Form actions.
-    // If called, we redirect to login page.
-    redirect("/login");
-    return;
-  };
+  // Écouter les événements d'erreur 401 pour déconnecter automatiquement
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      // Déconnecter l'utilisateur proprement via React Router
+      submit(null, { method: "post", action: "/logout" });
+    };
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+
+    return () => {
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
+  }, [submit]);
 
   const logout = () => {
     submit(null, { method: "post", action: "/logout" });
@@ -66,7 +72,6 @@ export function AuthProvider({
     <AuthContext.Provider
       value={{
         ...state,
-        login,
         logout,
         updateUser,
       }}

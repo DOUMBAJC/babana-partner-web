@@ -65,7 +65,15 @@ export async function logout(request: Request) {
 export async function getLanguage(request: Request): Promise<string> {
   // D'abord, essayer de lire depuis le cookie (préférence utilisateur explicite)
   const cookieHeader = request.headers.get("Cookie");
-  const language = await languageCookie.parse(cookieHeader);
+  
+  // Lire manuellement le cookie car React Router parse() ne fonctionne pas bien avec les cookies simples
+  let language: string | null = null;
+  if (cookieHeader) {
+    const match = cookieHeader.match(/(?:^|;\s*)babana-language=([^;]+)/);
+    if (match) {
+      language = match[1];
+    }
+  }
   
   if (language && (language === "fr" || language === "en")) {
     return language;
@@ -73,6 +81,7 @@ export async function getLanguage(request: Request): Promise<string> {
   
   // Sinon, utiliser le header Accept-Language du navigateur
   const acceptLanguage = request.headers.get("Accept-Language");
+  
   if (acceptLanguage) {
     // Si l'anglais est plus prioritaire que le français ou si seul l'anglais est présent
     const enIndex = acceptLanguage.indexOf("en");

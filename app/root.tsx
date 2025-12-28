@@ -8,8 +8,9 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import { ThemeProvider, LanguageProvider, AuthProvider } from "~/hooks";
+import { ThemeProvider, LanguageProvider, AuthProvider, ConsentProvider } from "~/hooks";
 import { LanguageSync } from "~/components/LanguageSync";
+import { ConsentBanner } from "~/components/ConsentBanner";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -37,7 +38,13 @@ import { useLoaderData } from "react-router";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   // On récupère les données du loader de manière sécurisée
-  const data = useLoaderData<typeof loader>() as { user?: any, language?: string } | undefined;
+  let data: { user?: any, language?: string } | undefined;
+  try {
+    data = useLoaderData<typeof loader>() as { user?: any, language?: string };
+  } catch {
+    data = undefined;
+  }
+  
   const user = data?.user || null;
   const language = data?.language || "fr";
 
@@ -66,10 +73,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="min-h-screen bg-background font-sans antialiased">
         <LanguageProvider defaultLanguage={language as any} storageKey="babana-language">
           <ThemeProvider defaultTheme="system" storageKey="babana-ui-theme">
-            <AuthProvider initialUser={user}>
-              <LanguageSync />
-              {children}
-            </AuthProvider>
+            <ConsentProvider>
+              <AuthProvider initialUser={user}>
+                <LanguageSync />
+                {children}
+                <ConsentBanner />
+              </AuthProvider>
+            </ConsentProvider>
           </ThemeProvider>
         </LanguageProvider>
         <ScrollRestoration />

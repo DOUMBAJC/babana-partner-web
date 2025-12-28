@@ -34,11 +34,16 @@ export const getErrorLanguage = (): Language => {
 };
 
 /**
- * Gère la redirection en cas d'erreur 401 (non authentifié)
+ * Gère l'erreur 401 (non authentifié)
+ * Note: La redirection doit être gérée par l'application (AuthProvider, loaders, etc.)
+ * pour éviter les conflits avec le cycle de rendu de React
  */
 const handleUnauthorized = (): void => {
+  // Ne plus faire de redirection brutale ici
+  // Laisser l'application gérer via les mécanismes React appropriés
   if (typeof window !== "undefined") {
-    window.location.href = "/login";
+    // On peut logger pour le debug
+    console.warn("⚠️ Session expirée - l'utilisateur doit se reconnecter");
   }
 };
 

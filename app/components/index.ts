@@ -14,6 +14,10 @@ export { AuthLayout } from './AuthLayout';
 export { FormInput } from './FormInput';
 export { NotFound } from './NotFound';
 export { ClientInfoDebug } from './ClientInfoDebug';
+export { ConsentBanner } from './ConsentBanner';
+export { ConsentModal } from './ConsentModal';
+export { ConsentSettings } from './ConsentSettings';
+export { Footer } from './Footer';
 
 // shadcn/ui Components
 export { Button } from './ui/button';

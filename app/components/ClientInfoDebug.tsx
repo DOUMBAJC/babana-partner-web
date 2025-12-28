@@ -4,23 +4,31 @@
  */
 
 import { useState, useEffect } from "react";
-import { getClientInfo, requestGeolocation, clearGeolocation } from "~/lib/axios";
+import { getClientInfo, requestGeolocationWithConsent, clearGeolocation, hasGeolocationConsent } from "~/lib/axios";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { useConsent } from "~/hooks/useConsent";
 
 export function ClientInfoDebug() {
   const [clientInfo, setClientInfo] = useState<ReturnType<typeof getClientInfo>>();
   const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+  const { consent } = useConsent();
 
   const refreshInfo = () => {
     setClientInfo(getClientInfo());
   };
 
   const handleRequestGeolocation = async () => {
+    // Vérifier le consentement d'abord
+    if (!consent.geolocation) {
+      alert('Veuillez d\'abord accepter la géolocalisation dans les paramètres de consentement.');
+      return;
+    }
+
     setIsRequestingLocation(true);
     try {
-      const geolocation = await requestGeolocation();
+      const geolocation = await requestGeolocationWithConsent();
       if (geolocation) {
         refreshInfo();
       }
@@ -176,5 +184,6 @@ export function ClientInfoDebug() {
     </Card>
   );
 }
+
 
 

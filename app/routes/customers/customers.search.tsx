@@ -253,7 +253,8 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
   const handleReset = () => {
     setSearchQuery({ id_card_type_id: '', id_card_number: '' });
     setValidationError('');
-    window.location.reload();
+    // Naviguer vers la même route pour réinitialiser sans rechargement brutal
+    navigate('/customers/search', { replace: true });
   };
 
   const handleCreateCustomer = () => {

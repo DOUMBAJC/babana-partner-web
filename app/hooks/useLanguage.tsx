@@ -18,22 +18,13 @@ const LanguageProviderContext = createContext<LanguageProviderState | undefined>
 );
 
 /**
- * Lit un cookie par son nom
+ * Définit un cookie avec les bons paramètres (correspondant au format serveur)
  */
-const getCookie = (name: string): string | null => {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-  return match ? match[2] : null;
-};
-
-/**
- * Définit un cookie
- */
-const setCookie = (name: string, value: string, days: number = 365) => {
+const setCookie = (name: string, value: string) => {
   if (typeof document === "undefined") return;
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  // Utiliser max-age au lieu de expires pour correspondre au cookie serveur
+  const maxAge = 60 * 60 * 24 * 365; // 1 an
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; samesite=lax`;
 };
 
 export function LanguageProvider({
@@ -41,33 +32,34 @@ export function LanguageProvider({
   defaultLanguage = "fr",
   storageKey = "babana-language",
 }: LanguageProviderProps) {
-  // On initialise avec defaultLanguage (qui vient du serveur via le loader)
-  // pour éviter tout mismatch d'hydratation.
-  const [language, setLanguage] = useState<Language>(defaultLanguage);
+  // TOUJOURS initialiser avec la langue du serveur pour éviter les problèmes d'hydratation
+  const [language, setLanguageState] = useState<Language>(defaultLanguage);
 
+  // Synchroniser l'attribut lang du HTML quand la langue change
   useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        // Au montage, on vérifie s'il y a une préférence stockée
-        const stored = getCookie(storageKey) || localStorage.getItem(storageKey);
-        if (stored && (stored === "fr" || stored === "en") && stored !== language) {
-          setLanguage(stored as Language);
-        }
-        
-        document.documentElement.lang = language;
-        localStorage.setItem(storageKey, language);
-        setCookie(storageKey, language);
-      } catch (error) {
-        console.warn("Impossible de synchroniser la langue:", error);
-      }
+      document.documentElement.lang = language;
     }
-  }, [language, storageKey]);
+  }, [language]);
+
+  const setLanguage = (newLanguage: Language) => {
+    
+    // Ne rien faire si c'est déjà la langue actuelle
+    if (newLanguage === language) {
+      return;
+    }
+    
+    // Définir le cookie pour que le serveur le lise lors de la prochaine requête
+    if (typeof window !== "undefined") {
+      setCookie(storageKey, newLanguage);
+      // Recharger la page pour que le serveur relise le cookie et renvoie la bonne langue
+      window.location.reload();
+    }
+  };
 
   const value = {
     language,
-    setLanguage: (newLanguage: Language) => {
-      setLanguage(newLanguage);
-    },
+    setLanguage,
   };
 
   return (

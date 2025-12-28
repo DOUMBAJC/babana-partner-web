@@ -37,6 +37,14 @@ export {
   detectBrowser,
 } from "./client-metadata";
 
+// Export des fonctions avec gestion du consentement
+// Recommandé : Utilisez ces fonctions au lieu de requestGeolocation directement
+export {
+  requestGeolocationWithConsent,
+  hasGeolocationConsent,
+  useGeolocationWithConsent,
+} from "./consent-geolocation";
+
 /**
  * Création de l'instance Axios configurée
  */
@@ -118,6 +126,12 @@ axiosInstance.interceptors.response.use(
   },
   (error: AxiosError) => {
     const apiError = handleAxiosError(error, API_CONFIG.isDevelopment);
+    
+    // Émettre un événement personnalisé pour les erreurs 401 côté client
+    if (typeof window !== "undefined" && error.response?.status === 401) {
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    }
+    
     return Promise.reject(apiError);
   }
 );

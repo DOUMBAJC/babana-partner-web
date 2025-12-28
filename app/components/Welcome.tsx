@@ -43,6 +43,10 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
     }
   }, [welcomeMessage]);
 
+  // Utiliser une version "hydration-safe" de isAuthenticated
+  // Pendant l'hydratation (isMounted=false), on affiche toujours la version publique
+  const safeIsAuthenticated = isMounted && isAuthenticated;
+
   const features = [
     {
       icon: Smartphone,
@@ -75,7 +79,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
   ];
 
   const getDashboardActions = () => {
-    if (!isAuthenticated || !user) return [];
+    if (!safeIsAuthenticated || !user) return [];
 
     const actions = [];
 
@@ -172,7 +176,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       {/* Hero Section */}
       <section className={cn(
         "relative flex items-center transition-all duration-700",
-        isAuthenticated ? "pt-12 pb-8" : "min-h-[90vh] py-20"
+        safeIsAuthenticated ? "pt-12 pb-8" : "min-h-[90vh] py-20"
       )}>
         {/* Animated Background */}
         <div className="absolute inset-0 bg-linear-to-br from-babana-cyan/10 via-white/50 to-babana-navy/5 dark:from-babana-navy dark:via-gray-900/50 dark:to-babana-cyan/10 -z-10" />
@@ -184,9 +188,9 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         <div className="container relative mx-auto px-4">
           <div className={cn(
             "flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto",
-            isAuthenticated ? "items-start text-left" : "items-center text-center"
+            safeIsAuthenticated ? "items-start text-left" : "items-center text-center"
           )}>
-            {!isAuthenticated && (
+            {!safeIsAuthenticated && (
               <div className="relative group mb-4">
                 <div className="absolute inset-0 bg-babana-cyan/30 dark:bg-babana-cyan/20 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500" />
                 <Logo logoUrl={logoUrl} />
@@ -196,9 +200,9 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
             <div className="space-y-4">
               <h1 className={cn(
                 "font-bold leading-tight tracking-tight",
-                isAuthenticated ? "text-3xl md:text-5xl" : "text-5xl md:text-7xl"
+                safeIsAuthenticated ? "text-3xl md:text-5xl" : "text-5xl md:text-7xl"
               )}>
-                {isAuthenticated ? (
+                {safeIsAuthenticated ? (
                   <span className="flex flex-col">
                     <span className="text-muted-foreground font-medium text-xl md:text-2xl mb-2">
                       {language === 'fr' ? 'Bonjour,' : 'Hello,'} {user?.name}
@@ -214,14 +218,14 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
                 )}
               </h1>
               
-              {!isAuthenticated && (
+              {!safeIsAuthenticated && (
                 <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                   {t.home.subtitle}
                 </p>
               )}
             </div>
 
-            {!isAuthenticated && (
+            {!safeIsAuthenticated && (
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <Link to="/register">
                   <Button 
@@ -252,7 +256,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       </section>
 
       {/* Dashboard Actions Grid (Only if Authenticated) */}
-      {isAuthenticated && dashboardActions.length > 0 && (
+      {safeIsAuthenticated && dashboardActions.length > 0 && (
         <section className="container mx-auto px-4 mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="flex items-center gap-2 mb-8">
             <div className="h-8 w-1.5 bg-babana-cyan rounded-full" />
@@ -304,7 +308,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       {/* Landing Features Section (Always visible, but secondary if authenticated) */}
       <section className={cn(
         "relative py-16",
-        isAuthenticated ? "mt-12 bg-transparent" : "bg-linear-to-b from-transparent to-babana-navy/5 dark:to-babana-cyan/5"
+        safeIsAuthenticated ? "mt-12 bg-transparent" : "bg-linear-to-b from-transparent to-babana-navy/5 dark:to-babana-cyan/5"
       )}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
