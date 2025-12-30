@@ -1,0 +1,34 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minute": "minute",
+      "minutes": "minutes",
+      "hour": "hour",
+      "hours": "hours",
+      "day": "day",
+      "days": "days"
+    },
+    "actions": {
+      "markAsRead": "Mark as read",
+      "markAllAsRead": "Mark all as read",
+      "delete": "Delete",
+      "deleteRead": "Delete read",
+      "viewAll": "View all notifications",
+      "preferences": "Preferences"
+    },
+    "empty": {
+      "all": "No notifications",
+      "unread": "No unread notifications"
+    },
+    "preferences": {
+      "title": "Notification preferences"
+    }
+  }
+}
+

@@ -15,7 +15,7 @@ import type { ActivationRequest, RoleSlug } from "~/types";
 import { AcceptDialog } from './sales/activation-requests/components/AcceptDialog';
 import { RejectDialog } from './sales/activation-requests/components/RejectDialog';
 
-const AUTHORIZED_ROLES: RoleSlug[] = ['super_admin', 'admin', 'activateur'];
+const AUTHORIZED_ROLES: RoleSlug[] = ['super_admin', 'admin', 'activateur', 'ba', 'dsm', 'pos'];
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   try {
@@ -110,7 +110,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
   const canProcessRequest = (request: ActivationRequest | null) => {
     if (!request) return false;
     const userRole = user?.roles?.[0];
-    return (userRole === 'activateur' || 
+    return (userRole === 'activateur' || userRole === 'ba' || userRole === 'dsm' || userRole === 'pos' ||
             userRole === 'admin' || 
             userRole === 'super_admin') &&
            request.status === 'pending';
@@ -210,26 +210,26 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
             <div className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.details.fullName}</p>
-                <p className="text-lg font-medium">
-                  {request.customer?.full_name || t.activationRequests.details.notProvided}
+                <p className="text-lg font-medium text-amber-300 dark:text-amber-600">
+                  {request.customer?.full_name.toUpperCase() || t.activationRequests.details.notProvided}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.details.phone}</p>
-                <p className="font-medium flex items-center gap-2">
+                <p className="font-medium flex items-center gap-2 text-amber-300 dark:text-amber-600">
                   <Phone className="h-4 w-4" />
                   {request.customer?.phone || t.activationRequests.details.notProvided}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.details.cardType}</p>
-                <p className="font-medium">
+                <p className="font-medium text-amber-300 dark:text-amber-600">
                   {request.customer?.id_card_type?.name || t.activationRequests.details.notProvided}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.details.cardNumber}</p>
-                <p className="font-mono font-medium">
+                <p className="font-mono font-medium text-amber-300 dark:text-amber-600">
                   {request.customer?.id_card_number || t.activationRequests.details.notProvided}
                 </p>
               </div>
@@ -246,20 +246,20 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
             <div className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.table.simNumber}</p>
-                <p className="text-lg font-mono font-medium">
-                  {request.simNumber}
+                <p className="text-lg font-mono font-medium text-amber-300 dark:text-amber-600">
+                  {request.sim_number}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.table.iccid}</p>
-                <p className="font-mono text-sm font-medium">
+                <p className="font-mono text-sm font-medium text-amber-300 dark:text-amber-600">
                   {request.iccid}
                 </p>
               </div>
               {request.imei && (
                 <div>
                   <p className="text-sm text-muted-foreground">IMEI</p>
-                  <p className="font-mono text-sm font-medium">
+                  <p className="font-mono text-sm font-medium text-amber-300 dark:text-amber-600">
                     {request.imei}
                   </p>
                 </div>
@@ -277,13 +277,13 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
             <div className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.details.name}</p>
-                <p className="font-medium">
+                <p className="font-medium text-amber-300 dark:text-amber-600">
                   {request.ba?.name || t.activationRequests.details.notProvided}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{t.activationRequests.details.email}</p>
-                <p className="font-medium">
+                <p className="font-medium text-amber-300 dark:text-amber-600">
                   {request.ba?.email || t.activationRequests.details.notProvided}
                 </p>
               </div>
@@ -301,7 +301,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
               {request.baNotes && (
                 <div>
                   <p className="text-sm text-muted-foreground">{t.activationRequests.details.baNotes}</p>
-                  <p className="font-medium">
+                  <p className="font-medium text-amber-300 dark:text-amber-600">
                     {request.baNotes}
                   </p>
                 </div>
@@ -309,7 +309,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
               {request.adminNotes && (
                 <div>
                   <p className="text-sm text-muted-foreground">{t.activationRequests.details.adminNotes}</p>
-                  <p className="font-medium">
+                  <p className="font-medium text-amber-300 dark:text-amber-600">
                     {request.adminNotes}
                   </p>
                 </div>

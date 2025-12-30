@@ -29,12 +29,12 @@ export interface ActivationRequest {
   baNotes?: string;
   adminNotes?: string;
   rejectionReason?: string;
-  submittedAt?: string;
-  processedAt?: string;
-  activatedAt?: string;
+  submitted_at?: string;
+  processed_at?: string;
+  activated_at?: string;
   metadata?: Record<string, any>;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 
   // Relations (chargées via include)
   ba?: {

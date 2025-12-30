@@ -45,3 +45,18 @@ export type {
   ApiRequestOptions,
 } from './api.types';
 
+// Notification types
+export type {
+  NotificationType,
+  Notification,
+  NotificationData,
+  NotificationsResponse,
+  UnreadCountResponse,
+  NotificationResponse,
+  NotificationActionResponse,
+  NotificationPreferences,
+  NotificationPreferencesResponse,
+  UpdateNotificationPreferencesParams,
+  NotificationsQueryParams,
+} from './notification.types';
+

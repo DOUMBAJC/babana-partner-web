@@ -58,7 +58,7 @@ export function ActivationForm({
           {customer && (
             <div className="flex w-fit gap-2 border border-orange-200 bg-orange-50 px-4 py-2 text-base font-normal text-orange-800 rounded-md dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-900">
               <div className="h-4 w-4 rounded-full bg-orange-500 mt-0.5" />
-              <span>{getCustomerName(customer)}</span>
+              <span>{getCustomerName(customer).toUpperCase()}</span>
               <span className="opacity-60">|</span>
               <span className="font-mono">{customer.phone}</span>
             </div>

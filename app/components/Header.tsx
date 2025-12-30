@@ -4,6 +4,7 @@ import { ThemeToggle } from "~/components/ThemeToggle";
 import { LanguageToggle } from "~/components/LanguageToggle";
 import { MobileNav } from "~/components/MobileNav";
 import { UserMenu } from "~/components/UserMenu";
+import { NotificationDropdown } from "~/components/NotificationDropdown";
 import { Button } from "~/components/ui/button";
 import { useScrolled, useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
@@ -62,7 +63,7 @@ export function Header() {
       // Lien activation SIM (BA)
       if (hasPermission(user, 'create-requests')) {
         links.push({
-          href: "/sales/activation",
+          href: "/sales/activation-requests",
           label: t.nav.simActivation,
           icon: ClipboardList,
           permission: 'create-requests',
@@ -178,6 +179,11 @@ export function Header() {
             
             {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Notifications - Seulement pour les utilisateurs connectés */}
+            {isAuthenticated && user && (
+              <NotificationDropdown />
+            )}
 
             {/* Separator */}
             <div className="hidden md:block w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1" />

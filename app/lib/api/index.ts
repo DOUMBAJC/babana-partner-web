@@ -1,6 +1,5 @@
 /**
  * Point d'entrée principal pour les modules API
- * Facilite les imports en centralisant les exports
  */
 
 // Export de l'instance axios et des fonctions principales

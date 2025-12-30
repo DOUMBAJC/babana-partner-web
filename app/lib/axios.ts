@@ -17,7 +17,6 @@ import {
   logRequest,
   logResponse,
   setErrorLanguage,
-  getErrorLanguage,
   type ApiError,
 } from "./api-error-handler";
 import { API_CONFIG, isPublicEndpoint } from "./api-constants";
@@ -128,8 +127,15 @@ axiosInstance.interceptors.response.use(
     const apiError = handleAxiosError(error, API_CONFIG.isDevelopment);
     
     // Émettre un événement personnalisé pour les erreurs 401 côté client
+    // MAIS PAS pour les endpoints de notifications (pour éviter les déconnexions automatiques)
     if (typeof window !== "undefined" && error.response?.status === 401) {
-      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      const url = error.config?.url || "";
+      const isNotificationEndpoint = url.includes("/notifications");
+      
+      // Ne déclencher la déconnexion QUE si ce n'est PAS un endpoint de notifications
+      if (!isNotificationEndpoint) {
+        window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      }
     }
     
     return Promise.reject(apiError);

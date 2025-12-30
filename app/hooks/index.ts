@@ -8,3 +8,4 @@ export * from './useScrolled';
 export * from './useCustomers';
 export * from './useActivationRequests';
 export * from './useConsent';
+export * from './useNotifications';

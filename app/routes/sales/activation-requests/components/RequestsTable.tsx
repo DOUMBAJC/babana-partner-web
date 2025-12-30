@@ -210,7 +210,7 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
                   <TableCell className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {formatDate(request.createdAt)}
+                      {formatDate(request.created_at)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
