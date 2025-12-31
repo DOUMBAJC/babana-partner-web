@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { notificationService } from "~/lib/notification.service";
+import { notificationService } from "~/lib/services/notification.service";
 import type {
   Notification,
   NotificationsQueryParams,
@@ -225,14 +225,6 @@ export function useNotifications(
       throw err;
     }
   }, [notifications]);
-
-  /**
-   * Ne pas charger automatiquement les notifications au montage
-   * Elles seront chargées à la demande (ouverture du dropdown ou de la page)
-   */
-  // useEffect(() => {
-  //   fetchNotifications();
-  // }, []);
 
   /**
    * Configure le rafraîchissement automatique

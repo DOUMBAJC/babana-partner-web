@@ -1,4 +1,4 @@
-import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from "react-router";
+import { data, type LoaderFunctionArgs, type ActionFunctionArgs } from "react-router";
 import { createAuthenticatedApi } from "~/services/api.server";
 
 /**
@@ -11,10 +11,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const api = await createAuthenticatedApi(request);
     const response = await api.get("/notifications/preferences");
     
-    return json({ success: true, ...response.data });
+    return data({ success: true, ...response.data });
   } catch (error: any) {
     console.error("Error fetching notification preferences:", error);
-    return json(
+    return data(
       { 
         success: false, 
         error: error.response?.data?.message || "Erreur lors du chargement des préférences" 
@@ -26,20 +26,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    const data = await request.json();
+    const body = await request.json();
     
     const api = await createAuthenticatedApi(request);
-    const response = await api.put("/notifications/preferences", data);
+    const response = await api.put("/notifications/preferences", body);
     
-    return json({ success: true, ...response.data });
+    return data({ success: true, ...response.data });
   } catch (error: any) {
     console.error("Error updating notification preferences:", error);
-    return json(
+    const status = error.response?.status || 500;
+    const backendData = error.response?.data;
+    return data(
       { 
         success: false, 
-        error: error.response?.data?.message || "Erreur lors de la mise à jour des préférences" 
+        // Keep both `message` + `error` for different error parsers in the client.
+        message:
+          backendData?.message || "Erreur lors de la mise à jour des préférences",
+        error: {
+          message:
+            backendData?.message || "Erreur lors de la mise à jour des préférences",
+          errors: backendData?.errors,
+        },
+        // `details` is used by our axios ApiError wrapper.
+        details: backendData?.errors,
       },
-      { status: error.response?.status || 500 }
+      { status }
     );
   }
 }

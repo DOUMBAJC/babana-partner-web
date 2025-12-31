@@ -11,6 +11,7 @@ import type { Route } from "./+types/root";
 import { ThemeProvider, LanguageProvider, AuthProvider, ConsentProvider } from "~/hooks";
 import { LanguageSync } from "~/components/LanguageSync";
 import { ConsentBanner } from "~/components/ConsentBanner";
+import { Toaster } from "~/components";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -78,6 +79,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <LanguageSync />
                 {children}
                 <ConsentBanner />
+                <Toaster />
               </AuthProvider>
             </ConsentProvider>
           </ThemeProvider>

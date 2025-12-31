@@ -1,19 +1,4 @@
-import { useEffect } from "react";
-import { useLanguage } from "~/hooks";
-import { setApiLanguage } from "~/lib/axios";
+export { LanguageSync } from "./i18n/LanguageSync";
 
-/**
- * Composant pour synchroniser la langue de l'utilisateur avec la configuration Axios
- * Doit être monté à l'intérieur du LanguageProvider
- */
-export function LanguageSync() {
-  const { language } = useLanguage();
 
-  useEffect(() => {
-    // Synchronisation de la langue avec axios
-    setApiLanguage(language);
-  }, [language]);
-
-  return null;
-}
 

@@ -1,4 +1,4 @@
-import { json, type LoaderFunctionArgs } from "react-router";
+import { data, type LoaderFunctionArgs } from "react-router";
 import { createAuthenticatedApi } from "~/services/api.server";
 
 /**
@@ -13,10 +13,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const api = await createAuthenticatedApi(request);
     const response = await api.get("/notifications", { params });
     
-    return json({ success: true, ...response.data });
+    return data({ success: true, ...response.data });
   } catch (error: any) {
     console.error("Error fetching notifications:", error);
-    return json(
+    return data(
       { 
         success: false, 
         error: error.response?.data?.message || "Erreur lors du chargement des notifications" 

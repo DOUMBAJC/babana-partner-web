@@ -78,6 +78,8 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
     const statusConfig = {
       pending: { label: t.activationRequests.status.pending, variant: "secondary" as const, className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" },
       processing: { label: t.activationRequests.status.processing, variant: "default" as const, className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+      // Compat backend: certains serveurs renvoient "approved" au lieu de "activated"
+      approved: { label: t.activationRequests.status.activated, variant: "default" as const, className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
       activated: { label: t.activationRequests.status.activated, variant: "default" as const, className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
       rejected: { label: t.activationRequests.status.rejected, variant: "destructive" as const, className: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200" },
       cancelled: { label: t.activationRequests.status.cancelled, variant: "outline" as const, className: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200" },
@@ -219,17 +221,24 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-8 w-8 p-0 hover:bg-accent hover:text-accent-foreground"
+                          className="h-9 w-9 p-0 rounded-lg hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
+                          aria-label={t.activationRequests.table.actions}
                         >
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-52">
-                        <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-56 p-1 rounded-xl border-border/60 shadow-xl bg-white text-foreground dark:bg-gray-950"
+                      >
+                        <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-medium text-muted-foreground">
                           {t.activationRequests.table.actions}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => navigate(`/sales/activation-requests/${request.id}`)}>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/sales/activation-requests/${request.id}`)}
+                          className="rounded-lg"
+                        >
                           <Eye className="h-4 w-4 mr-2" />
                           {t.activationRequests.table.viewDetails}
                         </DropdownMenuItem>
@@ -238,14 +247,14 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               onClick={() => handleAccept(request)}
-                              className="text-green-600 dark:text-green-400 focus:text-green-600 focus:bg-green-50 dark:focus:bg-green-950"
+                              className="rounded-lg text-green-700 dark:text-green-400 focus:text-green-700 focus:bg-green-50 dark:focus:bg-green-950"
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
                               {t.activationRequests.table.accept}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleReject(request)}
-                              className="text-red-600 dark:text-red-400 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
+                              className="rounded-lg text-red-700 dark:text-red-400 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-950"
                             >
                               <XCircle className="h-4 w-4 mr-2" />
                               {t.activationRequests.table.reject}
@@ -357,11 +366,13 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
             open={showAcceptDialog}
             onOpenChange={setShowAcceptDialog}
             request={selectedRequest}
+            action="/sales/activation-requests"
           />
           <RejectDialog
             open={showRejectDialog}
             onOpenChange={setShowRejectDialog}
             request={selectedRequest}
+            action="/sales/activation-requests"
           />
         </>
       )}

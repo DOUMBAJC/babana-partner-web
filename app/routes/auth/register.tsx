@@ -128,11 +128,12 @@ export default function RegisterPage() {
 
     try {
       const response = await authService.register({
-        name: `${formData.firstName} @ ${formData.lastName}`,
-        email: formData.email,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
         personal_phone: formData.personal_phone.replace(/\s/g, ''),
         password: formData.password,
-        password_confirmation: formData.confirmPassword,
+        confirmPassword: formData.confirmPassword,
       });
       // Succès - Rediriger vers la page de connexion
       navigate('/login', { 

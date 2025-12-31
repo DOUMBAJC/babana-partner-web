@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { customerService, type ApiError } from '~/lib';
+import { customerService, idCardTypeService, type ApiError } from '~/lib';
 import type {
   Customer,
   CreateCustomerData,
@@ -214,7 +214,7 @@ export function useIdCardTypes() {
       try {
         setLoading(true);
         setError(null);
-        const types = await customerService.getIdCardTypes();
+        const types = await idCardTypeService.getIdCardTypes();
         setIdCardTypes(types);
       } catch (err) {
         const apiError = err as ApiError;

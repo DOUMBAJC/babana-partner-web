@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useFetcher } from "react-router";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Loader2, Sparkles } from "lucide-react";
 import { useTranslation } from "~/hooks";
 import type { ActivationRequest } from "~/types";
 
@@ -19,99 +19,162 @@ interface AcceptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   request: ActivationRequest;
+  /**
+   * Optionnel: URL d'action Remix à cibler.
+   * Utile quand le dialog est rendu sur une route qui n'a pas d'action (ex: page détail).
+   */
+  action?: string;
 }
 
-export function AcceptDialog({ open, onOpenChange, request }: AcceptDialogProps) {
+export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDialogProps) {
   const { t } = useTranslation();
   const fetcher = useFetcher();
   const [adminNotes, setAdminNotes] = useState("");
+  const lastProcessedData = useRef<any>(null);
 
   const isSubmitting = fetcher.state === "submitting";
+
+  // Toasts + fermeture après réponse backend
+  useEffect(() => {
+    const data = fetcher.data as any;
+    if (!data || data === lastProcessedData.current) return;
+
+    lastProcessedData.current = data;
+
+    if (data.success) {
+      toast.success(t.activationRequests.toast.acceptSuccess);
+      onOpenChange(false);
+      setAdminNotes("");
+    } else if (data.error) {
+      toast.error(data.error || t.activationRequests.toast.acceptError);
+    } else if (data.success === false) {
+      toast.error(t.activationRequests.toast.acceptError);
+    }
+  }, [fetcher.data, onOpenChange, t.activationRequests.toast.acceptError, t.activationRequests.toast.acceptSuccess]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const formData = new FormData();
-    formData.append('actionType', 'accept');
+    formData.append('_action', 'accept');
     formData.append('requestId', request.id.toString());
     if (adminNotes) {
       formData.append('adminNotes', adminNotes);
     }
 
-    fetcher.submit(formData, { method: 'post' });
-    onOpenChange(false);
-    setAdminNotes("");
+    fetcher.submit(formData, { method: 'post', action });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+      <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+        {/* Header spectaculaire avec gradient vert */}
+        <div className="relative bg-linear-to-br from-green-600 via-emerald-600 to-teal-600 p-8 pb-12">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
+          
+          <div className="relative flex items-start gap-4">
+            <div className="shrink-0">
+              <div className="relative">
+                <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
+                <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                  <CheckCircle className="h-8 w-8 text-white" />
+                </div>
+              </div>
             </div>
-            <div>
-              <DialogTitle className="text-xl">{t.activationRequests.accept.title}</DialogTitle>
-              <DialogDescription>
-                {t.activationRequests.accept.request} #{request.id} - {request.customer?.full_name || 'Client'}
+            
+            <div className="flex-1 pt-2">
+              <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+                {t.activationRequests.accept.title}
+              </DialogTitle>
+              <DialogDescription className="text-emerald-100 text-lg font-medium">
+                {t.activationRequests.accept.request} #{request.id} • {request.customer?.full_name || 'Client'}
               </DialogDescription>
             </div>
-          </div>
-        </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            {/* Informations de la requête */}
-            <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="text-muted-foreground">{t.activationRequests.table.simNumber}:</span>
-                  <p className="font-mono font-semibold">{request.sim_number}</p>
+            <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Contenu du formulaire */}
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900">
+          <div className="p-8 space-y-6">
+            {/* Informations de la requête - Design moderne */}
+            <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-4 bg-green-500 rounded-full"></div>
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      {t.activationRequests.table.simNumber}
+                    </span>
+                  </div>
+                  <p className="text-lg font-bold font-mono text-slate-900 dark:text-slate-100">{request.sim_number}</p>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">{t.activationRequests.table.iccid}:</span>
-                  <p className="font-mono text-xs font-semibold">{request.iccid}</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      {t.activationRequests.table.iccid}
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100">{request.iccid}</p>
                 </div>
               </div>
             </div>
 
-            {/* Notes administrateur */}
-            <div className="space-y-2">
-              <Label htmlFor="adminNotes">{t.activationRequests.accept.notes}</Label>
+            {/* Notes administrateur - Design moderne */}
+            <div className="space-y-3">
+              <Label htmlFor="adminNotes" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <div className="w-1 h-4 bg-teal-500 rounded-full"></div>
+                {t.activationRequests.accept.notes}
+              </Label>
               <Textarea
                 id="adminNotes"
                 placeholder={t.activationRequests.accept.notesPlaceholder}
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={4}
+                disabled={isSubmitting}
+                className="text-base bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 transition-all duration-200 resize-none"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {t.activationRequests.accept.notesHelp}
               </p>
             </div>
           </div>
 
-          <DialogFooter>
+          {/* Footer avec design moderne */}
+          <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
             >
               {t.activationRequests.accept.cancel}
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
+              className="h-12 px-8 bg-linear-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isSubmitting ? t.activationRequests.accept.processing : t.activationRequests.accept.confirm}
+              {isSubmitting && <Loader2 className="h-5 w-5 mr-2 animate-spin" />}
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  {t.activationRequests.accept.processing}
+                  <span className="animate-pulse">...</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  {t.activationRequests.accept.confirm}
+                </span>
+              )}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
-

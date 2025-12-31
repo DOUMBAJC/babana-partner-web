@@ -11,13 +11,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Search, X, Filter, Calendar } from "lucide-react";
-import { useTranslation } from "~/hooks";
+import { Search, X, Filter } from "lucide-react";
+import { DatePicker } from "~/components/ui/date-picker";
+import { fr, enUS } from "date-fns/locale";
+import { useLanguage, useTranslation } from "~/hooks";
 
 export function FiltersSection() {
   const { t } = useTranslation();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Locale + start-of-week pour éviter le décalage jours/grille
+  const dateLocale = language === "fr" ? fr : enUS;
+  // Plateforme: semaine démarre lundi (même en EN) pour éviter la confusion
+  const weekStartsOn = 1;
   
   // Initialiser les filtres depuis l'URL au montage
   const [localFilters, setLocalFilters] = useState(() => ({
@@ -147,31 +155,29 @@ export function FiltersSection() {
         {/* Date de début */}
         <div className="space-y-2">
           <Label htmlFor="dateFrom" className="text-sm font-medium">{t.activationRequests.filters.dateFrom}</Label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-            <Input
-              id="dateFrom"
-              type="date"
-              value={localFilters.dateFrom || ''}
-              onChange={(e) => handleDateFromChange(e.target.value)}
-              className="pl-10 bg-background"
-            />
-          </div>
+          <DatePicker
+            id="dateFrom"
+            value={localFilters.dateFrom || ""}
+            onChange={handleDateFromChange}
+            placeholder="yyyy-mm-dd"
+            displayFormat={language === "fr" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
+            locale={dateLocale}
+            weekStartsOn={weekStartsOn}
+          />
         </div>
 
         {/* Date de fin */}
         <div className="space-y-2">
           <Label htmlFor="dateTo" className="text-sm font-medium">{t.activationRequests.filters.dateTo}</Label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-            <Input
-              id="dateTo"
-              type="date"
-              value={localFilters.dateTo || ''}
-              onChange={(e) => handleDateToChange(e.target.value)}
-              className="pl-10 bg-background"
-            />
-          </div>
+          <DatePicker
+            id="dateTo"
+            value={localFilters.dateTo || ""}
+            onChange={handleDateToChange}
+            placeholder="yyyy-mm-dd"
+            displayFormat={language === "fr" ? "dd/MM/yyyy" : "MM/dd/yyyy"}
+            locale={dateLocale}
+            weekStartsOn={weekStartsOn}
+          />
         </div>
       </div>
 

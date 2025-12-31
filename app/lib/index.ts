@@ -1,16 +1,20 @@
+// Public API barrel (stable imports via `~/lib/*`)
+
 // Utilities
-export { cn } from './utils';
+export { cn } from "./utils";
 
 // Axios configuration and API client
-export { default as axiosInstance, api, setApiLanguage, getApiLanguage } from './axios';
-export type { ApiError, HttpMethod, RequestOptions } from './axios';
+export { axiosInstance, api, setApiLanguage, getApiLanguage, getClientInfo } from "./axios";
+export type { ApiError, HttpMethod, RequestOptions, GeolocationData } from "./axios";
 
 // Translations
-export { translations, interpolate, getTranslations } from './translations';
-export type { Language, Translations } from './translations';
+export { translations, interpolate, getTranslations } from "./translations";
+export type { Language, Translations } from "./translations";
+export { notificationTranslations } from "./notification-translations";
+export type { NotificationTranslations } from "./notification-translations";
 
 // Roles and Permissions
-export { ROLES, getRoleBySlug, getAllRoleSlugs, getRolePermissions } from './roles';
+export { ROLES, getRoleBySlug, getAllRoleSlugs, getRolePermissions } from "./roles";
 export {
   hasPermission,
   hasAllPermissions,
@@ -21,17 +25,11 @@ export {
   isAdmin,
   isSuperAdmin,
   getUserPermissions,
-} from './permissions';
+} from "./permissions";
 
-// Auth Service
-export { authService } from './auth.service';
-export type { LoginResponse, RegisterResponse } from './auth.service';
-
-// Customer Service
-export { customerService } from './customer.service';
-
-// ID Card Type Service
-export { idCardTypeService } from './id-card-type.service';
-
-// Activation Request Service
-export { activationRequestService } from './activation-request.service';
+// Client-side services
+export { authService } from "./services/auth.service";
+export { customerService } from "./services/customer.service";
+export { idCardTypeService } from "./services/id-card-type.service";
+export { activationRequestService } from "./services/activation-request.service";
+export { notificationService } from "./services/notification.service";

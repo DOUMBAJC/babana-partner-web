@@ -10,6 +10,7 @@ import type { Customer } from './customer.types';
 export type ActivationRequestStatus =
   | 'pending'       // En attente
   | 'processing'    // En cours de traitement
+  | 'approved'      // Approuvée (compat backend)
   | 'activated'     // Activée
   | 'rejected'      // Rejetée
   | 'cancelled';    // Annulée
@@ -106,7 +107,7 @@ export interface UpdateActivationRequestData {
  * Données pour traiter une requête (Activateur)
  */
 export interface ProcessActivationRequestData {
-  status: 'processing' | 'activated' | 'rejected';
+  status: 'processing' | 'approved' | 'activated' | 'rejected';
   adminNotes?: string;
   rejectionReason?: string;
 }

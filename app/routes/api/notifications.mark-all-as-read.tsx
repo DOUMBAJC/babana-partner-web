@@ -1,4 +1,4 @@
-import { json, type ActionFunctionArgs } from "react-router";
+import { data, type ActionFunctionArgs } from "react-router";
 import { createAuthenticatedApi } from "~/services/api.server";
 
 /**
@@ -10,10 +10,10 @@ export async function action({ request }: ActionFunctionArgs) {
     const api = await createAuthenticatedApi(request);
     const response = await api.post("/notifications/mark-all-as-read");
     
-    return json({ success: true, ...response.data });
+    return data({ success: true, ...response.data });
   } catch (error: any) {
     console.error("Error marking all notifications as read:", error);
-    return json(
+    return data(
       { 
         success: false, 
         error: error.response?.data?.message || "Erreur lors du marquage des notifications" 
