@@ -105,7 +105,15 @@ export async function getLanguage(request: Request): Promise<string> {
  */
 export async function getAcceptLanguageHeader(request: Request): Promise<string> {
   const cookieHeader = request.headers.get("Cookie");
-  const language = await languageCookie.parse(cookieHeader);
+  
+  // Lire manuellement le cookie (même méthode que getLanguage)
+  let language: string | null = null;
+  if (cookieHeader) {
+    const match = cookieHeader.match(/(?:^|;\s*)babana-language=([^;]+)/);
+    if (match) {
+      language = match[1];
+    }
+  }
   
   if (language && (language === "fr" || language === "en")) {
     return language;

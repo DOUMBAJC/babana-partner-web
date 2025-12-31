@@ -15,9 +15,26 @@ export interface ApiError {
 }
 
 /**
- * Langue courante pour les messages d'erreur
+ * Lit la langue depuis le cookie babana-language
  */
-let currentLanguage: Language = "fr";
+const getLanguageFromCookie = (): Language => {
+  if (typeof document === "undefined") return "fr";
+  
+  const match = document.cookie.match(/(?:^|;\s*)babana-language=([^;]+)/);
+  const language = match ? match[1] : null;
+  
+  if (language === "en" || language === "fr") {
+    return language;
+  }
+  
+  return "fr";
+};
+
+/**
+ * Langue courante pour les messages d'erreur
+ * Initialise avec la langue du cookie si disponible
+ */
+let currentLanguage: Language = getLanguageFromCookie();
 
 /**
  * Définit la langue pour les messages d'erreur

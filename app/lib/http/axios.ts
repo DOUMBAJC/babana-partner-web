@@ -61,9 +61,29 @@ const axiosInstance = axios.create({
 });
 
 /**
- * Gestion de la langue pour l'API
+ * Lit la langue depuis le cookie babana-language
  */
-let currentLanguage: "fr" | "en" = "fr";
+const getLanguageFromCookie = (): "fr" | "en" => {
+  if (typeof document === "undefined") return "fr";
+  
+  const match = document.cookie.match(/(?:^|;\s*)babana-language=([^;]+)/);
+  const language = match ? match[1] : null;
+  
+  if (language === "en" || language === "fr") {
+    return language;
+  }
+  
+  return "fr";
+};
+
+/**
+ * Gestion de la langue pour l'API
+ * Initialise avec la langue du cookie si disponible
+ */
+let currentLanguage: "fr" | "en" = getLanguageFromCookie();
+
+// Synchroniser la langue des erreurs dès l'initialisation
+setErrorLanguage(currentLanguage);
 
 export const setApiLanguage = (language: "fr" | "en"): void => {
   currentLanguage = language;
