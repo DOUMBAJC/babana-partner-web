@@ -44,7 +44,8 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
     lastProcessedData.current = data;
 
     if (data.success) {
-      toast.success(t.activationRequests.toast.rejectSuccess);
+      const message = data.message || t.activationRequests.toast.rejectSuccess;
+      toast.success(message);
       onOpenChange(false);
       setRejectionReason("");
       setAdminNotes("");
@@ -65,7 +66,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
     }
 
     const formData = new FormData();
-    formData.append('_action', 'reject');
+    formData.append('actionType', 'reject');
     formData.append('requestId', request.id.toString());
     formData.append('rejectionReason', rejectionReason);
     if (adminNotes) {

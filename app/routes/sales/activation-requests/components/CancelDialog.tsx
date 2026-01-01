@@ -42,7 +42,8 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
     lastProcessedData.current = data;
 
     if (data.success) {
-      toast.success(t.activationRequests.toast?.cancelSuccess || 'Requête annulée avec succès');
+      const message = data.message || t.activationRequests.toast?.cancelSuccess || 'Requête annulée avec succès';
+      toast.success(message);
       onOpenChange(false);
       setCancelReason('');
     } else if (data.error) {
@@ -56,7 +57,7 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('_action', 'cancel');
+    formData.append('actionType', 'cancel');
     formData.append('requestId', request.id.toString());
     if (cancelReason.trim()) {
       formData.append('cancelReason', cancelReason.trim());

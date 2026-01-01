@@ -1,4 +1,4 @@
-import { useNavigate, data } from "react-router";
+import { useNavigate, data, useNavigation } from "react-router";
 import { useTranslation, usePageTitle } from '~/hooks';
 import { Layout } from '~/components';
 import type { Route } from "./+types/route";
@@ -10,6 +10,9 @@ import { FiltersSection } from './components/FiltersSection';
 import { RequestsTable } from './components/RequestsTable';
 import { AccessDenied } from './components/AccessDenied';
 import type { RoleSlug } from '~/types';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+import { LoadingOverlay } from '~/components/ui/loading-overlay';
 
 const AUTHORIZED_ROLES: RoleSlug[] = ['super_admin', 'admin', 'activateur', 'ba', 'dsm', 'pos'];
 
@@ -25,6 +28,8 @@ export async function loader({ request }: Route.LoaderArgs) {
         requests: [],
         stats: null,
         pagination: null,
+        success: false,
+        message: null,
       });
     }
 
@@ -38,6 +43,8 @@ export async function loader({ request }: Route.LoaderArgs) {
         requests: [],
         stats: null,
         pagination: null,
+        success: false,
+        message: null,
       });
     }
 
@@ -54,25 +61,24 @@ export async function loader({ request }: Route.LoaderArgs) {
 
     const api = await createAuthenticatedApi(request);
 
-    // Récupérer les requêtes d'activation
-    const requestsResponse = await api.get('/activation-requests', {
-      params: {
-        page,
-        perPage,
-        status,
-        search,
-        dateFrom,
-        dateTo,
-        sortBy,
-        sortOrder,
-        include: 'ba,customer,processor',
-      },
-    });
+    // Récupérer les requêtes d'activation ET les statistiques en parallèle
+    const [requestsResponse, statsResponse] = await Promise.all([
+      api.get('/activation-requests', {
+        params: {
+          page,
+          perPage,
+          status,
+          search,
+          start_date: dateFrom, 
+          end_date: dateTo,
+          sortBy,
+          sortOrder,
+          include: 'ba,customer,processor',
+        },
+      }),
+      api.get('/activation-requests/stats')
+    ]);
 
-    // Récupérer les statistiques
-    const statsResponse = await api.get('/activation-requests/stats');
-
-    // Adapter le format des stats du serveur au format attendu par le frontend
     const rawStats = statsResponse.data?.data || statsResponse.data;
     
     const stats = rawStats?.overview ? {
@@ -84,7 +90,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       cancelled: rawStats.overview.cancelled || 0,
     } : null;
 
-    // Adapter la pagination Laravel vers notre format
     const paginationData = requestsResponse.data?.data;
     const pagination = paginationData ? {
       currentPage: paginationData.current_page,
@@ -95,6 +100,9 @@ export async function loader({ request }: Route.LoaderArgs) {
       to: paginationData.to,
     } : null;
 
+    // Récupérer le message de succès de l'API si présent
+    const apiMessage = requestsResponse.data?.message || null;
+
     return data({
       user,
       hasAccess: true,
@@ -102,6 +110,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       requests: paginationData?.data || [],
       stats: stats,
       pagination: pagination,
+      success: requestsResponse.data?.success !== false,
+      message: apiMessage,
     });
   } catch (error: any) {
     console.error('Erreur dans le loader:', error?.message);
@@ -113,6 +123,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       requests: [],
       stats: null,
       pagination: null,
+      success: false,
+      message: null,
     });
   }
 }
@@ -139,7 +151,6 @@ export async function action({ request }: Route.ActionArgs) {
     switch (actionType) {
       case 'accept': {
         const adminNotes = formData.get('adminNotes') as string;
-        // Backend: endpoint raccourci /accept + snake_case
         const response = await api.post(`/activation-requests/${requestId}/accept`, {
           admin_notes: adminNotes || undefined,
         });
@@ -147,6 +158,7 @@ export async function action({ request }: Route.ActionArgs) {
           success: true,
           request: response.data?.data || response.data,
           error: null,
+          message: response.data?.message || 'Demande acceptée avec succès',
         });
       }
 
@@ -159,10 +171,10 @@ export async function action({ request }: Route.ActionArgs) {
             success: false,
             error: 'La raison du rejet est requise',
             request: null,
+            message: null,
           }, { status: 400 });
         }
 
-        // Backend: endpoint raccourci /reject + snake_case
         const response = await api.post(`/activation-requests/${requestId}/reject`, {
           rejection_reason: rejectionReason,
           admin_notes: adminNotes || undefined,
@@ -172,18 +184,56 @@ export async function action({ request }: Route.ActionArgs) {
           success: true,
           request: response.data?.data || response.data,
           error: null,
+          message: response.data?.message || 'Demande rejetée avec succès',
         });
       }
 
       case 'process': {
+        const adminNotes = formData.get('adminNotes') as string;
         const response = await api.post(`/activation-requests/${requestId}/process`, {
-          status: 'processing',
+          admin_notes: adminNotes || undefined,
         });
 
         return data({
           success: true,
           request: response.data?.data || response.data,
           error: null,
+          message: response.data?.message || 'Traitement démarré avec succès',
+        });
+      }
+
+      case 'cancel': {
+        const cancelReason = formData.get('cancelReason') as string;
+        const response = await api.post(`/activation-requests/${requestId}/cancel`, {
+          cancel_reason: cancelReason || undefined,
+        });
+
+        return data({
+          success: true,
+          request: response.data?.data || response.data,
+          error: null,
+          message: response.data?.message || 'Requête annulée avec succès',
+        });
+      }
+
+      case 'update': {
+        const simNumber = formData.get('sim_number') as string;
+        const iccid = formData.get('iccid') as string;
+        const imei = formData.get('imei') as string;
+        const baNotes = formData.get('baNotes') as string;
+
+        const response = await api.put(`/activation-requests/${requestId}`, {
+          sim_number: simNumber,
+          iccid: iccid,
+          imei: imei || undefined,
+          ba_notes: baNotes || undefined,
+        });
+
+        return data({
+          success: true,
+          request: response.data?.data || response.data,
+          error: null,
+          message: response.data?.message || 'Requête mise à jour avec succès',
         });
       }
 
@@ -192,6 +242,7 @@ export async function action({ request }: Route.ActionArgs) {
           success: false,
           error: 'Action non reconnue',
           request: null,
+          message: null,
         }, { status: 400 });
     }
   } catch (error: any) {
@@ -200,6 +251,7 @@ export async function action({ request }: Route.ActionArgs) {
       success: false,
       error: error?.response?.data?.message || error?.message || 'Une erreur est survenue',
       request: null,
+      message: null,
     }, { status: 500 });
   }
 }
@@ -207,12 +259,24 @@ export async function action({ request }: Route.ActionArgs) {
 export default function ActivationRequestsPage({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const navigation = useNavigation();
 
   usePageTitle(t.activationRequests.title);
 
-  const { user, hasAccess, error: loaderError, requests, stats, pagination } = loaderData;
+  const { user, hasAccess, error: loaderError, requests, stats, pagination, message } = loaderData;
 
-  // Accès refusé
+  // Déterminer si on est en cours de chargement (filtres, recherche, pagination)
+  const isLoading = navigation.state === 'loading';
+
+  // Afficher les toasts pour les messages de l'API
+  useEffect(() => {
+    if (loaderError) {
+      toast.error(loaderError);
+    } else if (message) {
+      toast.success(message);
+    }
+  }, [loaderError, message]);
+
   if (!hasAccess) {
     return (
       <Layout>
@@ -224,7 +288,6 @@ export default function ActivationRequestsPage({ loaderData }: Route.ComponentPr
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* En-tête */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -244,12 +307,16 @@ export default function ActivationRequestsPage({ loaderData }: Route.ComponentPr
         {/* Filtres */}
         <FiltersSection />
 
-        {/* Table des requêtes */}
-        <RequestsTable 
-          requests={requests}
-          pagination={pagination}
-          userRole={user?.roles?.[0]}
-        />
+        {/* Table des requêtes avec overlay de chargement */}
+        <div className="relative">
+          {isLoading && <LoadingOverlay message="Recherche en cours..." />}
+          <RequestsTable 
+            requests={requests}
+            pagination={pagination}
+            userRole={user?.roles?.[0]}
+            userId={user?.id}
+          />
+        </div>
       </div>
     </Layout>
   );

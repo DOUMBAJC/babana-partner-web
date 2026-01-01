@@ -1,7 +1,8 @@
 import { Logo } from '~/components/Logo';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
-import { useTranslation, useAuth } from '~/hooks';
+import { FeatureCard } from '~/components/features/FeatureCard';
+import { useTranslation, useAuth, usePermissions } from '~/hooks';
 import { Link } from 'react-router';
 import { 
   Smartphone, 
@@ -23,6 +24,7 @@ import logoUrl from '~/assets/logo.png';
 import { hasPermission, isAdmin } from '~/lib/permissions';
 import { useState, useEffect } from 'react';
 import { cn } from '~/lib/utils';
+import type { Permission } from '~/types/auth.types';
 
 interface WelcomeProps {
   welcomeMessage?: string | null;
@@ -79,74 +81,61 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
   ];
 
   const getDashboardActions = () => {
-    if (!safeIsAuthenticated || !user) return [];
-
-    const actions = [];
-
-    // Recherche Client
-    if (hasPermission(user, 'view-orders') || hasPermission(user, 'create-orders')) {
-      actions.push({
+    const allActions = [
+      {
         title: t.nav.searchCustomer,
         description: language === 'fr' ? 'Rechercher et vérifier les informations d\'un client' : 'Search and verify customer information',
         icon: Search,
         href: "/customers/search",
         color: "bg-blue-500",
-        permission: 'view-orders'
-      });
-    }
-
-    // Nouveau Client
-    if (hasPermission(user, 'create-orders')) {
-      actions.push({
+        permission: 'view-orders' as Permission,
+      },
+      {
         title: t.nav.newCustomer,
         description: language === 'fr' ? 'Enregistrer un nouveau client dans la plateforme' : 'Register a new customer in the platform',
         icon: UserPlus,
         href: "/customers/create",
         color: "bg-emerald-500",
-        permission: 'create-orders'
-      });
-    }
-
-    // Activation SIM
-    if (hasPermission(user, 'create-requests')) {
-      actions.push({
+        permission: 'create-orders' as Permission,
+      },
+      {
         title: t.nav.simActivation,
         description: language === 'fr' ? 'Initier une nouvelle demande d\'activation de SIM' : 'Initiate a new SIM activation request',
         icon: Zap,
         href: "/sales/activation",
         color: "bg-amber-500",
-        permission: 'create-requests'
-      });
-    }
-
-    // Requêtes d'Activation
-    if (hasPermission(user, 'process-requests') || hasPermission(user, 'approve-requests')) {
-      actions.push({
+        permission: 'create-requests' as Permission,
+      },
+      {
         title: t.nav.activationRequests,
         description: language === 'fr' ? 'Gérer et traiter les demandes d\'activation en attente' : 'Manage and process pending activation requests',
         icon: ClipboardList,
         href: "/sales/activation-requests",
         color: "bg-purple-500",
-        permission: 'process-requests'
-      });
-    }
-
-    // Administration
-    if (isAdmin(user)) {
-      actions.push({
+        permission: 'process-requests' as Permission,
+      },
+      {
         title: t.nav.admin,
         description: language === 'fr' ? 'Accéder aux paramètres et à la gestion du système' : 'Access system settings and management',
         icon: Settings,
         href: "/admin",
         color: "bg-slate-700",
-        permission: 'admin-access'
-      });
-    }
+        permission: 'admin-access' as Permission,
+      },
+    ];
 
-    return actions;
+    // Retourner toutes les actions avec l'info d'accès
+    return allActions.map(action => ({
+      ...action,
+      hasAccess: safeIsAuthenticated && user ? (
+        hasPermission(user, action.permission) ||
+        (action.permission === 'admin-access' && isAdmin(user))
+      ) : false,
+    }));
   };
 
-  const dashboardActions = getDashboardActions();
+  // Ne garder que les actions accessibles
+  const dashboardActions = getDashboardActions().filter(a => a.hasAccess);
 
   return (
     <main className="min-h-screen pb-20 overflow-x-hidden">
@@ -258,49 +247,33 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       {/* Dashboard Actions Grid (Only if Authenticated) */}
       {safeIsAuthenticated && dashboardActions.length > 0 && (
         <section className="container mx-auto px-4 mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-3 mb-6">
             <div className="h-8 w-1.5 bg-babana-cyan rounded-full" />
-            <h2 className="text-2xl font-bold text-foreground">
-              {language === 'fr' ? 'Vos fonctionnalités' : 'Your features'}
-            </h2>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {language === 'fr' ? 'Vos fonctionnalités' : 'Your features'}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {language === 'fr' 
+                  ? `${dashboardActions.length} fonctionnalité${dashboardActions.length > 1 ? 's' : ''} disponible${dashboardActions.length > 1 ? 's' : ''}` 
+                  : `${dashboardActions.length} feature${dashboardActions.length > 1 ? 's' : ''} available`}
+              </p>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dashboardActions.map((action, index) => {
-              const Icon = action.icon;
-              return (
-                <Link key={index} to={action.href} className="group">
-                  <Card className="h-full border-2 border-transparent hover:border-babana-cyan/50 transition-all duration-300 hover:shadow-2xl hover:shadow-babana-cyan/10 dark:hover:shadow-babana-cyan/20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden relative">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform duration-300 shadow-lg",
-                          action.color
-                        )}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className="text-xl font-bold text-foreground group-hover:text-babana-cyan transition-colors">
-                            {action.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {action.description}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-6 flex items-center text-babana-cyan font-semibold text-sm group-hover:gap-2 transition-all">
-                        <span>{language === 'fr' ? 'Accéder' : 'Access'}</span>
-                        <ArrowRight className="w-4 h-4 ml-1 group-hover:ml-2 transition-all" />
-                      </div>
-                    </CardContent>
-                    
-                    {/* Progress indicator on hover */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-babana-cyan transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                  </Card>
-                </Link>
-              );
-            })}
+            {dashboardActions.map((action, index) => (
+              <FeatureCard
+                key={index}
+                title={action.title}
+                description={action.description}
+                icon={action.icon}
+                href={action.href}
+                color={action.color}
+                hasAccess={action.hasAccess}
+                actionLabel={language === 'fr' ? 'Accéder' : 'Access'}
+              />
+            ))}
           </div>
         </section>
       )}

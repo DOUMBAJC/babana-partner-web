@@ -18,6 +18,13 @@ export { ConsentBanner } from './ConsentBanner';
 export { ConsentModal } from './ConsentModal';
 export { ConsentSettings } from './ConsentSettings';
 export { Footer } from './Footer';
+export { NotificationDropdown } from './NotificationDropdown';
+
+// Feature Components
+export { FeatureCard } from './features/FeatureCard';
+export { PermissionBadge } from './features/PermissionBadge';
+export { FeaturesSection } from './features/FeaturesSection';
+export type { Feature } from './features/FeaturesSection';
 
 // shadcn/ui Components
 export { Button } from './ui/button';

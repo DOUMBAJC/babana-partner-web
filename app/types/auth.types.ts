@@ -64,6 +64,17 @@ export interface Role {
 }
 
 /**
+ * Rôle tel que renvoyé par l'API (Eloquent)
+ * Peut inclure des métadonnées + pivot (relation many-to-many).
+ */
+export type ApiRole = Role & {
+  id: number;
+  created_at?: string;
+  updated_at?: string;
+  pivot?: unknown;
+};
+
+/**
  * Statut d'un compte utilisateur
  */
 export type AccountStatus =
@@ -88,6 +99,11 @@ export interface User {
   last_name?: string;
   full_name?: string;
   roles: RoleSlug[];
+  /**
+   * Rôles complets renvoyés par l'API (ex: `User::with('roles.permissions')`).
+   * Utile pour afficher name/description/permissions côté UI sans heuristiques.
+   */
+  roles_details?: ApiRole[];
   permissions?: Permission[];
   avatar?: string;
   created_at: string;
@@ -109,6 +125,14 @@ export interface User {
   isVerified?: boolean;
   canLogin?: boolean;
 }
+
+/**
+ * User tel que renvoyé par l'API: `roles` peut être un tableau de slugs
+ * OU un tableau d'objets Role (avec pivot).
+ */
+export type ApiUser = Omit<User, 'roles'> & {
+  roles: Array<RoleSlug | ApiRole>;
+};
 
 export interface AuthState {
   user: User | null;

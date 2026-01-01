@@ -42,7 +42,8 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
     lastProcessedData.current = data;
 
     if (data.success) {
-      toast.success(t.activationRequests.toast.acceptSuccess);
+      const message = data.message || t.activationRequests.toast.acceptSuccess;
+      toast.success(message);
       onOpenChange(false);
       setAdminNotes("");
     } else if (data.error) {
@@ -56,7 +57,7 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
     e.preventDefault();
     
     const formData = new FormData();
-    formData.append('_action', 'accept');
+    formData.append('actionType', 'accept');
     formData.append('requestId', request.id.toString());
     if (adminNotes) {
       formData.append('adminNotes', adminNotes);

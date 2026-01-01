@@ -382,6 +382,10 @@ export interface Translations {
       title: string;
       description: string;
     };
+    adminUsers: {
+      title: string;
+      description: string;
+    };
     profile: {
       title: string;
       description: string;
@@ -794,6 +798,148 @@ export interface Translations {
     };
     notFound: string;
   };
+
+  // Admin - Users
+  adminUsers: {
+    breadcrumb: {
+      admin: string;
+      users: string;
+    };
+    header: {
+      title: string;
+      subtitle: string;
+    };
+    stats: {
+      total: string;
+      active: string;
+      pending: string;
+      suspended: string;
+      rejected: string;
+    };
+    tabs: {
+      all: string;
+      pending: string;
+    };
+    search: {
+      placeholder: string;
+    };
+    filters: {
+      status: string;
+      allStatuses: string;
+      role: string;
+      allRoles: string;
+    };
+    status: {
+      pending_verification: string;
+      verified: string;
+      active: string;
+      suspended: string;
+      rejected: string;
+    };
+    statusDescriptions: {
+      pending_verification: string;
+      verified: string;
+      active: string;
+      suspended: string;
+      rejected: string;
+    };
+    table: {
+      user: string;
+      status: string;
+      roles: string;
+      created: string;
+      actions: string;
+      view: string;
+      openTooltip: string;
+      emptyTitle: string;
+      emptyMessage: string;
+    };
+    drawer: {
+      tabs: {
+        profile: string;
+        roles: string;
+        actions: string;
+      };
+    };
+    panel: {
+      unavailableTitle: string;
+      unavailableMessage: string;
+      sections: {
+        contact: string;
+        account: string;
+        history: string;
+        actions: string;
+      };
+    };
+    fields: {
+      email: string;
+      phone: string;
+      camtelLogin: string;
+      createdAt: string;
+      emailVerified: string;
+      notVerified: string;
+      notProvided: string;
+      activatedAt: string;
+      activatedBy: string;
+    };
+    history: {
+      accountCreated: string;
+      accountCreatedDesc: string;
+      emailVerified: string;
+      emailVerifiedDesc: string;
+      accountActivated: string;
+      by: string;
+      byAdmin: string;
+      accountSuspended: string;
+      accountSuspendedDesc: string;
+      accountRejected: string;
+      accountRejectedDesc: string;
+    };
+    roles: {
+      noneAssigned: string;
+      manageTitle: string;
+      assignLabel: string;
+      choosePlaceholder: string;
+      noRoleAvailable: string;
+      assignButton: string;
+      assignedTitle: string;
+      removeButton: string;
+      noneTitle: string;
+      noneDesc: string;
+    };
+    actions: {
+      activateTitle: string;
+      activateDesc: string;
+      reactivateTitle: string;
+      reactivateDesc: string;
+      suspendTitle: string;
+      suspendDesc: string;
+      rejectTitle: string;
+      rejectDesc: string;
+      noneTitle: string;
+      noneDesc: string;
+      rejectionReasonTitle: string;
+    };
+    confirm: {
+      activateTitle: string;
+      suspendTitle: string;
+      reactivateTitle: string;
+      rejectTitle: string;
+      actionOn: string;
+      reasonOptionalLabel: string;
+      reasonPlaceholder: string;
+    };
+    errors: {
+      missingParams: string;
+      missingRole: string;
+      loadError: string;
+      genericError: string;
+    };
+    toasts: {
+      copied: string;
+      actionDone: string;
+    };
+  };
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1154,6 +1300,10 @@ export const translations: Record<Language, Translations> = {
         title: "Matrice des Rôles - BABANA Partner",
         description: "Matrice détaillée des rôles et permissions de la plateforme",
       },
+      adminUsers: {
+        title: "Gestion des utilisateurs - BABANA Partner",
+        description: "Administration des utilisateurs, rôles et statuts sur BABANA Partner",
+      },
       profile: {
         title: "Mon Profil - BABANA Partner",
         description: "Gérez vos informations personnelles, sécurité et préférences",
@@ -1501,6 +1651,146 @@ export const translations: Record<Language, Translations> = {
         backHome: "Retour à l'accueil",
       },
       notFound: "Requête introuvable",
+    },
+    adminUsers: {
+      breadcrumb: {
+        admin: "Administration",
+        users: "Utilisateurs",
+      },
+      header: {
+        title: "Gestion des utilisateurs",
+        subtitle: "Un cockpit clair pour activer, suspendre et suivre les comptes.",
+      },
+      stats: {
+        total: "Total",
+        active: "Actifs",
+        pending: "En attente",
+        suspended: "Suspendus",
+        rejected: "Rejetés",
+      },
+      tabs: {
+        all: "Tous",
+        pending: "En attente",
+      },
+      search: {
+        placeholder: "Rechercher (nom, email, téléphone, login...)",
+      },
+      filters: {
+        status: "Statut",
+        allStatuses: "Tous les statuts",
+        role: "Rôle",
+        allRoles: "Tous rôles",
+      },
+      status: {
+        pending_verification: "Email à vérifier",
+        verified: "En attente d’activation",
+        active: "Actif",
+        suspended: "Suspendu",
+        rejected: "Rejeté",
+      },
+      statusDescriptions: {
+        pending_verification: "L'utilisateur doit confirmer son adresse email",
+        verified: "Email vérifié, en attente de validation par un administrateur",
+        active: "L'utilisateur peut accéder à toutes les fonctionnalités",
+        suspended: "L'accès au compte a été temporairement désactivé",
+        rejected: "La demande de création de compte a été refusée",
+      },
+      table: {
+        user: "Utilisateur",
+        status: "Statut",
+        roles: "Rôles",
+        created: "Créé",
+        actions: "Actions",
+        view: "Voir",
+        openTooltip: "Ouvrir le panneau de détails",
+        emptyTitle: "Aucun utilisateur trouvé",
+        emptyMessage: "Ajuste la recherche ou les filtres.",
+      },
+      drawer: {
+        tabs: {
+          profile: "Profil",
+          roles: "Rôles & Permissions",
+          actions: "Actions",
+        },
+      },
+      panel: {
+        unavailableTitle: "Détails indisponibles",
+        unavailableMessage: "Impossible de récupérer les informations de ce compte.",
+        sections: {
+          contact: "Coordonnées",
+          account: "Compte",
+          history: "Historique rapide",
+          actions: "Actions disponibles",
+        },
+      },
+      fields: {
+        email: "Email",
+        phone: "Téléphone",
+        camtelLogin: "Login CAMTEL",
+        createdAt: "Date de création",
+        emailVerified: "Email vérifié",
+        notVerified: "Non vérifié",
+        notProvided: "Non renseigné",
+        activatedAt: "Date d'activation",
+        activatedBy: "Activé par",
+      },
+      history: {
+        accountCreated: "Compte créé",
+        accountCreatedDesc: "Inscription sur la plateforme",
+        emailVerified: "Email vérifié",
+        emailVerifiedDesc: "Confirmation de l'adresse email",
+        accountActivated: "Compte activé",
+        by: "Par",
+        byAdmin: "Par un administrateur",
+        accountSuspended: "Compte suspendu",
+        accountSuspendedDesc: "Accès temporairement désactivé",
+        accountRejected: "Compte rejeté",
+        accountRejectedDesc: "Demande refusée",
+      },
+      roles: {
+        noneAssigned: "Aucun rôle attribué",
+        manageTitle: "Gestion des rôles",
+        assignLabel: "Assigner un rôle",
+        choosePlaceholder: "Choisir un rôle…",
+        noRoleAvailable: "Aucun rôle disponible",
+        assignButton: "Assigner",
+        assignedTitle: "Rôles attribués",
+        removeButton: "Retirer",
+        noneTitle: "Aucun rôle",
+        noneDesc: "Cet utilisateur n'a pas encore de rôle",
+      },
+      actions: {
+        activateTitle: "Activer le compte",
+        activateDesc: "Permet à l'utilisateur d'accéder à la plateforme",
+        reactivateTitle: "Réactiver le compte",
+        reactivateDesc: "Restaurer l'accès à la plateforme",
+        suspendTitle: "Suspendre le compte",
+        suspendDesc: "Bloquer temporairement l'accès utilisateur",
+        rejectTitle: "Rejeter le compte",
+        rejectDesc: "Refuser définitivement la demande",
+        noneTitle: "Aucune action disponible",
+        noneDesc: "Le statut actuel ne permet aucune action",
+        rejectionReasonTitle: "Motif de rejet",
+      },
+      confirm: {
+        activateTitle: "Activer le compte",
+        suspendTitle: "Suspendre le compte",
+        reactivateTitle: "Réactiver le compte",
+        rejectTitle: "Rejeter le compte",
+        actionOn: "Action sur",
+        reasonOptionalLabel: "Motif (optionnel)",
+        reasonPlaceholder: "Ex: informations incomplètes, doublon, non éligible...",
+      },
+      errors: {
+        missingParams: "Paramètres manquants",
+        missingRole: "Rôle manquant",
+        loadError: "Erreur lors du chargement",
+        genericError: "Une erreur est survenue",
+      },
+      toasts: {
+        copied: "Copié dans le presse-papier",
+        actionDone: "Action effectuée",
+      },
     },
     profile: {
       title: "Mon Profil",
@@ -1967,6 +2257,10 @@ export const translations: Record<Language, Translations> = {
         title: "Roles Matrix - BABANA Partner",
         description: "Detailed matrix of platform roles and permissions",
       },
+      adminUsers: {
+        title: "User management - BABANA Partner",
+        description: "Manage users, roles and account statuses in BABANA Partner",
+      },
       profile: {
         title: "My Profile - BABANA Partner",
         description: "Manage your personal information, security and preferences",
@@ -2314,6 +2608,146 @@ export const translations: Record<Language, Translations> = {
         backHome: "Back to home",
       },
       notFound: "Request not found",
+    },
+    adminUsers: {
+      breadcrumb: {
+        admin: "Administration",
+        users: "Users",
+      },
+      header: {
+        title: "User management",
+        subtitle: "A clear cockpit to activate, suspend and track accounts.",
+      },
+      stats: {
+        total: "Total",
+        active: "Active",
+        pending: "Pending",
+        suspended: "Suspended",
+        rejected: "Rejected",
+      },
+      tabs: {
+        all: "All",
+        pending: "Pending",
+      },
+      search: {
+        placeholder: "Search (name, email, phone, login...)",
+      },
+      filters: {
+        status: "Status",
+        allStatuses: "All statuses",
+        role: "Role",
+        allRoles: "All roles",
+      },
+      status: {
+        pending_verification: "Email to verify",
+        verified: "Pending activation",
+        active: "Active",
+        suspended: "Suspended",
+        rejected: "Rejected",
+      },
+      statusDescriptions: {
+        pending_verification: "The user must confirm their email address",
+        verified: "Email verified, pending admin approval",
+        active: "The user can access all features",
+        suspended: "Account access has been temporarily disabled",
+        rejected: "The account request has been rejected",
+      },
+      table: {
+        user: "User",
+        status: "Status",
+        roles: "Roles",
+        created: "Created",
+        actions: "Actions",
+        view: "View",
+        openTooltip: "Open details panel",
+        emptyTitle: "No users found",
+        emptyMessage: "Adjust your search or filters.",
+      },
+      drawer: {
+        tabs: {
+          profile: "Profile",
+          roles: "Roles & Permissions",
+          actions: "Actions",
+        },
+      },
+      panel: {
+        unavailableTitle: "Details unavailable",
+        unavailableMessage: "Unable to retrieve this account information.",
+        sections: {
+          contact: "Contact details",
+          account: "Account",
+          history: "Quick timeline",
+          actions: "Available actions",
+        },
+      },
+      fields: {
+        email: "Email",
+        phone: "Phone",
+        camtelLogin: "CAMTEL login",
+        createdAt: "Created at",
+        emailVerified: "Email verified",
+        notVerified: "Not verified",
+        notProvided: "Not provided",
+        activatedAt: "Activated at",
+        activatedBy: "Activated by",
+      },
+      history: {
+        accountCreated: "Account created",
+        accountCreatedDesc: "Registration on the platform",
+        emailVerified: "Email verified",
+        emailVerifiedDesc: "Email address confirmation",
+        accountActivated: "Account activated",
+        by: "By",
+        byAdmin: "By an admin",
+        accountSuspended: "Account suspended",
+        accountSuspendedDesc: "Access temporarily disabled",
+        accountRejected: "Account rejected",
+        accountRejectedDesc: "Request rejected",
+      },
+      roles: {
+        noneAssigned: "No role assigned",
+        manageTitle: "Role management",
+        assignLabel: "Assign a role",
+        choosePlaceholder: "Choose a role…",
+        noRoleAvailable: "No role available",
+        assignButton: "Assign",
+        assignedTitle: "Assigned roles",
+        removeButton: "Remove",
+        noneTitle: "No roles",
+        noneDesc: "This user has no role yet",
+      },
+      actions: {
+        activateTitle: "Activate account",
+        activateDesc: "Allow the user to access the platform",
+        reactivateTitle: "Reactivate account",
+        reactivateDesc: "Restore access to the platform",
+        suspendTitle: "Suspend account",
+        suspendDesc: "Temporarily block user access",
+        rejectTitle: "Reject account",
+        rejectDesc: "Reject the request permanently",
+        noneTitle: "No actions available",
+        noneDesc: "Current status does not allow any action",
+        rejectionReasonTitle: "Rejection reason",
+      },
+      confirm: {
+        activateTitle: "Activate account",
+        suspendTitle: "Suspend account",
+        reactivateTitle: "Reactivate account",
+        rejectTitle: "Reject account",
+        actionOn: "Action on",
+        reasonOptionalLabel: "Reason (optional)",
+        reasonPlaceholder: "E.g.: incomplete info, duplicate, not eligible...",
+      },
+      errors: {
+        missingParams: "Missing parameters",
+        missingRole: "Missing role",
+        loadError: "Load error",
+        genericError: "An error occurred",
+      },
+      toasts: {
+        copied: "Copied to clipboard",
+        actionDone: "Action completed",
+      },
     },
     profile: {
       title: "My Profile",

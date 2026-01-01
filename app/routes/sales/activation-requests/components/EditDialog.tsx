@@ -52,7 +52,8 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
     lastProcessedData.current = data;
 
     if (data.success) {
-      toast.success(t.activationRequests.toast?.updateSuccess || '✨ Requête modifiée avec succès !');
+      const message = data.message || t.activationRequests.toast?.updateSuccess || '✨ Requête modifiée avec succès !';
+      toast.success(message);
       onOpenChange(false);
       setErrors({});
     } else if (data.error) {
@@ -102,7 +103,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
     }
 
     const formDataToSubmit = new FormData();
-    formDataToSubmit.append('_action', 'update');
+    formDataToSubmit.append('actionType', 'update');
     formDataToSubmit.append('requestId', request.id.toString());
     formDataToSubmit.append('sim_number', formData.sim_number);
     formDataToSubmit.append('iccid', formData.iccid);

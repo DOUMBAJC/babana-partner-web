@@ -27,7 +27,8 @@ import {
   CardDescription,
   CardContent,
   Badge,
-  Button
+  Button,
+  Layout
 } from '~/components';
 import { useTranslation, usePageTitle } from '~/hooks';
 
@@ -281,7 +282,8 @@ export default function RolesMatrixPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-linear-to-b from-background to-muted/20 p-4 md:p-8 space-y-8 animate-in fade-in duration-500">
+    <Layout>
+      <div className="w-full bg-linear-to-b from-background to-muted/20 p-4 md:p-8 space-y-8 animate-in fade-in duration-500">
       
       {/* Header Section */}
       <div className="container mx-auto max-w-6xl space-y-4 text-center md:text-left">
@@ -424,6 +426,7 @@ export default function RolesMatrixPage() {
         </Tabs>
       </div>
 
-    </div>
+      </div>
+    </Layout>
   );
 }

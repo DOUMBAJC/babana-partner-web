@@ -79,23 +79,45 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       ['activateur', 'admin', 'super_admin'].includes(role)
     );
     
-    if (activationRequest.status !== 'activated' && activationRequest.status !== 'approved' && !isOwner && !isActivator) {
+    // Règles d'accès :
+    // - Les activateurs peuvent voir toutes les requêtes
+    // - Les BA peuvent voir leurs propres requêtes (quel que soit le statut)
+    // - Personne d'autre ne peut voir les requêtes
+    if (!isOwner && !isActivator) {
       return data({
         user,
         hasAccess: false,
-        error: 'Vous ne pouvez voir que les requêtes actives ou vos propres requêtes',
+        error: 'Vous n\'avez pas accès à cette requête',
         request: null,
         statusChanged: false,
       });
     }
 
+    // Optimisation : Changement de statut automatique uniquement si activateur ET pending
+    // On utilise le résultat du POST directement s'il retourne l'objet complet
     if (isActivator && activationRequest.status === 'pending') {
       try {
-        await api.post(`/activation-requests/${id}/process`, {
+        const processResponse = await api.post(`/activation-requests/${id}/process`, {
           status: 'processing',
           admin_notes: 'Requête ouverte par un activateur'
         });
         
+        // Si le backend retourne l'objet complet, on l'utilise directement
+        const updatedRequest = processResponse.data?.data || processResponse.data;
+        
+        // Vérifier si on a reçu un objet complet (avec les relations)
+        // Si oui, on évite le deuxième appel GET
+        if (updatedRequest && updatedRequest.ba && updatedRequest.customer) {
+          return data({
+            user,
+            hasAccess: true,
+            error: null,
+            request: updatedRequest,
+            statusChanged: true,
+          });
+        }
+        
+        // Sinon, on fait un GET pour récupérer l'objet complet
         const updatedResponse = await api.get(`/activation-requests/${id}`, {
           params: {
             include: 'ba,customer,processor,history',
@@ -111,6 +133,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         });
       } catch (error) {
         // Continuer même si le changement de statut échoue
+        // On retourne la requête originale
       }
     }
 
@@ -122,9 +145,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       statusChanged: false,
     });
   } catch (error: any) {
-    const user = await getCurrentUser(request);
+    // Optimisation : éviter le double appel à getCurrentUser
+    // Si on est dans le catch, user est peut-être déjà disponible du try
     return data({
-      user: user || null,
+      user: null,
       hasAccess: false,
       error: error?.message || 'Erreur lors du chargement des données',
       request: null,
@@ -136,12 +160,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 export async function action({ request, params }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
-    const _action = formData.get('_action') as string;
+    const actionType = formData.get('actionType') as string;
     const requestId = parseInt(formData.get('requestId') as string);
 
     const api = await createAuthenticatedApi(request);
 
-    switch (_action) {
+    switch (actionType) {
       case 'update': {
         const updateData = {
           sim_number: formData.get('sim_number') as string,
@@ -366,23 +390,12 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
 
   const canCancelRequest = (request: ActivationRequest | null) => {
     if (!request) return false;
-    const userRole = getUserRole();
-    
-    // Ne peut pas annuler si déjà activée, rejetée ou annulée
-    if (['activated', 'approved', 'rejected', 'cancelled'].includes(request.status)) {
-      return false;
-    }
     
     // L'utilisateur doit être le propriétaire
     const isOwner = request.baId === user?.id;
     
-    // BA, DSM, POS peuvent annuler leurs propres requêtes
-    if (['ba', 'dsm', 'pos'].includes(userRole || '')) {
-      return isOwner;
-    }
-    
-    // Admin et super_admin peuvent toujours annuler
-    return ['admin', 'super_admin'].includes(userRole || '');
+    // Seul le owner peut annuler et seulement si la requête est en statut pending
+    return isOwner && request.status === 'pending';
   };
 
   const canProcessRequest = (request: ActivationRequest | null) => {
@@ -405,7 +418,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
           <p className="text-lg font-medium text-muted-foreground">Chargement...</p>
@@ -424,7 +437,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
         <Toaster />
         <div className="min-h-[80vh] flex items-center justify-center p-4">
           <div className="max-w-md w-full text-center space-y-6">
-            <div className="h-24 w-24 rounded-full bg-gradient-to-br from-red-500 to-pink-600 mx-auto flex items-center justify-center shadow-2xl">
+            <div className="h-24 w-24 rounded-full bg-linear-to-br from-red-500 to-pink-600 mx-auto flex items-center justify-center shadow-2xl">
               <AlertCircle className="h-12 w-12 text-white" />
             </div>
             <div>
@@ -437,7 +450,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
             </div>
             <Button 
               onClick={() => navigate('/sales/activation-requests')}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all"
+              className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               Retour à la liste
@@ -453,7 +466,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
       <Toaster />
       
       {/* Background gradient animé */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="fixed inset-0 -z-10 bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       </div>
 
@@ -473,11 +486,11 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
             <div className="flex-1">
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
+                <div className="h-16 w-16 rounded-2xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl">
                   <Shield className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
+                  <h1 className="text-4xl font-black bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
                     Requête #{request.id}
                     <Sparkles className="h-7 w-7 text-amber-500 animate-pulse" />
                   </h1>
@@ -508,7 +521,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
                   <Button
                     onClick={() => setShowAcceptDialog(true)}
                     size="lg"
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                    className="bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
                     <CheckCircle className="h-5 w-5 mr-2" />
                     Accepter
@@ -516,7 +529,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
                   <Button
                     onClick={() => setShowRejectDialog(true)}
                     size="lg"
-                    className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                    className="bg-linear-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
                     <XCircle className="h-5 w-5 mr-2" />
                     Rejeter
@@ -557,7 +570,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
           <InfoCard
             icon={<User className="h-6 w-6" />}
             title="Informations Client"
-            gradient="from-blue-500 via-cyan-500 to-teal-500"
+            gradient="bg-linear-to-r from-blue-500 via-cyan-500 to-teal-500"
           >
             <CopyableValue
               label="Nom complet"
@@ -591,7 +604,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
           <InfoCard
             icon={<CreditCard className="h-6 w-6" />}
             title="Informations SIM"
-            gradient="from-purple-500 via-pink-500 to-rose-500"
+            gradient="bg-linear-to-r from-purple-500 via-pink-500 to-rose-500"
           >
             <CopyableValue
               label="Numéro SIM"
@@ -658,47 +671,47 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
           <InfoCard
             icon={<FileText className="h-6 w-6" />}
             title="Notes et Commentaires"
-            gradient="from-green-500 via-emerald-500 to-teal-500"
+            gradient="bg-linear-to-r from-green-500 via-emerald-500 to-teal-500"
           >
-            {request.baNotes ? (
+            {request.ba_notes ? (
               <>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
                     <Sparkles className="h-3 w-3 text-amber-500" />
                     Notes BA
                   </p>
-                  <p className="text-sm bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 p-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 font-medium">
-                    {request.baNotes}
+                  <p className="text-sm bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 p-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 font-medium">
+                    {request.ba_notes}
                   </p>
                 </div>
                 <Separator className="my-3" />
               </>
             ) : null}
             
-            {request.adminNotes ? (
+            {request.admin_notes ? (
               <>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
                     <Shield className="h-3 w-3 text-blue-500" />
                     Notes Admin
                   </p>
-                  <p className="text-sm bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700 font-medium">
-                    {request.adminNotes}
+                  <p className="text-sm bg-linear-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-700 font-medium">
+                    {request.admin_notes}
                   </p>
                 </div>
                 <Separator className="my-3" />
               </>
             ) : null}
             
-            {request.rejectionReason ? (
+            {request.rejection_reason ? (
               <>
                 <div>
                   <p className="text-sm font-medium text-red-600 dark:text-red-400 uppercase tracking-wide mb-2 flex items-center gap-2">
                     <XCircle className="h-3 w-3" />
                     Raison du rejet
                   </p>
-                  <p className="text-sm bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 p-4 rounded-xl border-2 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 font-medium">
-                    {request.rejectionReason}
+                  <p className="text-sm bg-linear-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 p-4 rounded-xl border-2 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 font-medium">
+                    {request.rejection_reason}
                   </p>
                 </div>
                 <Separator className="my-3" />
@@ -711,8 +724,8 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
                   <CheckCircle className="h-3 w-3 text-green-500" />
                   Traité par
                 </p>
-                <div className="flex items-center gap-3 p-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border-2 border-green-200 dark:border-green-800">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-md">
+                <div className="flex items-center gap-3 p-3 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border-2 border-green-200 dark:border-green-800">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-md">
                     <User className="h-5 w-5 text-white" />
                   </div>
                   <div>
@@ -741,11 +754,11 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
               {request.history.map((entry: any, index: number) => (
                 <div key={entry.id} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                    <div className="h-10 w-10 rounded-full bg-linear-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
                       <Clock className="h-5 w-5 text-white" />
                     </div>
                     {index < request.history!.length - 1 && (
-                      <div className="w-0.5 flex-1 bg-gradient-to-b from-purple-500 to-pink-600 mt-2 rounded-full" />
+                      <div className="w-0.5 flex-1 bg-linear-to-b from-purple-500 to-pink-600 mt-2 rounded-full" />
                     )}
                   </div>
                   <div className="flex-1 pb-4">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams, useNavigation } from "react-router";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Search, X, Filter } from "lucide-react";
+import { Search, X, Filter, Loader2 } from "lucide-react";
 import { DatePicker } from "~/components/ui/date-picker";
 import { fr, enUS } from "date-fns/locale";
 import { useLanguage, useTranslation } from "~/hooks";
@@ -21,6 +21,7 @@ export function FiltersSection() {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
 
   // Locale + start-of-week pour éviter le décalage jours/grille
   const dateLocale = language === "fr" ? fr : enUS;
@@ -34,6 +35,9 @@ export function FiltersSection() {
     dateFrom: searchParams.get('dateFrom') || '',
     dateTo: searchParams.get('dateTo') || '',
   }));
+
+  // Déterminer si on est en train de charger
+  const isLoading = navigation.state === 'loading';
 
   // Synchroniser les filtres locaux avec les URL params
   useEffect(() => {
@@ -188,6 +192,7 @@ export function FiltersSection() {
             variant="outline"
             onClick={handleClearFilters}
             className="gap-2"
+            disabled={isLoading}
           >
             <X className="h-4 w-4" />
             {t.activationRequests.filters.clear}
@@ -196,9 +201,19 @@ export function FiltersSection() {
         <Button
           onClick={handleApplyFilters}
           className="gap-2 min-w-[120px]"
+          disabled={isLoading}
         >
-          <Search className="h-4 w-4" />
-          {t.activationRequests.filters.apply}
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Recherche...
+            </>
+          ) : (
+            <>
+              <Search className="h-4 w-4" />
+              {t.activationRequests.filters.apply}
+            </>
+          )}
         </Button>
       </div>
     </Card>

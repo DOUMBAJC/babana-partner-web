@@ -9,6 +9,8 @@ export type NotificationType =
   | 'activation_request'
   | 'activation_approved'
   | 'activation_rejected'
+  | 'password_changed'
+  | 'email_verified'
   | 'system_update'
   | 'welcome'
   | 'info'
@@ -21,7 +23,11 @@ export type NotificationType =
  */
 export interface Notification {
   id: string;
-  type: NotificationType;
+  /**
+   * Type backend: peut être une clé UI (success/error/...) OU un nom de classe Laravel
+   * (ex: "App\\Notifications\\ActivationRequestApproved").
+   */
+  type: string;
   notifiable_type: string;
   notifiable_id: number;
   data: NotificationData;
@@ -36,6 +42,8 @@ export interface Notification {
 export interface NotificationData {
   title: string;
   message: string;
+  /** Type métier côté backend (ex: activation_approved, password_changed, ...) */
+  type?: string;
   action_url?: string;
   action_label?: string;
   icon?: string;

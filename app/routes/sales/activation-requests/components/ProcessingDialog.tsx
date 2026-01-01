@@ -34,7 +34,7 @@ export function ProcessingDialog({ open, onOpenChange, request, action }: Proces
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('_action', 'mark_processing');
+    formData.append('actionType', 'process');
     formData.append('requestId', request.id.toString());
     if (notes.trim()) {
       formData.append('adminNotes', notes.trim());

@@ -11,19 +11,13 @@ import {
   CheckCheck,
   Trash2,
   Settings,
-  Filter,
   RefreshCw,
-  AlertCircle,
-  Info,
   CheckCircle,
-  AlertTriangle,
-  Sparkles,
   Loader2,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   Select,
@@ -37,47 +31,9 @@ import { useNotifications } from "~/hooks/useNotifications";
 import { useLanguage } from "~/hooks/useLanguage";
 import { notificationTranslations } from "~/lib/notification-translations";
 import { usePageTitle } from "~/hooks/usePageTitle";
-import type { Notification, NotificationType } from "~/types/notification.types";
-
-/**
- * Obtient l'icône et la couleur selon le type de notification
- */
-const getNotificationStyle = (type: NotificationType) => {
-  switch (type) {
-    case "activation_approved":
-    case "success":
-      return {
-        icon: CheckCircle,
-        color: "text-green-500",
-        bgColor: "bg-green-100 dark:bg-green-900/30",
-      };
-    case "activation_rejected":
-    case "error":
-      return {
-        icon: AlertCircle,
-        color: "text-red-500",
-        bgColor: "bg-red-100 dark:bg-red-900/30",
-      };
-    case "warning":
-      return {
-        icon: AlertTriangle,
-        color: "text-orange-500",
-        bgColor: "bg-orange-100 dark:bg-orange-900/30",
-      };
-    case "activation_request":
-      return {
-        icon: Sparkles,
-        color: "text-babana-cyan",
-        bgColor: "bg-babana-cyan/10 dark:bg-babana-cyan/20",
-      };
-    default:
-      return {
-        icon: Info,
-        color: "text-blue-500",
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
-      };
-  }
-};
+import { Layout } from "~/components";
+import { getNotificationStyle } from "~/lib/notifications/notification-style";
+import type { Notification } from "~/types/notification.types";
 
 /**
  * Formate le temps relatif
@@ -138,7 +94,7 @@ function NotificationCard({
   const { language } = useLanguage();
   const t = notificationTranslations[language].notifications;
   const isUnread = !notification.read_at;
-  const { icon: Icon, color, bgColor } = getNotificationStyle(notification.type);
+  const { icon: Icon, color, bgColor } = getNotificationStyle(notification);
 
   return (
     <Card
@@ -163,8 +119,8 @@ function NotificationCard({
                     className={cn(
                       "text-base font-semibold",
                       isUnread
-                        ? "text-gray-900 dark:text-white"
-                        : "text-gray-700 dark:text-gray-300"
+                        ? "text-foreground"
+                        : "text-muted-foreground"
                     )}
                   >
                     {notification.data.title}
@@ -178,10 +134,10 @@ function NotificationCard({
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <p className="text-sm text-muted-foreground mb-2">
                   {notification.data.message}
                 </p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-500">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span>{formatRelativeTime(notification.created_at, language)}</span>
                   <span className="hidden sm:inline">•</span>
                   <span className="hidden sm:inline">
@@ -263,10 +219,7 @@ export default function NotificationsPage() {
   });
 
   // Filtrer selon l'onglet actif
-  const displayedNotifications =
-    activeTab === "unread"
-      ? notifications.filter((n) => !n.read_at)
-      : notifications;
+  const unreadNotifications = notifications.filter((n) => !n.read_at);
 
   const handleMarkAsRead = async (id: string) => {
     try {
@@ -315,8 +268,9 @@ export default function NotificationsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="container mx-auto px-4 py-8">
+    <Layout>
+      <div className="bg-background">
+        <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -325,10 +279,10 @@ export default function NotificationsPage() {
                 <Bell className="w-8 h-8 text-babana-cyan" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-3xl font-bold text-foreground">
                   {t.title}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {language === "fr" 
                     ? "Gérez vos notifications et restez informé" 
                     : "Manage your notifications and stay informed"}
@@ -350,14 +304,14 @@ export default function NotificationsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       {language === "fr" ? "Total" : "Total"}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-foreground">
                       {total}
                     </p>
                   </div>
-                  <Bell className="w-8 h-8 text-gray-400" />
+                  <Bell className="w-8 h-8 text-muted-foreground/70" />
                 </div>
               </CardContent>
             </Card>
@@ -366,7 +320,7 @@ export default function NotificationsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       {language === "fr" ? "Non lues" : "Unread"}
                     </p>
                     <p className="text-2xl font-bold text-babana-cyan">
@@ -384,14 +338,14 @@ export default function NotificationsPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       {language === "fr" ? "Lues" : "Read"}
                     </p>
                     <p className="text-2xl font-bold text-green-500">
                       {total - unreadCount}
                     </p>
                   </div>
-                  <CheckCircle className="w-8 h-8 text-green-400" />
+                  <CheckCircle className="w-8 h-8 text-green-500/70" />
                 </div>
               </CardContent>
             </Card>
@@ -434,7 +388,7 @@ export default function NotificationsPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="text-sm text-muted-foreground">
                     {language === "fr" ? "Par page :" : "Per page:"}
                   </span>
                   <Select
@@ -460,22 +414,22 @@ export default function NotificationsPage() {
         {/* Onglets et contenu */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList className="mb-6">
-            <TabsTrigger value="all">
+            <TabsTrigger value="all" onClick={() => setActiveTab("all")}>
               {t.tabs.all} ({notifications.length})
             </TabsTrigger>
-            <TabsTrigger value="unread">
+            <TabsTrigger value="unread" onClick={() => setActiveTab("unread")}>
               {t.tabs.unread} ({unreadCount})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={activeTab}>
+          <TabsContent value="all">
             {isLoading && currentPage === 1 ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="w-8 h-8 animate-spin text-babana-cyan" />
               </div>
-            ) : displayedNotifications.length > 0 ? (
+            ) : notifications.length > 0 ? (
               <div className="space-y-4">
-                {displayedNotifications.map((notification) => (
+                {notifications.map((notification) => (
                   <NotificationCard
                     key={notification.id}
                     notification={notification}
@@ -509,18 +463,70 @@ export default function NotificationsPage() {
               <Card>
                 <CardContent className="py-16">
                   <div className="flex flex-col items-center justify-center text-center">
-                    <Bell className="w-16 h-16 text-gray-300 dark:text-gray-700 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      {activeTab === "unread" ? t.empty.unread : t.empty.all}
+                    <Bell className="w-16 h-16 text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {t.empty.all}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
-                      {activeTab === "unread"
-                        ? (language === "fr" 
-                            ? "Toutes vos notifications sont marquées comme lues"
-                            : "All your notifications are marked as read")
-                        : (language === "fr"
-                            ? "Vous n'avez pas encore de notifications"
-                            : "You don't have any notifications yet")}
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      {language === "fr"
+                        ? "Vous n'avez pas encore de notifications"
+                        : "You don't have any notifications yet"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="unread">
+            {isLoading && currentPage === 1 ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-babana-cyan" />
+              </div>
+            ) : unreadNotifications.length > 0 ? (
+              <div className="space-y-4">
+                {unreadNotifications.map((notification) => (
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                    onMarkAsRead={handleMarkAsRead}
+                    onDelete={handleDelete}
+                  />
+                ))}
+
+                {/* Load More */}
+                {hasMore && (
+                  <div className="flex justify-center pt-6">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={loadMore}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {language === "fr" ? "Chargement..." : "Loading..."}
+                        </>
+                      ) : (
+                        language === "fr" ? "Charger plus" : "Load more"
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="py-16">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <Bell className="w-16 h-16 text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {t.empty.unread}
+                    </h3>
+                    <p className="text-sm text-muted-foreground max-w-md">
+                      {language === "fr"
+                        ? "Toutes vos notifications sont marquées comme lues"
+                        : "All your notifications are marked as read"}
                     </p>
                   </div>
                 </CardContent>
@@ -528,8 +534,9 @@ export default function NotificationsPage() {
             )}
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

@@ -38,6 +38,7 @@ import { notificationService } from "~/lib/notification.service";
 import { useLanguage } from "~/hooks/useLanguage";
 import { notificationTranslations } from "~/lib/notification-translations";
 import { usePageTitle } from "~/hooks/usePageTitle";
+import { Layout } from "~/components";
 import type {
   NotificationPreferences,
   UpdateNotificationPreferencesParams,
@@ -134,8 +135,10 @@ function PreferenceItem({
           disabled={disabled}
           aria-label={label}
           className={cn(
-            "relative h-6 w-11 rounded-full border border-white/10 shadow-sm transition-all",
-            "data-[state=unchecked]:bg-white/10 dark:data-[state=unchecked]:bg-white/10",
+            // Light: utiliser les tokens (évite un switch “transparent” illisible)
+            // Dark: les variables `--input/--border` gardent le rendu actuel.
+            "relative h-6 w-11 rounded-full border border-input shadow-sm transition-all",
+            "data-[state=unchecked]:bg-input/70",
             "data-[state=checked]:bg-linear-to-r data-[state=checked]:from-babana-cyan data-[state=checked]:to-babana-blue",
             "data-[state=checked]:shadow-[0_0_0_3px_rgba(0,224,255,0.18),0_10px_30px_rgba(0,224,255,0.12)]"
           )}
@@ -356,38 +359,43 @@ export default function NotificationPreferencesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-babana-cyan" />
-      </div>
+      <Layout>
+        <div className="bg-background flex items-center justify-center py-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-babana-cyan" />
+        </div>
+      </Layout>
     );
   }
 
   if (!preferences) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">
-              {language === "fr" ? "Erreur" : "Error"}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              {errorMessage || (language === "fr" 
-                ? "Impossible de charger les préférences"
-                : "Unable to load preferences")}
-            </p>
-            <Button onClick={loadPreferences}>
-              {language === "fr" ? "Réessayer" : "Retry"}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <Layout>
+        <div className="bg-background flex items-center justify-center py-16">
+          <Card className="max-w-md">
+            <CardContent className="p-8 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">
+                {language === "fr" ? "Erreur" : "Error"}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {errorMessage || (language === "fr"
+                  ? "Impossible de charger les préférences"
+                  : "Unable to load preferences")}
+              </p>
+              <Button onClick={loadPreferences}>
+                {language === "fr" ? "Réessayer" : "Retry"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="container mx-auto px-4 py-8 max-w-3xl pb-28">
+    <Layout>
+      <div className="bg-background">
+        <div className="container mx-auto px-4 py-8 max-w-3xl pb-28">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -406,7 +414,7 @@ export default function NotificationPreferencesPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-3xl font-bold text-foreground">
                   {t.preferences.title}
                 </h1>
                 {isDirty && (
@@ -415,7 +423,7 @@ export default function NotificationPreferencesPage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {language === "fr"
                   ? "Personnalisez vos préférences de réception des notifications"
                   : "Customize your notification preferences"}
@@ -471,7 +479,7 @@ export default function NotificationPreferencesPage() {
         )}
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="space-y-6">
-          <div className="sticky top-0 z-10 -mx-4 px-4 pt-2 pb-3 bg-gray-50/80 dark:bg-gray-950/80 backdrop-blur">
+          <div className="sticky top-0 z-10 -mx-4 px-4 pt-2 pb-3 bg-background/80 backdrop-blur">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-muted/40">
               <TabsTrigger value="email" className="text-xs sm:text-sm">
                 {language === "fr" ? "Email" : "Email"}
@@ -730,7 +738,7 @@ export default function NotificationPreferencesPage() {
       </div>
 
       {/* Barre d'actions (mobile + access rapide) */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-white/90 dark:bg-gray-950/90 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/90 backdrop-blur">
         <div className="container mx-auto max-w-3xl px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <Button
@@ -771,8 +779,9 @@ export default function NotificationPreferencesPage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

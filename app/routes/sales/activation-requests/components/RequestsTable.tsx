@@ -36,6 +36,7 @@ import {
   Clock,
   ChevronsLeft,
   ChevronsRight,
+  Ban,
 } from "lucide-react";
 import type { ActivationRequest, PaginationMeta } from "~/types";
 import { format } from "date-fns";
@@ -43,14 +44,16 @@ import { fr, enUS } from "date-fns/locale";
 import { useTranslation, useLanguage } from "~/hooks";
 import { AcceptDialog } from "./AcceptDialog";
 import { RejectDialog } from "./RejectDialog";
+import { CancelDialog } from "./CancelDialog";
 
 interface RequestsTableProps {
   requests: ActivationRequest[];
   pagination: PaginationMeta | null;
   userRole?: string;
+  userId?: number;
 }
 
-export function RequestsTable({ requests, pagination, userRole }: RequestsTableProps) {
+export function RequestsTable({ requests, pagination, userRole, userId }: RequestsTableProps) {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -60,6 +63,7 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
   const [selectedRequest, setSelectedRequest] = useState<ActivationRequest | null>(null);
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   // S'assurer que requests est toujours un tableau
   const safeRequests = Array.isArray(requests) ? requests : [];
@@ -125,9 +129,21 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
     setShowRejectDialog(true);
   };
 
+  const handleCancel = (request: ActivationRequest) => {
+    setSelectedRequest(request);
+    setShowCancelDialog(true);
+  };
+
   const canProcessRequest = (request: ActivationRequest) => {
     return (userRole === 'activateur' || userRole === 'admin' || userRole === 'super_admin') &&
            request.status === 'pending';
+  };
+
+  const canCancelRequest = (request: ActivationRequest) => {
+    // Seul le propriétaire peut annuler
+    const isOwner = request.baId === userId;
+    // Seulement si la requête est en statut pending
+    return isOwner && request.status === 'pending';
   };
 
   if (safeRequests.length === 0) {
@@ -242,6 +258,7 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
                           <Eye className="h-4 w-4 mr-2" />
                           {t.activationRequests.table.viewDetails}
                         </DropdownMenuItem>
+                        
                         {canProcessRequest(request) && (
                           <>
                             <DropdownMenuSeparator />
@@ -258,6 +275,19 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
                             >
                               <XCircle className="h-4 w-4 mr-2" />
                               {t.activationRequests.table.reject}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        
+                        {canCancelRequest(request) && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleCancel(request)}
+                              className="rounded-lg text-orange-700 dark:text-orange-400 focus:text-orange-700 focus:bg-orange-50 dark:focus:bg-orange-950"
+                            >
+                              <Ban className="h-4 w-4 mr-2" />
+                              Annuler la requête
                             </DropdownMenuItem>
                           </>
                         )}
@@ -371,6 +401,12 @@ export function RequestsTable({ requests, pagination, userRole }: RequestsTableP
           <RejectDialog
             open={showRejectDialog}
             onOpenChange={setShowRejectDialog}
+            request={selectedRequest}
+            action="/sales/activation-requests"
+          />
+          <CancelDialog
+            open={showCancelDialog}
+            onOpenChange={setShowCancelDialog}
             request={selectedRequest}
             action="/sales/activation-requests"
           />
