@@ -47,7 +47,7 @@ import {
   TooltipTrigger,
 } from "~/components";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, Eye, Key, Loader2, Plus, RefreshCcw, Search, Shield, Slash } from "lucide-react";
+import { ArrowLeft, Copy, Eye, Key, Loader2, Plus, RefreshCcw, Search, Shield, Slash, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 import type { CamtelLogin } from "./types";
 import { CamtelLoginDetailsPanel, type CamtelLoginDetailsTab } from "./components/CamtelLoginDetailsPanel";
@@ -61,6 +61,12 @@ type LoaderData = {
   selectedLoginId: number | null;
   logins: CamtelLogin[];
   selectedLogin: CamtelLogin | null;
+  pagination: {
+    currentPage: number;
+    perPage: number;
+    total: number;
+    totalPages: number;
+  };
 };
 
 type ActionData = {
@@ -86,6 +92,33 @@ function unwrapList<T = any>(payload: any): T[] {
   if (Array.isArray(root?.data?.data)) return root.data.data as T[];
   if (Array.isArray(payload?.data?.data)) return payload.data.data as T[];
   return [];
+}
+
+function extractPaginationMeta(payload: any): {
+  currentPage: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+} {
+  // Support multiple API response formats
+  const meta = 
+    payload?.meta ?? 
+    payload?.data?.meta ?? 
+    payload?.pagination ?? 
+    payload?.data?.pagination ?? 
+    {};
+  
+  const currentPage = Number(meta?.current_page ?? meta?.currentPage ?? meta?.page ?? 1);
+  const perPage = Number(meta?.per_page ?? meta?.perPage ?? meta?.limit ?? meta?.pageSize ?? 15);
+  const total = Number(meta?.total ?? meta?.totalItems ?? meta?.count ?? 0);
+  const totalPages = Number(meta?.last_page ?? meta?.lastPage ?? meta?.totalPages ?? Math.ceil(total / perPage));
+  
+  return {
+    currentPage: Number.isFinite(currentPage) && currentPage > 0 ? currentPage : 1,
+    perPage: Number.isFinite(perPage) && perPage > 0 ? perPage : 15,
+    total: Number.isFinite(total) && total >= 0 ? total : 0,
+    totalPages: Number.isFinite(totalPages) && totalPages >= 0 ? totalPages : 0,
+  };
 }
 
 function unwrapOne(payload: any): any | null {
@@ -142,6 +175,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     const url = new URL(request.url);
     const q = url.searchParams.get("q") || "";
     const selectedLoginId = asNumber(url.searchParams.get("loginId"));
+    const page = Math.max(1, asNumber(url.searchParams.get("page")) || 1);
+    const perPage = Math.max(1, Math.min(100, asNumber(url.searchParams.get("perPage")) || 15));
 
     if (!user) {
       return data<LoaderData>({
@@ -152,6 +187,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         selectedLoginId,
         logins: [],
         selectedLogin: null,
+        pagination: { currentPage: 1, perPage: 15, total: 0, totalPages: 0 },
       });
     }
 
@@ -164,14 +200,21 @@ export async function loader({ request }: Route.LoaderArgs) {
         selectedLoginId,
         logins: [],
         selectedLogin: null,
+        pagination: { currentPage: 1, perPage: 15, total: 0, totalPages: 0 },
       });
     }
 
     const api = await createAuthenticatedApi(request);
-    const listRes = await api.get("/admin/camtel-logins", {
-      params: q ? { search: q } : undefined,
-    });
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("per_page", String(perPage));
+    if (q) params.set("search", q);
+    
+    const listRes = await api.get(`/admin/camtel-logins?${params.toString()}`);
     const logins = normalizeCamtelLoginsFromApi(unwrapList<CamtelLogin>(listRes.data));
+    const pagination = extractPaginationMeta(listRes.data);
 
     let selectedLogin: CamtelLogin | null = null;
     if (selectedLoginId) {
@@ -194,6 +237,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       selectedLoginId,
       logins,
       selectedLogin,
+      pagination,
     });
   } catch (error: any) {
     return data<LoaderData>({
@@ -204,6 +248,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       selectedLoginId: null,
       logins: [],
       selectedLogin: null,
+      pagination: { currentPage: 1, perPage: 15, total: 0, totalPages: 0 },
     });
   }
 }
@@ -388,7 +433,17 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
     const url = new URL(window.location.href);
     if (value === null || value === "") url.searchParams.delete(key);
     else url.searchParams.set(key, value);
+    
+    // Reset to page 1 when changing filters (except for page parameter itself)
+    if (key !== "page" && key !== "perPage") {
+      url.searchParams.delete("page");
+    }
+    
     navigate(`${url.pathname}?${url.searchParams.toString()}`);
+  };
+
+  const setPage = (page: number) => {
+    setParam("page", String(page));
   };
 
   useEffect(() => {
@@ -418,20 +473,11 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
     if (desiredLoginId != null) setDrawerTab("details");
   }, [desiredLoginId]);
 
+  // Plus besoin de filtrer côté client car le serveur gère tout
   const filtered = useMemo(() => {
-    const q = qInput.trim().toLowerCase();
-    return (loaderData.logins || [])
-      .filter((l) => {
-        if (!q) return true;
-        const hay = `${l.value || ""} ${l.owner_name || ""} ${l.camtel_created_at || ""}`.toLowerCase().trim();
-        return hay.includes(q);
-      })
-      .sort((a, b) => {
-        const ad = new Date(a.created_at || "").getTime();
-        const bd = new Date(b.created_at || "").getTime();
-        return (Number.isFinite(bd) ? bd : 0) - (Number.isFinite(ad) ? ad : 0);
-      });
-  }, [loaderData.logins, qInput]);
+    // Le serveur applique déjà les filtres, on retourne directement la liste
+    return loaderData.logins || [];
+  }, [loaderData.logins]);
 
   useEffect(() => {
     if (!actionData) return;
@@ -607,7 +653,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-sm">
-                          {t.adminCamtelLogins.stats.total}: <span className="font-semibold ml-1">{loaderData.logins.length}</span>
+                          {t.adminCamtelLogins.stats.total}: <span className="font-semibold ml-1">{loaderData.pagination.total}</span>
                         </Badge>
                       </div>
 
@@ -629,12 +675,22 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
                       selectedLoginId={desiredLoginId}
                       onOpenLogin={openLogin}
                     />
+                    
+                    {loaderData.pagination.totalPages > 1 && (
+                      <PaginationControls
+                        currentPage={loaderData.pagination.currentPage}
+                        totalPages={loaderData.pagination.totalPages}
+                        total={loaderData.pagination.total}
+                        perPage={loaderData.pagination.perPage}
+                        onPageChange={setPage}
+                      />
+                    )}
                   </CardContent>
                 </div>
               </Card>
 
               <Dialog open={isDrawerOpen} onOpenChange={(open) => (!open ? closeLogin() : null)}>
-                <DialogContent className="relative left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
+                <DialogContent className="fixed left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
                   <CamtelLoginDetailsPanel
                     login={selected}
                     loginId={desiredLoginId}
@@ -848,23 +904,66 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
               </Dialog>
 
               {/* Delete confirm */}
-              <Dialog open={confirmDelete.open} onOpenChange={(open) => setConfirmDelete((p) => ({ ...p, open }))}>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{t.adminCamtelLogins.confirm.deleteTitle}</DialogTitle>
-                    <DialogDescription>
-                      {t.adminCamtelLogins.confirm.deleteDescription}{" "}
-                      <span className="font-medium">{confirmDelete.loginLabel}</span>
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setConfirmDelete({ open: false, loginId: null, loginLabel: "" })}>
-                      {t.actions.cancel}
-                    </Button>
-                    <Button variant="destructive" onClick={submitDelete}>
-                      {t.actions.delete}
-                    </Button>
-                  </DialogFooter>
+              <Dialog
+                open={confirmDelete.open}
+                onOpenChange={(open) =>
+                  setConfirmDelete((p) => (open ? { ...p, open } : { open: false, loginId: null, loginLabel: "" }))
+                }
+              >
+                <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+                  {/* Header premium (danger) */}
+                  <div className="relative bg-linear-to-br from-red-600 via-rose-600 to-orange-500 p-8 pb-12">
+                    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_45%),radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.18),transparent_45%)]" />
+                    <div className="relative flex items-start gap-4">
+                      <div className="shrink-0">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-white/30 blur-xl rounded-full" />
+                          <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                            <Trash2 className="h-8 w-8 text-white" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 pt-2">
+                        <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+                          {t.adminCamtelLogins.confirm.deleteTitle}
+                        </DialogTitle>
+                        <DialogDescription className="text-white/90 text-lg font-medium">
+                          {t.adminCamtelLogins.confirm.deleteDescription}{" "}
+                          <span className="font-black text-white">{confirmDelete.loginLabel}</span>
+                        </DialogDescription>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-900">
+                    <div className="p-8">
+                      <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                        <div className="text-sm text-slate-700 dark:text-slate-200">
+                          {t.adminCamtelLogins.confirm.deleteDescription}{" "}
+                          <span className="font-semibold">{confirmDelete.loginLabel}</span>
+                        </div>
+                        <div className="text-xs mt-2 text-slate-500 dark:text-slate-400">{t.adminCamtelLogins.confirm.deleteHint}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                      <Button
+                        variant="outline"
+                        onClick={() => setConfirmDelete({ open: false, loginId: null, loginLabel: "" })}
+                        className="h-12 px-6 rounded-xl border-2 font-semibold"
+                      >
+                        {t.actions.cancel}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={submitDelete}
+                        className="h-12 px-8 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                      >
+                        {t.actions.delete}
+                      </Button>
+                    </div>
+                  </div>
                 </DialogContent>
               </Dialog>
 
@@ -1033,6 +1132,153 @@ function CamtelLoginsTable({
             ) : null}
           </TableBody>
         </Table>
+      </div>
+    </div>
+  );
+}
+
+function PaginationControls({
+  currentPage,
+  totalPages,
+  total,
+  perPage,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  total: number;
+  perPage: number;
+  onPageChange: (page: number) => void;
+}) {
+  const { t } = useTranslation();
+  
+  const startItem = (currentPage - 1) * perPage + 1;
+  const endItem = Math.min(currentPage * perPage, total);
+  
+  // Générer les numéros de page à afficher
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 7; // Nombre maximum de boutons de page visibles
+    
+    if (totalPages <= maxVisible) {
+      // Si peu de pages, afficher toutes
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Logique pour afficher: 1 ... n-1 n n+1 ... last
+      pages.push(1);
+      
+      if (currentPage > 3) {
+        pages.push("...");
+      }
+      
+      // Pages autour de la page actuelle
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pages.push("...");
+      }
+      
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  };
+  
+  const pageNumbers = getPageNumbers();
+  
+  return (
+    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+      {/* Info sur les résultats */}
+      <div className="text-sm text-muted-foreground">
+        Affichage <span className="font-medium">{startItem}</span> à{" "}
+        <span className="font-medium">{endItem}</span> sur{" "}
+        <span className="font-medium">{total}</span> résultats
+      </div>
+      
+      {/* Contrôles de pagination */}
+      <div className="flex items-center gap-2">
+        {/* Première page */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
+        
+        {/* Page précédente */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        
+        {/* Numéros de page */}
+        <div className="flex items-center gap-1">
+          {pageNumbers.map((page, idx) => {
+            if (page === "...") {
+              return (
+                <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                  ...
+                </span>
+              );
+            }
+            
+            const pageNum = page as number;
+            const isActive = pageNum === currentPage;
+            
+            return (
+              <Button
+                key={pageNum}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(pageNum)}
+                className={`h-9 w-9 p-0 ${
+                  isActive 
+                    ? "bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy" 
+                    : ""
+                }`}
+              >
+                {pageNum}
+              </Button>
+            );
+          })}
+        </div>
+        
+        {/* Page suivante */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        
+        {/* Dernière page */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
-import { Menu, X, Sparkles, LogIn, LogOut } from "lucide-react";
+import { Menu, X, Sparkles, LogIn, LogOut, User as UserIcon, Shield } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
+import { isAdmin } from "~/lib/permissions";
 
 interface NavLink {
   href: string;
@@ -20,6 +22,7 @@ interface MobileNavProps {
 
 export function MobileNav({ links }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const location = useLocation();
   const { t, language } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
@@ -33,13 +36,49 @@ export function MobileNav({ links }: MobileNavProps) {
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
+    const safe = (name ?? "").trim();
+    if (!safe) return "??";
+    return safe
+      .split(" ")
+      .filter(Boolean)
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const dedupedLinks = useMemo(() => {
+    const byHref = new Map<string, NavLink>();
+    for (const l of links) byHref.set(l.href, l);
+    return Array.from(byHref.values());
+  }, [links]);
+
+  // Eviter le mismatch SSR (portal uniquement côté client)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock scroll + escape-to-close quand le drawer est ouvert (meilleure UX mobile)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+    };
+  }, [isOpen]);
 
   return (
     <div className="md:hidden">
@@ -60,156 +99,209 @@ export function MobileNav({ links }: MobileNavProps) {
       </Button>
 
       {/* Menu Mobile Overlay */}
-      {isOpen && (
-        <>
-          {/* Backdrop avec meilleur effet */}
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300 animate-in fade-in"
-            onClick={closeMenu}
-            aria-hidden="true"
-          />
+      {mounted && isOpen
+        ? createPortal(
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-90 transition-all duration-300 animate-in fade-in"
+                onClick={closeMenu}
+                aria-hidden="true"
+              />
 
-          {/* Menu Slide-in avec fond solide et glassmorphism */}
-          <nav
-            className={cn(
-              "fixed top-[65px] right-0 h-[calc(100vh-65px)] w-80 z-50",
-              "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl",
-              "border-l-2 border-babana-cyan/30 dark:border-babana-cyan/40",
-              "shadow-2xl shadow-babana-cyan/10 dark:shadow-babana-cyan/20",
-              "transform transition-all duration-300 ease-out",
-              "animate-in slide-in-from-right"
-            )}
-          >
-            <div className="flex flex-col h-full p-6">
-              {/* Header du menu avec info utilisateur si connecté */}
-              <div className="mb-6">
-                {isAuthenticated && user ? (
-                  <div className="space-y-3">
-                    <h2 className="text-lg font-bold bg-linear-to-r from-babana-cyan to-babana-navy dark:from-babana-cyan dark:to-white bg-clip-text text-transparent">
-                      Menu
-                    </h2>
-                    {/* User info card */}
-                    <div className="bg-gradient-to-r from-babana-cyan/10 to-babana-blue/10 dark:from-babana-cyan/20 dark:to-babana-blue/20 rounded-xl p-4 border border-babana-cyan/20">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-babana-cyan flex items-center justify-center text-white font-bold text-lg">
-                          {getInitials(user.name)}
+              {/* Drawer */}
+              <nav
+                role="dialog"
+                aria-modal="true"
+                aria-label={language === "fr" ? "Menu de navigation" : "Navigation menu"}
+                className="fixed inset-y-0 right-0 w-full max-w-[420px] h-dvh z-100 animate-in slide-in-from-right duration-300"
+              >
+                <div className="h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-l border-babana-cyan/25 shadow-2xl shadow-babana-cyan/15 flex flex-col overflow-hidden">
+                  {/* Header premium (fixe) */}
+                  <div className="relative px-6 pt-6 pb-5 bg-linear-to-br from-babana-cyan via-babana-blue to-babana-navy flex-none">
+                    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_45%),radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.18),transparent_45%)]" />
+                    <div className="relative flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-white/90 text-xs font-semibold tracking-wider uppercase">
+                          {language === "fr" ? "Navigation" : "Navigation"}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                          <p className="text-xs text-babana-cyan font-medium mt-0.5">
-                            {user.roles.join(', ')}
-                          </p>
+                        <div className="text-white text-2xl font-black tracking-tight">BABANA</div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={closeMenu}
+                        aria-label={t.actions.close}
+                        className="h-10 w-10 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white"
+                      >
+                        <X className="h-5 w-5" />
+                      </Button>
+                    </div>
+
+                    {/* Carte utilisateur */}
+                    {isAuthenticated && user ? (
+                      <div className="relative mt-4 rounded-2xl border border-white/25 bg-white/10 backdrop-blur-sm p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center text-white font-black">
+                            {getInitials(user.name)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-bold text-white truncate">{user.name}</div>
+                            <div className="text-xs text-white/80 truncate">{user.email}</div>
+                            <div className="text-xs text-white/85 font-semibold mt-1 truncate">
+                              {(user.roles ?? []).join(", ")}
+                            </div>
+                          </div>
                         </div>
                       </div>
+                    ) : (
+                      <div className="relative mt-4 rounded-2xl border border-white/25 bg-white/10 backdrop-blur-sm p-4">
+                        <div className="text-white/90 text-sm font-semibold">
+                          {language === "fr" ? "Accès rapide" : "Quick access"}
+                        </div>
+                        <div className="text-white/75 text-xs mt-1">
+                          {language === "fr"
+                            ? "Connecte-toi pour accéder à toutes les fonctionnalités."
+                            : "Sign in to access all features."}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contenu scrollable */}
+                  <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 space-y-6">
+                    {/* Section Compte */}
+                    {isAuthenticated && user ? (
+                      <div className="space-y-2">
+                        <div className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 px-2">
+                          {language === "fr" ? "Compte" : "Account"}
+                        </div>
+                        <Link
+                          to="/profile"
+                          onClick={closeMenu}
+                          className={cn(
+                            "relative px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 group flex items-center gap-3",
+                            location.pathname.startsWith("/profile")
+                              ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan shadow-md"
+                              : "bg-card/40 border border-border/50 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
+                          )}
+                        >
+                          <UserIcon className="w-4 h-4 shrink-0" />
+                          <span className="flex-1">{t.pages.profile.title}</span>
+                        </Link>
+
+                        {isAdmin(user) ? (
+                          <Link
+                            to="/admin"
+                            onClick={closeMenu}
+                            className={cn(
+                              "relative px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 group flex items-center gap-3",
+                              location.pathname.startsWith("/admin")
+                                ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan shadow-md"
+                                : "bg-card/40 border border-border/50 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
+                            )}
+                          >
+                            <Shield className="w-4 h-4 shrink-0" />
+                            <span className="flex-1">{t.nav.admin}</span>
+                          </Link>
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    <Separator className="bg-gray-200 dark:bg-gray-800" />
+
+                    {/* Section Navigation */}
+                    <div className="space-y-2">
+                      <div className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 px-2">
+                        {language === "fr" ? "Pages" : "Pages"}
+                      </div>
+                      {dedupedLinks.map((link) => {
+                        const isActive =
+                          location.pathname === link.href ||
+                          (link.href !== "/" && location.pathname.startsWith(link.href));
+                        const Icon = link.icon;
+
+                        return (
+                          <Link
+                            key={link.href}
+                            to={link.href}
+                            onClick={closeMenu}
+                            className={cn(
+                              "relative px-4 py-3 rounded-2xl text-sm font-semibold",
+                              "transition-all duration-300 group",
+                              "flex items-center gap-3",
+                              isActive
+                                ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan dark:text-babana-cyan shadow-md"
+                                : "bg-card/30 border border-border/40 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 hover:text-babana-cyan dark:hover:text-babana-cyan"
+                            )}
+                          >
+                            {/* Indicateur actif */}
+                            {isActive && (
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-babana-cyan to-babana-blue rounded-r-full" />
+                            )}
+
+                            {Icon && <Icon className="w-4 h-4 relative z-10 shrink-0" />}
+                            <span className={cn("relative z-10", isActive && "ml-1")}>{link.label}</span>
+
+                            {/* Hover line */}
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-babana-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <h2 className="text-lg font-bold bg-linear-to-r from-babana-cyan to-babana-navy dark:from-babana-cyan dark:to-white bg-clip-text text-transparent">
-                      Menu
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {language === 'fr' ? 'Navigation rapide' : 'Quick navigation'}
-                    </p>
-                  </div>
-                )}
-              </div>
 
-              {/* Navigation Links avec design amélioré */}
-              <div className="flex flex-col space-y-2 mb-6">
-                {links.map((link) => {
-                  const isActive = location.pathname === link.href || 
-                                  (link.href !== "/" && location.pathname.startsWith(link.href));
-                  const Icon = link.icon;
-                  
-                  return (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      onClick={closeMenu}
-                      className={cn(
-                        "relative px-4 py-3 rounded-xl text-sm font-medium",
-                        "transition-all duration-300 group",
-                        "flex items-center gap-3",
-                        isActive
-                          ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan dark:text-babana-cyan shadow-md"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/20 hover:text-babana-cyan dark:hover:text-babana-cyan"
-                      )}
-                    >
-                      {/* Indicateur actif */}
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-babana-cyan to-babana-blue rounded-r-full" />
-                      )}
-                      
-                      {Icon && <Icon className="w-4 h-4 relative z-10 flex-shrink-0" />}
-                      <span className={cn("relative z-10", isActive && "ml-1")}>
-                        {link.label}
-                      </span>
-                      
-                      {/* Hover line */}
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-babana-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </Link>
-                  );
-                })}
-              </div>
-
-              <Separator className="my-4 bg-gray-300 dark:bg-gray-700" />
-
-              {/* Actions Mobile avec design moderne */}
-              <div className="space-y-3 mt-auto">
-                {isAuthenticated && user ? (
-                  // Actions pour utilisateur connecté
-                  <Button
-                    onClick={handleLogout}
-                    variant="outline"
-                    className="w-full justify-center border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-all duration-300 group"
-                    size="lg"
-                  >
-                    <LogOut className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                    {t.actions.logout}
-                  </Button>
-                ) : (
-                  // Actions pour utilisateur non connecté
-                  <>
-                    <Link to="/login" onClick={closeMenu}>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-center text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/20 transition-all duration-300 group" 
-                        size="lg"
-                      >
-                        <LogIn className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                        {t.actions.login}
-                      </Button>
-                    </Link>
-                    
-                    <Link to="/register" onClick={closeMenu}>
+                  {/* Actions (fixées en bas) */}
+                  <div className="flex-none p-6 pt-0 space-y-3">
+                    {isAuthenticated && user ? (
                       <Button
-                        className="w-full justify-center relative overflow-hidden bg-linear-to-r from-babana-cyan to-babana-blue text-white shadow-lg hover:shadow-xl hover:shadow-babana-cyan/40 dark:hover:shadow-babana-cyan/60 transition-all duration-300 group"
+                        onClick={handleLogout}
+                        variant="outline"
+                        className="w-full justify-center rounded-2xl border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-all duration-300 group"
                         size="lg"
                       >
-                        <span className="relative z-10 flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
-                          {t.actions.signup}
-                        </span>
-                        {/* Hover shine effect */}
-                        <div className="absolute inset-0 bg-linear-to-r from-babana-blue to-babana-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <LogOut className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                        {t.actions.logout}
                       </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
+                    ) : (
+                      <>
+                        <Link to="/login" onClick={closeMenu}>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-center rounded-2xl text-gray-800 dark:text-gray-200 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 transition-all duration-300 group"
+                            size="lg"
+                          >
+                            <LogIn className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                            {t.actions.login}
+                          </Button>
+                        </Link>
 
-              {/* Footer info */}
-              <div className="mt-6 pt-4 border-t border-gray-300 dark:border-gray-700">
-                <p className="text-xs text-center text-muted-foreground">
-                  © 2025 BABANA Partner
-                </p>
-              </div>
-            </div>
-          </nav>
-        </>
-      )}
+                        <Link to="/register" onClick={closeMenu}>
+                          <Button
+                            className="w-full justify-center rounded-2xl relative overflow-hidden bg-linear-to-r from-babana-cyan to-babana-blue text-white shadow-lg hover:shadow-xl hover:shadow-babana-cyan/40 dark:hover:shadow-babana-cyan/60 transition-all duration-300 group"
+                            size="lg"
+                          >
+                            <span className="relative z-10 flex items-center gap-2">
+                              <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+                              {t.actions.signup}
+                            </span>
+                            <div className="absolute inset-0 bg-linear-to-r from-babana-blue to-babana-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </Button>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex-none pb-6 pt-2">
+                    <p className="text-xs text-center text-muted-foreground">© 2025 BABANA Partner</p>
+                  </div>
+                </div>
+              </nav>
+            </>,
+            document.body
+          )
+        : null}
     </div>
   );
 }

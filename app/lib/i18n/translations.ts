@@ -1039,6 +1039,7 @@ export interface Translations {
     confirm: {
       deleteTitle: string;
       deleteDescription: string;
+      deleteHint: string;
     };
     password: {
       title: string;
@@ -2020,6 +2021,7 @@ export const translations: Record<Language, Translations> = {
       confirm: {
         deleteTitle: "Supprimer le login",
         deleteDescription: "Confirmer la suppression de",
+        deleteHint: "Cette action est irréversible.",
       },
       password: {
         title: "Mot de passe en clair",
@@ -2654,6 +2656,7 @@ export const translations: Record<Language, Translations> = {
       confirm: {
         deleteTitle: "Delete login",
         deleteDescription: "Confirm deletion of",
+        deleteHint: "This action is irreversible.",
       },
       password: {
         title: "Clear password",

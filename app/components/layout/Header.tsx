@@ -8,9 +8,16 @@ import { NotificationDropdown } from "~/components/NotificationDropdown";
 import { Button } from "~/components/ui/button";
 import { useScrolled, useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
-import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings } from "lucide-react";
+import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings, User as UserIcon, ChevronDown } from "lucide-react";
 import logoUrl from "~/assets/logo.png";
 import { hasPermission, isAdmin } from "~/lib/permissions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 interface NavLink {
   href: string;
@@ -26,86 +33,43 @@ export function Header() {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
 
-  // Liens de navigation adaptés aux permissions
-  const getNavLinks = (): NavLink[] => {
-    const links: NavLink[] = [
-      { 
-        href: "/", 
-        label: t.nav.home,
-        icon: Home,
-        requiresAuth: false 
-      },
-    ];
+  const isActiveHref = (href: string) => location.pathname === href || (href !== "/" && location.pathname.startsWith(href));
 
-    if (isAuthenticated && user) {
-      // Lien recherche client (pour BA, Activateur, Admin, etc.)
-      if (hasPermission(user, 'view-orders') || hasPermission(user, 'create-orders')) {
-        links.push({
-          href: "/customers/search",
-          label: t.nav.searchCustomer,
-          icon: Users,
-          permission: 'view-orders',
-          requiresAuth: true
-        });
-      }
+  // Liens de navigation adaptés aux permissions (sans doublons)
+  const navLinks: NavLink[] = (() => {
+    const links: NavLink[] = [{ href: "/", label: t.nav.home, icon: Home, requiresAuth: false }];
 
-      // Lien création client
-      if (hasPermission(user, 'create-orders')) {
-        links.push({
-          href: "/customers/create",
-          label: t.nav.newCustomer,
-          icon: FileText,
-          permission: 'create-orders',
-          requiresAuth: true
-        });
-      }
+    if (!isAuthenticated || !user) return links;
 
-      // Lien activation SIM (BA)
-      if (hasPermission(user, 'create-requests')) {
-        links.push({
-          href: "/sales/activation-requests",
-          label: t.nav.simActivation,
-          icon: ClipboardList,
-          permission: 'create-requests',
-          requiresAuth: true
-        });
-      }
+    if (hasPermission(user, "view-orders") || hasPermission(user, "create-orders")) {
+      links.push({ href: "/customers/search", label: t.nav.searchCustomer, icon: Users, requiresAuth: true });
+    }
 
-      // Lien requêtes d'activation (Activateur, Admin)
-      if (hasPermission(user, 'process-requests') || hasPermission(user, 'approve-requests')) {
-        links.push({
-          href: "/sales/activation-requests",
-          label: t.nav.activationRequests,
-          icon: ClipboardList,
-          permission: 'process-requests',
-          requiresAuth: true
-        });
-      }
+    if (hasPermission(user, "create-orders")) {
+      links.push({ href: "/customers/create", label: t.nav.newCustomer, icon: FileText, requiresAuth: true });
+    }
 
-      // Lien admin
-      if (isAdmin(user)) {
-        links.push({
-          href: "/admin",
-          label: t.nav.admin,
-          icon: Settings,
-          permission: 'admin-access',
-          requiresAuth: true
-        });
-
-        links.push({
-          href: "/admin/camtel-logins",
-          label: t.nav.camtelLogins,
-          icon: KeyRound,
-          permission: 'admin-access',
-          requiresAuth: true
-        });
-      }
+    const canCreateRequests = hasPermission(user, "create-requests");
+    const canProcessRequests = hasPermission(user, "process-requests") || hasPermission(user, "approve-requests");
+    if (canCreateRequests || canProcessRequests) {
+      links.push({
+        href: "/sales/activation-requests",
+        label: canProcessRequests ? t.nav.activationRequests : t.nav.simActivation,
+        icon: ClipboardList,
+        requiresAuth: true,
+      });
     }
 
     return links;
-  };
+  })();
 
-  const navLinks = getNavLinks();
+  const adminLinks: NavLink[] =
+    isAuthenticated && user && isAdmin(user)
+      ? [
+          { href: "/admin", label: t.nav.admin, icon: Settings, requiresAuth: true },
+          { href: "/admin/camtel-logins", label: t.nav.camtelLogins, icon: KeyRound, requiresAuth: true },
+        ]
+      : [];
 
   return (
     <header
@@ -141,18 +105,18 @@ export function Header() {
           </div>
 
           {/* Navigation Desktop */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.href || 
-                              (link.href !== "/" && location.pathname.startsWith(link.href));
+              const isActive = isActiveHref(link.href);
               const Icon = link.icon;
-              
+
               return (
                 <Link
                   key={link.href}
                   to={link.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "relative px-3 py-2 rounded-lg text-sm font-medium",
+                    "relative px-3 py-2 rounded-xl text-sm font-semibold",
                     "transition-all duration-300 group",
                     "flex items-center gap-2",
                     isActive
@@ -160,24 +124,75 @@ export function Header() {
                       : "text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan"
                   )}
                 >
-                  {/* Active indicator */}
-                  {isActive && (
-                    <div className="absolute inset-0 bg-babana-cyan/10 dark:bg-babana-cyan/20 rounded-lg" />
+                  {isActive ? (
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-r from-babana-cyan/15 via-babana-blue/10 to-transparent dark:from-babana-cyan/20 dark:via-babana-blue/15 dark:to-transparent" />
+                  ) : (
+                    <div className="absolute inset-0 rounded-xl bg-babana-cyan/5 dark:bg-babana-cyan/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   )}
-                  
-                  {/* Hover effect */}
-                  <div className="absolute inset-0 bg-babana-cyan/5 dark:bg-babana-cyan/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
+
                   {Icon && <Icon className="w-4 h-4 relative z-10" />}
                   <span className="relative z-10">{link.label}</span>
-                  
-                  {/* Bottom border on active */}
+
                   {isActive && (
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-linear-to-r from-transparent via-babana-cyan to-transparent" />
+                    <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-linear-to-r from-transparent via-babana-cyan to-transparent" />
                   )}
                 </Link>
               );
             })}
+
+            {adminLinks.length ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "h-10 px-3 rounded-xl font-semibold",
+                      "text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan",
+                      "hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
+                    )}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    <span>{t.nav.admin}</span>
+                    <ChevronDown className="h-4 w-4 ml-2 opacity-70" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="w-72 rounded-2xl p-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl text-slate-900 dark:text-slate-100 border border-babana-cyan/20 shadow-2xl"
+                >
+                  {adminLinks.map((l, idx) => {
+                    const Icon = l.icon;
+                    const active = isActiveHref(l.href);
+                    return (
+                      <DropdownMenuItem
+                        key={l.href}
+                        asChild
+                        className={cn(
+                          "cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold",
+                          "text-slate-700 dark:text-slate-200 focus:bg-babana-cyan/10 focus:text-babana-cyan",
+                          active && "bg-babana-cyan/10 text-babana-cyan"
+                        )}
+                      >
+                        <Link to={l.href}>
+                          {Icon ? <Icon className="mr-2 h-4 w-4" /> : null}
+                          <span className="flex-1">{l.label}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  <DropdownMenuSeparator className="bg-slate-200/70 dark:bg-slate-700/70" />
+                  <DropdownMenuItem
+                    asChild
+                    className="cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:bg-babana-cyan/10 focus:text-babana-cyan"
+                  >
+                    <Link to="/profile">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span className="flex-1">{t.pages.profile.title}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
           </nav>
 
           {/* Actions */}
@@ -192,6 +207,20 @@ export function Header() {
             {isAuthenticated && user && (
               <NotificationDropdown />
             )}
+
+            {/* Profil - accès direct (desktop) */}
+            {isAuthenticated && user ? (
+              <Link to="/profile" className="hidden md:block">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-3 rounded-xl text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 transition-all duration-300"
+                >
+                  <UserIcon className="h-4 w-4 mr-2" />
+                  <span className="hidden lg:inline">{t.pages.profile.title}</span>
+                </Button>
+              </Link>
+            ) : null}
 
             {/* Separator */}
             <div className="hidden md:block w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1" />
