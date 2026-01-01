@@ -99,15 +99,19 @@ function normalizeCamtelLoginFromApi(input: any): CamtelLogin {
   const id = Number(input?.id);
   return {
     id: Number.isFinite(id) ? id : 0,
-    login:
+    // Backend (controller): owner_name, value, camtel_created_at, users_count
+    value:
+      input?.value ??
       input?.login ??
       input?.username ??
       input?.identifier ??
       input?.camtel_login ??
       input?.camtelLogin ??
       null,
-    label: input?.label ?? input?.name ?? input?.title ?? null,
-    notes: input?.notes ?? input?.description ?? input?.comment ?? null,
+    owner_name: input?.owner_name ?? input?.ownerName ?? input?.label ?? input?.name ?? null,
+    camtel_created_at: input?.camtel_created_at ?? input?.camtelCreatedAt ?? null,
+    users_count: typeof input?.users_count === "number" ? input.users_count : null,
+    users: Array.isArray(input?.users) ? input.users : null,
     created_at: input?.created_at ?? input?.createdAt ?? null,
     updated_at: input?.updated_at ?? input?.updatedAt ?? null,
   };
@@ -164,13 +168,17 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
 
     const api = await createAuthenticatedApi(request);
-    const listRes = await api.get("/admin/camtel-logins");
+    const listRes = await api.get("/admin/camtel-logins", {
+      params: q ? { search: q } : undefined,
+    });
     const logins = normalizeCamtelLoginsFromApi(unwrapList<CamtelLogin>(listRes.data));
 
     let selectedLogin: CamtelLogin | null = null;
     if (selectedLoginId) {
       try {
-        const detailsRes = await api.get(`/admin/camtel-logins/${selectedLoginId}`);
+        const detailsRes = await api.get(`/admin/camtel-logins/${selectedLoginId}`, {
+          params: { include_users: true },
+        });
         const raw = unwrapOne(detailsRes.data);
         selectedLogin = raw ? normalizeCamtelLoginFromApi(raw) : null;
       } catch {
@@ -208,13 +216,21 @@ export async function action({ request }: Route.ActionArgs) {
   const actionType = formData.get("actionType") as ActionType | null;
   const loginId = asNumber(formData.get("loginId") as string | null);
 
-  const login = (formData.get("login") as string | null)?.trim() || null;
+  // Backend controller fields: owner_name, value, camtel_created_at, password
+  // On garde compat avec l'ancien form (login/label/notes).
+  const valueRaw = (formData.get("value") as string | null) ?? (formData.get("login") as string | null);
+  const ownerNameRaw =
+    (formData.get("ownerName") as string | null) ?? (formData.get("owner_name") as string | null) ?? (formData.get("label") as string | null);
+  const camtelCreatedAtRaw =
+    (formData.get("camtelCreatedAt") as string | null) ??
+    (formData.get("camtel_created_at") as string | null) ??
+    (formData.get("notes") as string | null);
+
+  const value = valueRaw?.trim() || null;
+  const owner_name = ownerNameRaw?.trim() || null;
+  const camtel_created_at = camtelCreatedAtRaw?.trim() || null;
+
   const password = (formData.get("password") as string | null) || null;
-  // label/notes: on garde la possibilité de "vider" la valeur (string vide) lors d'un update.
-  const labelRaw = formData.get("label");
-  const notesRaw = formData.get("notes");
-  const label = typeof labelRaw === "string" ? labelRaw.trim() : undefined;
-  const notes = typeof notesRaw === "string" ? notesRaw.trim() : undefined;
 
   if (!actionType) {
     return data<ActionData>({ success: false, error: t.adminCamtelLogins.errors.missingParams }, { status: 400 });
@@ -230,27 +246,24 @@ export async function action({ request }: Route.ActionArgs) {
 
     switch (actionType) {
       case "create": {
-        if (!login || !password) {
+        if (!owner_name) {
+          return data<ActionData>(
+            { success: false, actionType, error: t.adminCamtelLogins.errors.missingOwnerName },
+            { status: 400 }
+          );
+        }
+        if (!value || !password) {
           return data<ActionData>(
             { success: false, actionType, error: t.adminCamtelLogins.errors.missingCreateFields },
             { status: 400 }
           );
         }
         const payload: Record<string, any> = {
-          login,
-          // compat si le backend attend un autre nom de champ
-          username: login,
-          camtel_login: login,
+          owner_name,
+          value: normalizeValue(value),
           password,
+          ...(camtel_created_at ? { camtel_created_at } : {}),
         };
-        if (label) {
-          payload.label = label;
-          payload.name = label;
-        }
-        if (notes) {
-          payload.notes = notes;
-          payload.description = notes;
-        }
         const res = await api.post("/admin/camtel-logins", {
           ...payload,
         });
@@ -267,27 +280,17 @@ export async function action({ request }: Route.ActionArgs) {
             { status: 400 }
           );
         }
-        if (!login && !password && label === undefined && notes === undefined) {
+        if (!value && !password && !owner_name && camtel_created_at == null) {
           return data<ActionData>(
             { success: false, actionType, loginId, error: t.adminCamtelLogins.errors.nothingToUpdate },
             { status: 400 }
           );
         }
         const payload: Record<string, any> = {};
-        if (login) {
-          payload.login = login;
-          payload.username = login;
-          payload.camtel_login = login;
-        }
+        if (value) payload.value = normalizeValue(value);
         if (password) payload.password = password;
-        if (label !== undefined) {
-          payload.label = label;
-          payload.name = label;
-        }
-        if (notes !== undefined) {
-          payload.notes = notes;
-          payload.description = notes;
-        }
+        if (owner_name) payload.owner_name = owner_name;
+        if (camtel_created_at != null) payload.camtel_created_at = camtel_created_at || null;
 
         const res = await api.put(`/admin/camtel-logins/${loginId}`, payload);
         return data<ActionData>({
@@ -365,6 +368,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
     label: string;
     notes: string;
   }>({ open: false, mode: "create", loginId: null, login: "", password: "", label: "", notes: "" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; loginId: number | null; loginLabel: string }>({
     open: false,
@@ -419,7 +423,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
     return (loaderData.logins || [])
       .filter((l) => {
         if (!q) return true;
-        const hay = `${l.login || ""} ${l.label || ""} ${l.notes || ""}`.toLowerCase().trim();
+        const hay = `${l.value || ""} ${l.owner_name || ""} ${l.camtel_created_at || ""}`.toLowerCase().trim();
         return hay.includes(q);
       })
       .sort((a, b) => {
@@ -459,26 +463,40 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
       open: true,
       mode: "edit",
       loginId: l.id,
-      login: (l.login as any) || "",
+      login: (l.value as any) || "",
       password: "",
-      label: (l.label as any) || "",
-      notes: (l.notes as any) || "",
+      label: (l.owner_name as any) || "",
+      notes: (l.camtel_created_at as any) || "",
     });
 
   const submitCreateOrUpdate = () => {
+    const errs: Record<string, string> = {};
+    const owner = formDialog.label.trim();
+    const value = normalizeValue(formDialog.login.trim());
+    const camtelDate = formDialog.notes.trim();
+
+    if (!owner) errs.owner_name = t.adminCamtelLogins.errors.missingOwnerName;
+    if (!value) errs.value = t.adminCamtelLogins.errors.missingCreateFields;
+    if (value && !/^BA_[a-z0-9]+$/.test(value)) errs.value = t.adminCamtelLogins.form.loginHelp;
+    if (formDialog.mode === "create" && !formDialog.password) errs.password = t.adminCamtelLogins.errors.missingCreateFields;
+    if (camtelDate && Number.isNaN(new Date(camtelDate).getTime())) errs.camtel_created_at = t.forms?.required || "Date invalide";
+
+    setFormErrors(errs);
+    if (Object.keys(errs).length) return;
+
     const fd = new FormData();
     fd.set("actionType", formDialog.mode === "create" ? "create" : "update");
     if (formDialog.mode === "edit" && formDialog.loginId) fd.set("loginId", String(formDialog.loginId));
-    if (formDialog.login.trim()) fd.set("login", formDialog.login.trim());
+    if (value) fd.set("value", value);
     if (formDialog.password) fd.set("password", formDialog.password);
-    fd.set("label", formDialog.label);
-    fd.set("notes", formDialog.notes);
+    fd.set("ownerName", owner);
+    fd.set("camtelCreatedAt", camtelDate);
     setFormDialog((p) => ({ ...p, open: false }));
     submit(fd, { method: "post" });
   };
 
   const askDelete = (l: CamtelLogin) => {
-    const label = (l.login || l.label || `#${l.id}`) as string;
+    const label = (l.value || l.owner_name || `#${l.id}`) as string;
     setConfirmDelete({ open: true, loginId: l.id, loginLabel: label });
   };
 
@@ -616,7 +634,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
               </Card>
 
               <Dialog open={isDrawerOpen} onOpenChange={(open) => (!open ? closeLogin() : null)}>
-                <DialogContent className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
+                <DialogContent className="relative left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
                   <CamtelLoginDetailsPanel
                     login={selected}
                     loginId={desiredLoginId}
@@ -628,82 +646,204 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
                     drawerTab={drawerTab}
                     setDrawerTab={setDrawerTab}
                   />
+                  {isDrawerLoading ? (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                      <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/85 dark:bg-slate-900/85 px-5 py-4 shadow-2xl">
+                        <Loader2 className="h-5 w-5 animate-spin text-babana-cyan" />
+                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {t.common.loading}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
                 </DialogContent>
               </Dialog>
 
               {/* Create/Edit dialog */}
               <Dialog open={formDialog.open} onOpenChange={(open) => setFormDialog((p) => ({ ...p, open }))}>
-                <DialogContent className="sm:max-w-[560px]">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {formDialog.mode === "create" ? t.adminCamtelLogins.form.createTitle : t.adminCamtelLogins.form.editTitle}
-                    </DialogTitle>
-                    <DialogDescription>{t.adminCamtelLogins.form.subtitle}</DialogDescription>
-                  </DialogHeader>
-
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="login">{t.adminCamtelLogins.fields.login}</Label>
-                      <Input
-                        id="login"
-                        value={formDialog.login}
-                        onChange={(e) => setFormDialog((p) => ({ ...p, login: e.target.value }))}
-                        placeholder={t.adminCamtelLogins.form.loginPlaceholder}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password">
-                        {t.adminCamtelLogins.fields.password}{" "}
-                        {formDialog.mode === "edit" ? (
-                          <span className="text-xs text-muted-foreground">({t.adminCamtelLogins.form.passwordOptional})</span>
-                        ) : null}
-                      </Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formDialog.password}
-                        onChange={(e) => setFormDialog((p) => ({ ...p, password: e.target.value }))}
-                        placeholder={t.adminCamtelLogins.form.passwordPlaceholder}
-                      />
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="label">{t.adminCamtelLogins.fields.label}</Label>
-                        <Input
-                          id="label"
-                          value={formDialog.label}
-                          onChange={(e) => setFormDialog((p) => ({ ...p, label: e.target.value }))}
-                          placeholder={t.adminCamtelLogins.form.labelPlaceholder}
-                        />
+                <DialogContent className="sm:max-w-[700px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+                  {/* Header premium (style AcceptDialog/EditDialog) */}
+                  <div className="relative bg-linear-to-br from-babana-cyan via-babana-blue to-babana-navy p-8 pb-12">
+                    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_45%),radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.18),transparent_45%)]" />
+                    <div className="relative flex items-start gap-4">
+                      <div className="shrink-0">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-white/30 blur-xl rounded-full" />
+                          <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                            <Key className="h-8 w-8 text-white" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="notes">{t.adminCamtelLogins.fields.notes}</Label>
-                        <Textarea
-                          id="notes"
-                          value={formDialog.notes}
-                          onChange={(e) => setFormDialog((p) => ({ ...p, notes: e.target.value }))}
-                          placeholder={t.adminCamtelLogins.form.notesPlaceholder}
-                        />
+
+                      <div className="flex-1 pt-2">
+                        <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+                          {formDialog.mode === "create" ? t.adminCamtelLogins.form.createTitle : t.adminCamtelLogins.form.editTitle}
+                        </DialogTitle>
+                        <DialogDescription className="text-white/90 text-lg font-medium">
+                          {t.adminCamtelLogins.form.subtitle}
+                        </DialogDescription>
                       </div>
                     </div>
                   </div>
 
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setFormDialog((p) => ({ ...p, open: false }))}>
-                      {t.actions.cancel}
-                    </Button>
-                    <Button
-                      variant="default"
-                      className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy"
-                      onClick={submitCreateOrUpdate}
-                      disabled={navigation.state !== "idle"}
-                    >
-                      {navigation.state !== "idle" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Key className="h-4 w-4 mr-2" />}
-                      {formDialog.mode === "create" ? t.adminCamtelLogins.form.createCta : t.adminCamtelLogins.form.saveCta}
-                    </Button>
-                  </DialogFooter>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      submitCreateOrUpdate();
+                    }}
+                    className="bg-white dark:bg-slate-900"
+                  >
+                    <div className="p-8 space-y-6">
+                      {/* Bloc identité */}
+                      <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <Label htmlFor="owner_name" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                              <div className="w-1 h-4 bg-babana-cyan rounded-full" />
+                              {t.adminCamtelLogins.fields.label}
+                              <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="owner_name"
+                              value={formDialog.label}
+                              onChange={(e) => {
+                                setFormErrors((p) => ({ ...p, owner_name: "" }));
+                                setFormDialog((p) => ({ ...p, label: e.target.value }));
+                              }}
+                              placeholder={t.adminCamtelLogins.form.labelPlaceholder}
+                              className={`h-14 text-base bg-white dark:bg-slate-900 border-2 rounded-xl transition-all duration-200 ${
+                                formErrors.owner_name
+                                  ? "border-red-500 focus:ring-4 focus:ring-red-500/20"
+                                  : "border-slate-200 dark:border-slate-700 focus:border-babana-cyan focus:ring-4 focus:ring-babana-cyan/20"
+                              }`}
+                              disabled={navigation.state !== "idle"}
+                            />
+                            {formErrors.owner_name ? (
+                              <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg border border-red-200/60 dark:border-red-900/40">
+                                {formErrors.owner_name}
+                              </div>
+                            ) : null}
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label htmlFor="value" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                              <div className="w-1 h-4 bg-babana-blue rounded-full" />
+                              {t.adminCamtelLogins.fields.login}
+                              <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="value"
+                              value={formDialog.login}
+                              onChange={(e) => {
+                                setFormErrors((p) => ({ ...p, value: "" }));
+                                setFormDialog((p) => ({ ...p, login: normalizeValue(e.target.value) }));
+                              }}
+                              placeholder={t.adminCamtelLogins.form.loginPlaceholder}
+                              className={`h-14 text-lg font-mono bg-white dark:bg-slate-900 border-2 rounded-xl transition-all duration-200 ${
+                                formErrors.value
+                                  ? "border-red-500 focus:ring-4 focus:ring-red-500/20"
+                                  : "border-slate-200 dark:border-slate-700 focus:border-babana-blue focus:ring-4 focus:ring-babana-blue/20"
+                              }`}
+                              disabled={navigation.state !== "idle"}
+                            />
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{t.adminCamtelLogins.form.loginHelp}</p>
+                            {formErrors.value ? (
+                              <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg border border-red-200/60 dark:border-red-900/40">
+                                {formErrors.value}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <Label htmlFor="password" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                              <div className="w-1 h-4 bg-babana-navy rounded-full" />
+                              {t.adminCamtelLogins.fields.password}
+                              {formDialog.mode === "create" ? <span className="text-red-500">*</span> : null}
+                              {formDialog.mode === "edit" ? (
+                                <span className="text-slate-400 text-xs normal-case">({t.adminCamtelLogins.form.passwordOptional})</span>
+                              ) : null}
+                            </Label>
+                            <Input
+                              id="password"
+                              type="password"
+                              value={formDialog.password}
+                              onChange={(e) => {
+                                setFormErrors((p) => ({ ...p, password: "" }));
+                                setFormDialog((p) => ({ ...p, password: e.target.value }));
+                              }}
+                              placeholder={t.adminCamtelLogins.form.passwordPlaceholder}
+                              className={`h-14 text-base bg-white dark:bg-slate-900 border-2 rounded-xl transition-all duration-200 ${
+                                formErrors.password
+                                  ? "border-red-500 focus:ring-4 focus:ring-red-500/20"
+                                  : "border-slate-200 dark:border-slate-700 focus:border-babana-navy focus:ring-4 focus:ring-babana-navy/20"
+                              }`}
+                              disabled={navigation.state !== "idle"}
+                            />
+                            {formErrors.password ? (
+                              <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg border border-red-200/60 dark:border-red-900/40">
+                                {formErrors.password}
+                              </div>
+                            ) : null}
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label htmlFor="camtel_created_at" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                              <div className="w-1 h-4 bg-emerald-500 rounded-full" />
+                              {t.adminCamtelLogins.fields.camtelCreatedAt}
+                              <span className="text-slate-400 text-xs normal-case">({t.common?.optional || "optionnel"})</span>
+                            </Label>
+                            <Input
+                              id="camtel_created_at"
+                              type="date"
+                              value={formDialog.notes}
+                              onChange={(e) => {
+                                setFormErrors((p) => ({ ...p, camtel_created_at: "" }));
+                                setFormDialog((p) => ({ ...p, notes: e.target.value }));
+                              }}
+                              placeholder={t.adminCamtelLogins.form.camtelCreatedAtPlaceholder}
+                              className={`h-14 text-base bg-white dark:bg-slate-900 border-2 rounded-xl transition-all duration-200 ${
+                                formErrors.camtel_created_at
+                                  ? "border-red-500 focus:ring-4 focus:ring-red-500/20"
+                                  : "border-slate-200 dark:border-slate-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20"
+                              }`}
+                              disabled={navigation.state !== "idle"}
+                            />
+                            {formErrors.camtel_created_at ? (
+                              <div className="text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg border border-red-200/60 dark:border-red-900/40">
+                                {formErrors.camtel_created_at}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer premium */}
+                    <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setFormErrors({});
+                          setFormDialog((p) => ({ ...p, open: false }));
+                        }}
+                        disabled={navigation.state !== "idle"}
+                        className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+                      >
+                        {t.actions.cancel}
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={navigation.state !== "idle"}
+                        className="h-12 px-8 bg-linear-to-r from-babana-cyan via-babana-blue to-babana-navy hover:opacity-95 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      >
+                        {navigation.state !== "idle" && <Loader2 className="h-5 w-5 mr-2 animate-spin" />}
+                        {formDialog.mode === "create" ? t.adminCamtelLogins.form.createCta : t.adminCamtelLogins.form.saveCta}
+                      </Button>
+                    </div>
+                  </form>
                 </DialogContent>
               </Dialog>
 
@@ -730,36 +870,63 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
 
               {/* Password dialog */}
               <Dialog open={passwordDialog.open} onOpenChange={(open) => setPasswordDialog((p) => ({ ...p, open }))}>
-                <DialogContent className="sm:max-w-[560px]">
-                  <DialogHeader>
-                    <DialogTitle>{t.adminCamtelLogins.password.title}</DialogTitle>
-                    <DialogDescription>{t.adminCamtelLogins.password.subtitle}</DialogDescription>
-                  </DialogHeader>
-
-                  <div className="space-y-3">
-                    <div className="rounded-xl border bg-muted/20 p-4">
-                      <div className="text-xs text-muted-foreground mb-2">{t.adminCamtelLogins.fields.password}</div>
-                      <div className="flex items-center gap-2">
-                        <Input readOnly value={passwordDialog.password ?? "—"} />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => (passwordDialog.password ? copyPassword(passwordDialog.password) : null)}
-                          disabled={!passwordDialog.password}
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          {t.adminCamtelLogins.password.copy}
-                        </Button>
+                <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+                  {/* Header premium */}
+                  <div className="relative bg-linear-to-br from-babana-navy via-babana-blue to-babana-cyan p-8 pb-12">
+                    <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]"></div>
+                    <div className="relative flex items-start gap-4">
+                      <div className="shrink-0">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
+                          <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                            <Copy className="h-8 w-8 text-white" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-2">{t.adminCamtelLogins.password.notice}</div>
+                      <div className="flex-1 pt-2">
+                        <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+                          {t.adminCamtelLogins.password.title}
+                        </DialogTitle>
+                        <DialogDescription className="text-white/90 text-lg font-medium">
+                          {t.adminCamtelLogins.password.subtitle}
+                        </DialogDescription>
+                      </div>
                     </div>
                   </div>
 
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setPasswordDialog({ open: false, loginId: null, password: null })}>
-                      {t.actions.close}
-                    </Button>
-                  </DialogFooter>
+                  <div className="bg-white dark:bg-slate-900">
+                    <div className="p-8 space-y-6">
+                      <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-3">
+                        <div className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          {t.adminCamtelLogins.fields.password}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Input readOnly value={passwordDialog.password ?? "—"} className="h-12 font-mono" />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => (passwordDialog.password ? copyPassword(passwordDialog.password) : null)}
+                            disabled={!passwordDialog.password}
+                            className="h-12 px-5 rounded-xl border-2"
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            {t.adminCamtelLogins.password.copy}
+                          </Button>
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{t.adminCamtelLogins.password.notice}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                      <Button
+                        variant="outline"
+                        onClick={() => setPasswordDialog({ open: false, loginId: null, password: null })}
+                        className="h-12 px-6 rounded-xl border-2 font-semibold"
+                      >
+                        {t.actions.close}
+                      </Button>
+                    </div>
+                  </div>
                 </DialogContent>
               </Dialog>
             </>
@@ -799,8 +966,8 @@ function CamtelLoginsTable({
             {logins.map((l) => {
               const isSelected = selectedLoginId === l.id;
               const isRowLoading = isSelected && isDetailsLoading;
-              const loginValue = (l.login || (l as any)?.username || (l as any)?.identifier || "—") as string;
-              const labelValue = (l.label || (l as any)?.name || "—") as string;
+              const loginValue = (l.value || (l as any)?.login || (l as any)?.username || "—") as string;
+              const labelValue = (l.owner_name || (l as any)?.label || (l as any)?.name || "—") as string;
 
               return (
                 <TableRow
@@ -869,6 +1036,16 @@ function CamtelLoginsTable({
       </div>
     </div>
   );
+}
+
+function normalizeValue(value: string): string {
+  const v = (value || "").trim();
+  if (!v) return v;
+  const upper = v.toUpperCase();
+  if (upper.startsWith("BA_")) {
+    return "BA_" + v.slice(3).toLowerCase();
+  }
+  return v;
 }
 
 

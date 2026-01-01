@@ -979,6 +979,7 @@ export interface Translations {
     };
     badges: {
       camtel: string;
+      usersCount: string;
     };
     accessDenied: {
       title: string;
@@ -989,7 +990,7 @@ export interface Translations {
       unavailableMessage: string;
       sections: {
         main: string;
-        notes: string;
+        users: string;
         history: string;
         meta: string;
         actions: string;
@@ -999,9 +1000,12 @@ export interface Translations {
       login: string;
       password: string;
       label: string;
-      notes: string;
+      camtelCreatedAt: string;
       createdAt: string;
       updatedAt: string;
+    };
+    users: {
+      empty: string;
     };
     history: {
       created: string;
@@ -1024,10 +1028,11 @@ export interface Translations {
       editTitle: string;
       subtitle: string;
       loginPlaceholder: string;
+      loginHelp: string;
       passwordPlaceholder: string;
       passwordOptional: string;
       labelPlaceholder: string;
-      notesPlaceholder: string;
+      camtelCreatedAtPlaceholder: string;
       createCta: string;
       saveCta: string;
     };
@@ -1045,9 +1050,16 @@ export interface Translations {
       missingParams: string;
       unauthorized: string;
       missingCreateFields: string;
+      missingOwnerName: string;
       nothingToUpdate: string;
       loadError: string;
       genericError: string;
+    };
+    pagination: {
+      page: string;
+      of: string;
+      prev: string;
+      next: string;
     };
     toasts: {
       copied: string;
@@ -1948,6 +1960,7 @@ export const translations: Record<Language, Translations> = {
       },
       badges: {
         camtel: "CAMTEL",
+        usersCount: "{count} utilisateur(s)",
       },
       accessDenied: {
         title: "Accès refusé",
@@ -1958,7 +1971,7 @@ export const translations: Record<Language, Translations> = {
         unavailableMessage: "Impossible de récupérer les informations de ce login.",
         sections: {
           main: "Informations",
-          notes: "Notes",
+          users: "Utilisateurs liés",
           history: "Historique rapide",
           meta: "Métadonnées",
           actions: "Actions",
@@ -1968,9 +1981,12 @@ export const translations: Record<Language, Translations> = {
         login: "Login",
         password: "Mot de passe",
         label: "Libellé",
-        notes: "Notes",
+        camtelCreatedAt: "Créé sur CAMTEL",
         createdAt: "Date de création",
         updatedAt: "Dernière mise à jour",
+      },
+      users: {
+        empty: "Aucun utilisateur lié à ce login.",
       },
       history: {
         created: "Création",
@@ -1992,11 +2008,12 @@ export const translations: Record<Language, Translations> = {
         createTitle: "Créer un login CAMTEL",
         editTitle: "Modifier le login CAMTEL",
         subtitle: "Les informations sensibles ne sont révélées qu’à la demande.",
-        loginPlaceholder: "Ex: camtel.user@domaine",
+        loginPlaceholder: "Ex: BA_agenceyaounde",
+        loginHelp: "Format requis: BA_xxx (lettres/chiffres minuscules). Ex: BA_agence123",
         passwordPlaceholder: "Mot de passe",
         passwordOptional: "optionnel",
-        labelPlaceholder: "Ex: Compte agence Yaoundé",
-        notesPlaceholder: "Notes internes (optionnel)",
+        labelPlaceholder: "Ex: Propriétaire / agence",
+        camtelCreatedAtPlaceholder: "Date (optionnel) — ex: 2025-01-01",
         createCta: "Créer",
         saveCta: "Enregistrer",
       },
@@ -2014,9 +2031,16 @@ export const translations: Record<Language, Translations> = {
         missingParams: "Paramètres manquants",
         unauthorized: "Accès refusé",
         missingCreateFields: "Login et mot de passe requis",
+        missingOwnerName: "Le propriétaire (owner_name) est requis",
         nothingToUpdate: "Aucune modification à enregistrer",
         loadError: "Erreur lors du chargement",
         genericError: "Une erreur est survenue",
+      },
+      pagination: {
+        page: "Page",
+        of: "sur",
+        prev: "Précédent",
+        next: "Suivant",
       },
       toasts: {
         copied: "Copié dans le presse-papier",
@@ -2570,6 +2594,7 @@ export const translations: Record<Language, Translations> = {
       },
       badges: {
         camtel: "CAMTEL",
+        usersCount: "{count} user(s)",
       },
       accessDenied: {
         title: "Access denied",
@@ -2580,7 +2605,7 @@ export const translations: Record<Language, Translations> = {
         unavailableMessage: "Unable to fetch this login details.",
         sections: {
           main: "Information",
-          notes: "Notes",
+          users: "Linked users",
           history: "Quick history",
           meta: "Metadata",
           actions: "Actions",
@@ -2590,9 +2615,12 @@ export const translations: Record<Language, Translations> = {
         login: "Login",
         password: "Password",
         label: "Label",
-        notes: "Notes",
+        camtelCreatedAt: "Created on CAMTEL",
         createdAt: "Created at",
         updatedAt: "Updated at",
+      },
+      users: {
+        empty: "No user is linked to this login.",
       },
       history: {
         created: "Created",
@@ -2614,11 +2642,12 @@ export const translations: Record<Language, Translations> = {
         createTitle: "Create CAMTEL login",
         editTitle: "Edit CAMTEL login",
         subtitle: "Sensitive information is revealed only on-demand.",
-        loginPlaceholder: "e.g. camtel.user@domain",
+        loginPlaceholder: "e.g. BA_yaoundeagency",
+        loginHelp: "Required format: BA_xxx (lowercase letters/digits). e.g. BA_agency123",
         passwordPlaceholder: "Password",
         passwordOptional: "optional",
-        labelPlaceholder: "e.g. Yaoundé agency account",
-        notesPlaceholder: "Internal notes (optional)",
+        labelPlaceholder: "e.g. Owner / agency",
+        camtelCreatedAtPlaceholder: "Date (optional) — e.g. 2025-01-01",
         createCta: "Create",
         saveCta: "Save",
       },
@@ -2636,9 +2665,16 @@ export const translations: Record<Language, Translations> = {
         missingParams: "Missing parameters",
         unauthorized: "Access denied",
         missingCreateFields: "Login and password are required",
+        missingOwnerName: "Owner name is required",
         nothingToUpdate: "Nothing to update",
         loadError: "Error while loading",
         genericError: "An error occurred",
+      },
+      pagination: {
+        page: "Page",
+        of: "of",
+        prev: "Previous",
+        next: "Next",
       },
       toasts: {
         copied: "Copied to clipboard",

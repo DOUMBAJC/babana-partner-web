@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   AlertCircle,
+  BadgeCheck,
   Calendar,
   Copy,
   Eye,
@@ -10,6 +11,7 @@ import {
   Shield,
   Trash2,
   User,
+  Users,
   X,
 } from "lucide-react";
 
@@ -51,29 +53,31 @@ export function CamtelLoginDetailsPanel({
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const displayLogin = useMemo(() => {
-    const v = (login?.login || "").trim();
+    const v = (login?.value || "").trim();
     if (v) return v;
-    // fallback “robuste” si l’API renvoie un champ différent
-    const anyLogin = (login as any)?.username || (login as any)?.identifier || (login as any)?.camtel_login;
+    const anyLogin = (login as any)?.login || (login as any)?.username || (login as any)?.identifier || (login as any)?.camtel_login;
     return (typeof anyLogin === "string" && anyLogin.trim()) || "—";
   }, [login]);
 
   const displayLabel = useMemo(() => {
-    const v = (login?.label || "").trim();
+    const v = (login?.owner_name || "").trim();
     if (v) return v;
-    const anyLabel = (login as any)?.name || (login as any)?.title;
+    const anyLabel = (login as any)?.label || (login as any)?.name || (login as any)?.title;
     return (typeof anyLabel === "string" && anyLabel.trim()) || "—";
   }, [login]);
 
-  const displayNotes = useMemo(() => {
-    const v = (login?.notes || "").trim();
-    if (v) return v;
-    const anyNotes = (login as any)?.description || (login as any)?.comment;
-    return (typeof anyNotes === "string" && anyNotes.trim()) || "—";
-  }, [login]);
+  const camtelCreatedAt =
+    (login?.camtel_created_at as string | null | undefined) ?? (login as any)?.camtelCreatedAt ?? null;
 
   const createdAt = (login?.created_at as string | null | undefined) ?? (login as any)?.createdAt ?? null;
   const updatedAt = (login?.updated_at as string | null | undefined) ?? (login as any)?.updatedAt ?? null;
+  const usersCount =
+    typeof login?.users_count === "number"
+      ? login.users_count
+      : typeof (login as any)?.users_count === "number"
+        ? (login as any).users_count
+        : null;
+  const users = (login?.users as any) || null;
 
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value);
@@ -84,82 +88,89 @@ export function CamtelLoginDetailsPanel({
 
   return (
     <div className="relative h-full w-full flex flex-col overflow-hidden">
-      <div className="absolute inset-0 bg-background" />
-      <div className="absolute left-0 top-0 bottom-0 w-px bg-linear-to-b from-babana-cyan/60 via-babana-cyan/20 to-babana-navy/40" />
-      <div className="absolute top-0 left-0 right-0 h-64 bg-linear-to-b from-babana-cyan/8 via-babana-cyan/3 to-transparent dark:from-babana-cyan/12 dark:via-babana-cyan/4 pointer-events-none" />
-      <div className="absolute top-20 right-10 w-32 h-32 bg-babana-cyan/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-40 left-10 w-24 h-24 bg-babana-navy/10 rounded-full blur-2xl pointer-events-none" />
-
       <div className="relative flex-1 flex flex-col overflow-hidden">
-        <div className="relative shrink-0 px-6 pt-6 pb-4">
-          <button
+        {/* Header premium (même vibe que AcceptDialog/EditDialog) */}
+        <div className="relative shrink-0">
+          <div className="absolute inset-0 bg-linear-to-br from-babana-cyan via-babana-blue to-babana-navy" />
+          <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]"></div>
+
+          <div className="relative px-6 pt-6 pb-8">
+            <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border/50 transition-all duration-200 group"
-          >
-            <X className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </button>
+            className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 transition-all duration-200 group backdrop-blur-sm"
+            >
+              <X className="h-4 w-4 text-white/90 group-hover:text-white transition-colors" />
+            </button>
 
           {isLoading ? (
             <div className="animate-pulse">
               <div className="flex items-start gap-5">
-                <div className="h-20 w-20 rounded-2xl bg-muted/40" />
+                <div className="h-20 w-20 rounded-2xl bg-white/20" />
                 <div className="flex-1 space-y-3">
-                  <div className="h-6 w-48 rounded-lg bg-muted/40" />
-                  <div className="h-4 w-64 rounded bg-muted/40" />
+                  <div className="h-6 w-48 rounded-lg bg-white/20" />
+                  <div className="h-4 w-64 rounded bg-white/15" />
                   <div className="flex gap-2">
-                    <div className="h-6 w-20 rounded-full bg-muted/40" />
-                    <div className="h-6 w-16 rounded-full bg-muted/40" />
+                    <div className="h-6 w-20 rounded-full bg-white/15" />
+                    <div className="h-6 w-16 rounded-full bg-white/15" />
                   </div>
                 </div>
               </div>
             </div>
           ) : !login ? (
-            <div className="flex items-center gap-4 p-6 rounded-2xl border border-destructive/20 bg-destructive/5">
-              <div className="p-3 rounded-xl bg-destructive/10">
-                <AlertCircle className="h-6 w-6 text-destructive" />
+            <div className="flex items-center gap-4 p-6 rounded-2xl border border-white/25 bg-white/10 backdrop-blur-sm">
+              <div className="p-3 rounded-xl bg-white/15 border border-white/20">
+                <AlertCircle className="h-6 w-6 text-white" />
               </div>
               <div>
-                <div className="font-semibold text-foreground">{t.adminCamtelLogins.panel.unavailableTitle}</div>
-                <div className="text-sm text-muted-foreground mt-0.5">{t.adminCamtelLogins.panel.unavailableMessage}</div>
+                <div className="font-semibold text-white">{t.adminCamtelLogins.panel.unavailableTitle}</div>
+                <div className="text-sm text-white/80 mt-0.5">{t.adminCamtelLogins.panel.unavailableMessage}</div>
               </div>
             </div>
           ) : (
             <div className="flex items-start gap-5">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-babana-cyan/20 via-babana-cyan/5 to-transparent blur-xl scale-110" />
-                <div className="relative h-20 w-20 rounded-2xl bg-linear-to-br from-babana-cyan to-babana-navy flex items-center justify-center ring-2 ring-babana-cyan/30 shadow-lg">
-                  <span className="text-2xl font-bold text-white">{getInitials(displayLogin)}</span>
+              <div className="shrink-0">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
+                  <div className="relative h-20 w-20 rounded-2xl bg-white/15 backdrop-blur-sm border-2 border-white/30 shadow-xl flex items-center justify-center">
+                    <span className="text-2xl font-bold text-white">{getInitials(displayLogin)}</span>
+                  </div>
                 </div>
               </div>
 
               <div className="flex-1 min-w-0 pr-10">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xl font-bold text-foreground truncate">{displayLogin}</h2>
-                  <Badge variant="outline" className="rounded-lg bg-muted/40 border-border/50 text-xs font-mono">
+                  <h2 className="text-2xl font-black text-white truncate">{displayLogin}</h2>
+                  <Badge variant="outline" className="rounded-lg bg-white/10 border-white/25 text-xs font-mono text-white">
                     #{loginId ?? login.id}
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-2 mt-1.5 text-muted-foreground">
-                  <User className="h-3.5 w-3.5" />
-                  <span className="text-sm truncate">{displayLabel}</span>
+                <div className="flex items-center gap-2 mt-2 text-white/90">
+                  <User className="h-4 w-4" />
+                  <span className="text-sm font-medium truncate">{displayLabel}</span>
                   {displayLabel !== "—" ? (
                     <button
                       type="button"
                       onClick={() => copyToClipboard(displayLabel, "label")}
-                      className="p-1 hover:bg-muted/50 rounded transition-colors"
+                      className="p-1 hover:bg-white/15 rounded transition-colors"
                     >
-                      <Copy className={`h-3 w-3 ${copiedField === "label" ? "text-emerald-500" : ""}`} />
+                      <Copy className={`h-3.5 w-3.5 ${copiedField === "label" ? "text-emerald-200" : "text-white/80"}`} />
                     </button>
                   ) : null}
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  <Badge className="rounded-lg bg-babana-cyan/10 dark:bg-babana-cyan/15 text-babana-navy dark:text-babana-cyan border-babana-cyan/20 hover:bg-babana-cyan/20 transition-colors">
+                  <Badge className="rounded-lg bg-white/15 text-white border-white/20 hover:bg-white/20 transition-colors">
                     <Shield className="h-3 w-3 mr-1" />
                     {t.adminCamtelLogins.badges.camtel}
                   </Badge>
+                  {typeof usersCount === "number" ? (
+                    <Badge variant="outline" className="rounded-lg bg-white/10 border-white/25 text-xs text-white">
+                      <Users className="h-3 w-3 mr-1" />
+                      {t.adminCamtelLogins.badges.usersCount.replace("{count}", String(usersCount))}
+                    </Badge>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -167,7 +178,7 @@ export function CamtelLoginDetailsPanel({
 
           {login && (
             <div className="mt-5">
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/30 border border-border/40">
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm">
                 {[
                   { id: "details" as const, label: t.adminCamtelLogins.drawer.tabs.details, icon: Eye },
                   { id: "actions" as const, label: t.adminCamtelLogins.drawer.tabs.actions, icon: Key },
@@ -178,8 +189,8 @@ export function CamtelLoginDetailsPanel({
                     onClick={() => setDrawerTab(tab.id)}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       drawerTab === tab.id
-                        ? "bg-background text-foreground shadow-sm border border-border/50"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                        ? "bg-white/20 text-white shadow-sm border border-white/25"
+                        : "text-white/80 hover:text-white hover:bg-white/15"
                     }`}
                   >
                     <tab.icon className="h-4 w-4" />
@@ -190,9 +201,10 @@ export function CamtelLoginDetailsPanel({
             </div>
           )}
         </div>
+        </div>
 
         <ScrollArea className="flex-1">
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-6 pt-6 bg-white dark:bg-slate-900">
             {isLoading ? (
               <div className="space-y-4 animate-pulse mt-4">
                 {[1, 2, 3].map((i) => (
@@ -227,20 +239,35 @@ export function CamtelLoginDetailsPanel({
                           onCopy={(v) => copyToClipboard(v, "label2")}
                           copied={copiedField === "label2"}
                         />
+                        <DetailRow
+                          icon={BadgeCheck}
+                          label={t.adminCamtelLogins.fields.camtelCreatedAt}
+                          value={camtelCreatedAt ? formatDate(camtelCreatedAt, language) : "—"}
+                        />
                       </div>
                     </DetailSection>
 
-                    <DetailSection title={t.adminCamtelLogins.panel.sections.notes} icon={Eye}>
-                      <div className="space-y-3">
-                        <DetailRow
-                          icon={Eye}
-                          label={t.adminCamtelLogins.fields.notes}
-                          value={displayNotes}
-                          copiable={displayNotes !== "—"}
-                          onCopy={(v) => copyToClipboard(v, "notes")}
-                          copied={copiedField === "notes"}
-                        />
-                      </div>
+                    <DetailSection title={t.adminCamtelLogins.panel.sections.users} icon={Users}>
+                      {Array.isArray(users) && users.length ? (
+                        <div className="space-y-2">
+                          {users.map((u: any) => (
+                            <div
+                              key={u.id}
+                              className="flex items-center justify-between gap-3 p-3 rounded-xl bg-muted/20 border border-border/40"
+                            >
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium text-foreground truncate">{u.name}</div>
+                                <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+                              </div>
+                              <Badge variant="outline" className="text-xs font-mono">
+                                #{u.id}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground">{t.adminCamtelLogins.users.empty}</div>
+                      )}
                     </DetailSection>
 
                     <DetailSection title={t.adminCamtelLogins.panel.sections.history} icon={Calendar}>
