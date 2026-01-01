@@ -12,6 +12,7 @@ import {
   Layout,
 } from '~/components';
 import { useAuth, usePermissions, useTranslation, usePageTitle } from '~/hooks';
+import { isAdmin } from '~/lib/permissions';
 import {
   Users,
   Package,
@@ -22,6 +23,7 @@ import {
   Shield,
   Crown,
   AlertCircle,
+  Key,
 } from 'lucide-react';
 import type { Permission } from '~/types/auth.types';
 
@@ -102,6 +104,15 @@ function AdminContent() {
       action: 'Paramètres',
       color: 'bg-slate-700',
       href: '/admin/settings',
+    },
+    {
+      title: 'Gestion des logins CAMTEL',
+      description: 'Créer, modifier et supprimer les identifiants CAMTEL (accès admin)',
+      icon: Key,
+      permission: 'admin-access' as Permission,
+      action: 'Gérer les logins',
+      color: 'bg-cyan-600',
+      href: '/admin/camtel-logins',
     },
   ];
 
@@ -187,7 +198,10 @@ function AdminContent() {
         
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {adminFeatures.map((feature) => {
-            const hasAccess = permissions.can(feature.permission);
+            const hasAccess =
+              feature.permission === ('admin-access' as Permission)
+                ? (user ? isAdmin(user) : false) || permissions.can(feature.permission)
+                : permissions.can(feature.permission);
 
             return (
               <FeatureCard

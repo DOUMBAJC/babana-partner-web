@@ -15,6 +15,7 @@ import {
   UserPlus,
   ClipboardList,
   Settings,
+  KeyRound,
   Sparkles,
   Search,
   CheckCircle2,
@@ -120,6 +121,16 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         icon: Settings,
         href: "/admin",
         color: "bg-slate-700",
+        permission: 'admin-access' as Permission,
+      },
+      {
+        title: t.nav.camtelLogins,
+        description: language === 'fr'
+          ? 'Gérer les identifiants CAMTEL (admins uniquement)'
+          : 'Manage CAMTEL credentials (admins only)',
+        icon: KeyRound,
+        href: "/admin/camtel-logins",
+        color: "bg-cyan-600",
         permission: 'admin-access' as Permission,
       },
     ];

@@ -63,6 +63,7 @@ import {
   CheckCircle2,
   Clock,
   Eye,
+  Loader2,
   RefreshCcw,
   Search,
   Shield,
@@ -448,6 +449,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
   const navigation = useNavigation();
   const revalidator = useRevalidator();
   const submit = useSubmit();
+  const isRefreshing = revalidator.state === "loading";
   const [drawerTab, setDrawerTab] = useState<"profile" | "roles" | "actions">("profile");
   const [confirm, setConfirm] = useState<{
     open: boolean;
@@ -628,11 +630,12 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
               </Button>
               <Button
                 variant="default"
-                className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy"
+                className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy active:scale-[0.98] transition-transform"
                 onClick={() => revalidator.revalidate()}
+                disabled={isRefreshing}
               >
-                <RefreshCcw className="h-4 w-4 mr-2" />
-                {t.actions.refresh}
+                <RefreshCcw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+                {isRefreshing ? t.common.loading : t.actions.refresh}
               </Button>
             </div>
           </div>
@@ -752,7 +755,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
 
           {/* User details panel - Premium design */}
           <Dialog open={isDrawerOpen} onOpenChange={(open) => (!open ? closeUser() : null)}>
-            <DialogContent className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl">
+            <DialogContent className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
               <UserDetailsPanel
                 user={selected}
                 userId={desiredUserId}
@@ -879,6 +882,8 @@ function UsersTable({
   roleNameBySlug: Record<string, string>;
 }) {
   const { t, language } = useTranslation();
+  const navigation = useNavigation();
+  const isDetailsLoading = navigation.state === "loading";
   return (
     <div className="mt-4">
       <div className="rounded-xl border bg-card/50 overflow-hidden">
@@ -895,11 +900,12 @@ function UsersTable({
           <TableBody>
             {users.map((u) => {
               const isSelected = selectedUserId === u.id;
+              const isRowLoading = isSelected && isDetailsLoading;
               return (
                 <TableRow
                   key={u.id}
                   data-state={isSelected ? "selected" : undefined}
-                  className="cursor-pointer"
+                  className={`cursor-pointer transition-colors hover:bg-muted/30 ${isRowLoading ? "animate-pulse" : ""}`}
                   onClick={() => onOpenUser(u.id)}
                 >
                   <TableCell>
@@ -950,6 +956,7 @@ function UsersTable({
                           >
                             <Eye className="h-4 w-4" />
                             {t.adminUsers.table.view}
+                            {isRowLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>{t.adminUsers.table.openTooltip}</TooltipContent>

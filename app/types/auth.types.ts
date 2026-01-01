@@ -147,12 +147,11 @@ export interface LoginCredentials {
 }
 
 export interface RegisterFormData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   personal_phone: string;
   password: string;
-  confirmPassword: string;
+  password_confirmation: string;
 }
 
 export interface RegisterFormErrors {
@@ -161,7 +160,7 @@ export interface RegisterFormErrors {
   email?: string;
   personal_phone?: string;
   password?: string;
-  confirmPassword?: string;
+  password_confirmation?: string;
   general?: string;
 }
 

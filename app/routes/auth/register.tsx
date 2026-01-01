@@ -5,6 +5,7 @@ import { AuthLayout, FormInput, Button } from '~/components';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2, Phone } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
 import type { Route } from "./+types/register";
+import type { ApiError } from '~/lib/axios';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,7 +19,7 @@ interface RegisterFormData {
   email: string;
   personal_phone: string;
   password: string;
-  confirmPassword: string;
+  password_confirmation: string;
 }
 
 interface FormErrors {
@@ -27,7 +28,7 @@ interface FormErrors {
   email?: string;
   personal_phone?: string;
   password?: string;
-  confirmPassword?: string;
+  password_confirmation?: string;
   general?: string;
 }
 
@@ -45,7 +46,7 @@ export default function RegisterPage() {
     email: '',
     personal_phone: '',
     password: '',
-    confirmPassword: '',
+    password_confirmation: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,10 +97,10 @@ export default function RegisterPage() {
     }
 
     // Validation de la confirmation du mot de passe
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = t.auth.register.validation.confirmPasswordRequired;
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t.auth.register.validation.passwordMismatch;
+    if (!formData.password_confirmation) {
+      newErrors.password_confirmation = t.auth.register.validation.confirmPasswordRequired;
+    } else if (formData.password !== formData.password_confirmation) {
+      newErrors.password_confirmation = t.auth.register.validation.passwordMismatch;
     }
 
     setErrors(newErrors);
@@ -128,12 +129,11 @@ export default function RegisterPage() {
 
     try {
       const response = await authService.register({
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        name: `${formData.firstName} @ ${formData.lastName}`,
+        email: formData.email,
         personal_phone: formData.personal_phone.replace(/\s/g, ''),
         password: formData.password,
-        confirmPassword: formData.confirmPassword,
+        password_confirmation: formData.password_confirmation,
       });
       // Succès - Rediriger vers la page de connexion
       navigate('/login', { 
@@ -142,8 +142,43 @@ export default function RegisterPage() {
         } 
       });
     } catch (err: any) {
+      const apiErr = err as ApiError | undefined;
+
+      // Si le backend renvoie des erreurs de validation (Laravel: { errors: { field: [msg] } })
+      // on les mappe vers les champs du formulaire.
+      const details = apiErr?.details as Record<string, string[] | string> | undefined;
+      const fieldErrors: FormErrors = {};
+
+      if (apiErr?.status === 422 && details && typeof details === "object") {
+        const getFirst = (val: any): string | undefined => {
+          if (Array.isArray(val)) return typeof val[0] === "string" ? val[0] : undefined;
+          return typeof val === "string" ? val : undefined;
+        };
+
+        const email = getFirst(details.email);
+        const phone = getFirst(details.personal_phone) || getFirst(details.phone);
+        const password = getFirst(details.password);
+        const passwordConfirmation =
+          getFirst(details.password_confirmation) ||
+          // Laravel renvoie souvent l'erreur "confirmed" sur `password`
+          (password && password.toLowerCase().includes("confirm") ? password : undefined);
+        const name = getFirst(details.name);
+
+        if (email) fieldErrors.email = email;
+        if (phone) fieldErrors.personal_phone = phone;
+        if (password && !passwordConfirmation) fieldErrors.password = password;
+        if (passwordConfirmation) fieldErrors.password_confirmation = passwordConfirmation;
+
+        // Le formulaire n'a pas de champ `name` direct (on le construit à partir prénom/nom)
+        if (name) fieldErrors.general = name;
+      }
+
       setErrors({
-        general: err?.message || t.auth.register.messages.registrationError
+        ...fieldErrors,
+        general:
+          fieldErrors.general ||
+          apiErr?.message ||
+          t.auth.register.messages.registrationError,
       });
       console.error('Register error:', err);
     } finally {
@@ -300,10 +335,10 @@ export default function RegisterPage() {
         {/* Confirmation du mot de passe */}
         <FormInput
           label={t.auth.register.labels.confirmPassword}
-          name="confirmPassword"
+          name="password_confirmation"
           type={showConfirmPassword ? 'text' : 'password'}
           placeholder="••••••••"
-          value={formData.confirmPassword}
+          value={formData.password_confirmation}
           onChange={handleChange}
           icon={<Lock className="w-5 h-5" />}
           endIcon={
@@ -315,7 +350,7 @@ export default function RegisterPage() {
               {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           }
-          error={errors.confirmPassword}
+          error={errors.password_confirmation}
           required
           autoComplete="new-password"
         />

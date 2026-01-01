@@ -207,6 +207,7 @@ export interface Translations {
     simActivation: string;
     activationRequests: string;
     admin: string;
+    camtelLogins: string;
   };
   // Actions
   actions: {
@@ -383,6 +384,10 @@ export interface Translations {
       description: string;
     };
     adminUsers: {
+      title: string;
+      description: string;
+    };
+    adminCamtelLogins: {
       title: string;
       description: string;
     };
@@ -940,6 +945,119 @@ export interface Translations {
       actionDone: string;
     };
   };
+
+  adminCamtelLogins: {
+    breadcrumb: {
+      admin: string;
+      camtelLogins: string;
+    };
+    header: {
+      title: string;
+      subtitle: string;
+    };
+    stats: {
+      total: string;
+    };
+    search: {
+      placeholder: string;
+    };
+    table: {
+      login: string;
+      label: string;
+      created: string;
+      actions: string;
+      view: string;
+      openTooltip: string;
+      emptyTitle: string;
+      emptyMessage: string;
+    };
+    drawer: {
+      tabs: {
+        details: string;
+        actions: string;
+      };
+    };
+    badges: {
+      camtel: string;
+    };
+    accessDenied: {
+      title: string;
+      message: string;
+    };
+    panel: {
+      unavailableTitle: string;
+      unavailableMessage: string;
+      sections: {
+        main: string;
+        notes: string;
+        history: string;
+        meta: string;
+        actions: string;
+      };
+    };
+    fields: {
+      login: string;
+      password: string;
+      label: string;
+      notes: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    history: {
+      created: string;
+      createdDesc: string;
+      updated: string;
+      updatedDesc: string;
+      noData: string;
+    };
+    actions: {
+      createButton: string;
+      revealPasswordTitle: string;
+      revealPasswordDesc: string;
+      editTitle: string;
+      editDesc: string;
+      deleteTitle: string;
+      deleteDesc: string;
+    };
+    form: {
+      createTitle: string;
+      editTitle: string;
+      subtitle: string;
+      loginPlaceholder: string;
+      passwordPlaceholder: string;
+      passwordOptional: string;
+      labelPlaceholder: string;
+      notesPlaceholder: string;
+      createCta: string;
+      saveCta: string;
+    };
+    confirm: {
+      deleteTitle: string;
+      deleteDescription: string;
+    };
+    password: {
+      title: string;
+      subtitle: string;
+      copy: string;
+      notice: string;
+    };
+    errors: {
+      missingParams: string;
+      unauthorized: string;
+      missingCreateFields: string;
+      nothingToUpdate: string;
+      loadError: string;
+      genericError: string;
+    };
+    toasts: {
+      copied: string;
+      actionDone: string;
+      created: string;
+      updated: string;
+      deleted: string;
+      passwordRevealed: string;
+    };
+  };
 };
 
 export const translations: Record<Language, Translations> = {
@@ -955,6 +1073,7 @@ export const translations: Record<Language, Translations> = {
       simActivation: "Activation SIM",
       activationRequests: "Requêtes",
       admin: "Admin",
+      camtelLogins: "Logins CAMTEL",
     },
     actions: {
       login: "Connexion",
@@ -1303,6 +1422,10 @@ export const translations: Record<Language, Translations> = {
       adminUsers: {
         title: "Gestion des utilisateurs - BABANA Partner",
         description: "Administration des utilisateurs, rôles et statuts sur BABANA Partner",
+      },
+      adminCamtelLogins: {
+        title: "Gestion des logins CAMTEL - BABANA Partner",
+        description: "Gestion sécurisée des identifiants CAMTEL (admins uniquement)",
       },
       profile: {
         title: "Mon Profil - BABANA Partner",
@@ -1792,6 +1915,118 @@ export const translations: Record<Language, Translations> = {
         actionDone: "Action effectuée",
       },
     },
+    adminCamtelLogins: {
+      breadcrumb: {
+        admin: "Administration",
+        camtelLogins: "Logins CAMTEL",
+      },
+      header: {
+        title: "Gestion des logins CAMTEL",
+        subtitle: "Créer, modifier, supprimer et révéler un mot de passe à la demande.",
+      },
+      stats: {
+        total: "Total",
+      },
+      search: {
+        placeholder: "Rechercher (login, libellé, notes...)",
+      },
+      table: {
+        login: "Login",
+        label: "Libellé",
+        created: "Créé",
+        actions: "Actions",
+        view: "Voir",
+        openTooltip: "Ouvrir le panneau de détails",
+        emptyTitle: "Aucun login trouvé",
+        emptyMessage: "Ajuste la recherche ou ajoute un nouveau login.",
+      },
+      drawer: {
+        tabs: {
+          details: "Détails",
+          actions: "Actions",
+        },
+      },
+      badges: {
+        camtel: "CAMTEL",
+      },
+      accessDenied: {
+        title: "Accès refusé",
+        message: "Seuls les Administrateurs et Super Administrateurs peuvent gérer les logins CAMTEL.",
+      },
+      panel: {
+        unavailableTitle: "Détails indisponibles",
+        unavailableMessage: "Impossible de récupérer les informations de ce login.",
+        sections: {
+          main: "Informations",
+          notes: "Notes",
+          history: "Historique rapide",
+          meta: "Métadonnées",
+          actions: "Actions",
+        },
+      },
+      fields: {
+        login: "Login",
+        password: "Mot de passe",
+        label: "Libellé",
+        notes: "Notes",
+        createdAt: "Date de création",
+        updatedAt: "Dernière mise à jour",
+      },
+      history: {
+        created: "Création",
+        createdDesc: "Login créé dans le système",
+        updated: "Mise à jour",
+        updatedDesc: "Dernière modification enregistrée",
+        noData: "Aucune information d'historique.",
+      },
+      actions: {
+        createButton: "Nouveau login",
+        revealPasswordTitle: "Révéler le mot de passe",
+        revealPasswordDesc: "Accès explicite au mot de passe en clair (stocké chiffré en base).",
+        editTitle: "Modifier",
+        editDesc: "Mettre à jour le login, le libellé, les notes ou le mot de passe.",
+        deleteTitle: "Supprimer",
+        deleteDesc: "Supprimer définitivement cet identifiant.",
+      },
+      form: {
+        createTitle: "Créer un login CAMTEL",
+        editTitle: "Modifier le login CAMTEL",
+        subtitle: "Les informations sensibles ne sont révélées qu’à la demande.",
+        loginPlaceholder: "Ex: camtel.user@domaine",
+        passwordPlaceholder: "Mot de passe",
+        passwordOptional: "optionnel",
+        labelPlaceholder: "Ex: Compte agence Yaoundé",
+        notesPlaceholder: "Notes internes (optionnel)",
+        createCta: "Créer",
+        saveCta: "Enregistrer",
+      },
+      confirm: {
+        deleteTitle: "Supprimer le login",
+        deleteDescription: "Confirmer la suppression de",
+      },
+      password: {
+        title: "Mot de passe en clair",
+        subtitle: "Affichage à la demande (accès audité côté API).",
+        copy: "Copier",
+        notice: "Évite de partager ce mot de passe dans des canaux non sécurisés.",
+      },
+      errors: {
+        missingParams: "Paramètres manquants",
+        unauthorized: "Accès refusé",
+        missingCreateFields: "Login et mot de passe requis",
+        nothingToUpdate: "Aucune modification à enregistrer",
+        loadError: "Erreur lors du chargement",
+        genericError: "Une erreur est survenue",
+      },
+      toasts: {
+        copied: "Copié dans le presse-papier",
+        actionDone: "Action effectuée",
+        created: "Login créé",
+        updated: "Login mis à jour",
+        deleted: "Login supprimé",
+        passwordRevealed: "Mot de passe récupéré",
+      },
+    },
     profile: {
       title: "Mon Profil",
       subtitle: "Gérez vos informations personnelles et vos préférences",
@@ -1912,6 +2147,7 @@ export const translations: Record<Language, Translations> = {
       simActivation: "SIM Activation",
       activationRequests: "Requests",
       admin: "Admin",
+      camtelLogins: "CAMTEL Logins",
     },
     actions: {
       login: "Login",
@@ -2261,6 +2497,10 @@ export const translations: Record<Language, Translations> = {
         title: "User management - BABANA Partner",
         description: "Manage users, roles and account statuses in BABANA Partner",
       },
+      adminCamtelLogins: {
+        title: "CAMTEL logins - BABANA Partner",
+        description: "Secure management of CAMTEL credentials (admins only)",
+      },
       profile: {
         title: "My Profile - BABANA Partner",
         description: "Manage your personal information, security and preferences",
@@ -2296,6 +2536,118 @@ export const translations: Record<Language, Translations> = {
       vendeur: { name: "Seller", description: "Sells products to BAs" },
       customer: { name: "Customer", description: "Platform customer" },
       autre: { name: "Other", description: "User with limited access to manage their tasks" },
+    },
+    adminCamtelLogins: {
+      breadcrumb: {
+        admin: "Administration",
+        camtelLogins: "CAMTEL Logins",
+      },
+      header: {
+        title: "CAMTEL logins management",
+        subtitle: "Create, update, delete and reveal passwords on-demand.",
+      },
+      stats: {
+        total: "Total",
+      },
+      search: {
+        placeholder: "Search (login, label, notes...)",
+      },
+      table: {
+        login: "Login",
+        label: "Label",
+        created: "Created",
+        actions: "Actions",
+        view: "View",
+        openTooltip: "Open details panel",
+        emptyTitle: "No login found",
+        emptyMessage: "Adjust your search or create a new login.",
+      },
+      drawer: {
+        tabs: {
+          details: "Details",
+          actions: "Actions",
+        },
+      },
+      badges: {
+        camtel: "CAMTEL",
+      },
+      accessDenied: {
+        title: "Access denied",
+        message: "Only Admins and Super Admins can manage CAMTEL logins.",
+      },
+      panel: {
+        unavailableTitle: "Details unavailable",
+        unavailableMessage: "Unable to fetch this login details.",
+        sections: {
+          main: "Information",
+          notes: "Notes",
+          history: "Quick history",
+          meta: "Metadata",
+          actions: "Actions",
+        },
+      },
+      fields: {
+        login: "Login",
+        password: "Password",
+        label: "Label",
+        notes: "Notes",
+        createdAt: "Created at",
+        updatedAt: "Updated at",
+      },
+      history: {
+        created: "Created",
+        createdDesc: "Login created in the system",
+        updated: "Updated",
+        updatedDesc: "Last modification recorded",
+        noData: "No history information.",
+      },
+      actions: {
+        createButton: "New login",
+        revealPasswordTitle: "Reveal password",
+        revealPasswordDesc: "Explicit access to the clear password (stored encrypted in DB).",
+        editTitle: "Edit",
+        editDesc: "Update login, label, notes or password.",
+        deleteTitle: "Delete",
+        deleteDesc: "Permanently delete this credential.",
+      },
+      form: {
+        createTitle: "Create CAMTEL login",
+        editTitle: "Edit CAMTEL login",
+        subtitle: "Sensitive information is revealed only on-demand.",
+        loginPlaceholder: "e.g. camtel.user@domain",
+        passwordPlaceholder: "Password",
+        passwordOptional: "optional",
+        labelPlaceholder: "e.g. Yaoundé agency account",
+        notesPlaceholder: "Internal notes (optional)",
+        createCta: "Create",
+        saveCta: "Save",
+      },
+      confirm: {
+        deleteTitle: "Delete login",
+        deleteDescription: "Confirm deletion of",
+      },
+      password: {
+        title: "Clear password",
+        subtitle: "On-demand display (audited server-side).",
+        copy: "Copy",
+        notice: "Avoid sharing this password in non-secure channels.",
+      },
+      errors: {
+        missingParams: "Missing parameters",
+        unauthorized: "Access denied",
+        missingCreateFields: "Login and password are required",
+        nothingToUpdate: "Nothing to update",
+        loadError: "Error while loading",
+        genericError: "An error occurred",
+      },
+      toasts: {
+        copied: "Copied to clipboard",
+        actionDone: "Action done",
+        created: "Login created",
+        updated: "Login updated",
+        deleted: "Login deleted",
+        passwordRevealed: "Password retrieved",
+      },
     },
     permissionGroups: {
       users: "Users",

@@ -8,7 +8,7 @@ import { NotificationDropdown } from "~/components/NotificationDropdown";
 import { Button } from "~/components/ui/button";
 import { useScrolled, useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
-import { Sparkles, Home, Users, FileText, ClipboardList, Settings } from "lucide-react";
+import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings } from "lucide-react";
 import logoUrl from "~/assets/logo.png";
 import { hasPermission, isAdmin } from "~/lib/permissions";
 
@@ -88,6 +88,14 @@ export function Header() {
           href: "/admin",
           label: t.nav.admin,
           icon: Settings,
+          permission: 'admin-access',
+          requiresAuth: true
+        });
+
+        links.push({
+          href: "/admin/camtel-logins",
+          label: t.nav.camtelLogins,
+          icon: KeyRound,
           permission: 'admin-access',
           requiresAuth: true
         });

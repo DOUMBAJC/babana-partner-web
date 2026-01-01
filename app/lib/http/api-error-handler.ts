@@ -74,6 +74,36 @@ const extractErrorMessage = (data: any, defaultMessage: string): string => {
 };
 
 /**
+ * Extrait les erreurs de validation (format Laravel classique: { errors: { field: [msg] } })
+ */
+const extractValidationErrors = (data: any): Record<string, string[]> | null => {
+  const errors =
+    data?.errors ||
+    data?.error?.errors ||
+    data?.data?.errors ||
+    null;
+
+  if (!errors || typeof errors !== "object") return null;
+  return errors as Record<string, string[]>;
+};
+
+/**
+ * Récupère le premier message d'erreur de validation disponible
+ */
+const getFirstValidationMessage = (
+  errors: Record<string, string[]> | null
+): string | null => {
+  if (!errors) return null;
+  for (const key of Object.keys(errors)) {
+    const value = errors[key];
+    if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
+      return value[0];
+    }
+  }
+  return null;
+};
+
+/**
  * Construit un ApiError à partir d'une erreur de réponse HTTP
  */
 const buildResponseError = (
@@ -83,12 +113,14 @@ const buildResponseError = (
   const data = error.response?.data as any;
   const common = translations[currentLanguage].common;
   const status = error.response?.status;
+  const validationErrors = extractValidationErrors(data);
 
   const apiError: ApiError = {
     message: extractErrorMessage(data, common.serverError),
     status,
     code: data?.code,
-    details: data?.details,
+    // Laravel renvoie souvent `errors` plutôt que `details`
+    details: data?.details ?? validationErrors ?? data?.error?.details,
   };
 
   if (isDevelopment) {
@@ -108,7 +140,11 @@ const buildResponseError = (
       apiError.message = data?.message || common.resourceNotFound;
       break;
     case 422:
-      apiError.message = data?.error?.message || common.invalidData;
+      // Ne pas écraser `data.message` (ex: Laravel "The given data was invalid.")
+      // et, si possible, afficher un message plus précis (première erreur de validation)
+      apiError.message =
+        getFirstValidationMessage(validationErrors) ||
+        extractErrorMessage(data, common.invalidData);
       break;
     case 429:
       apiError.message = data?.message || common.tooManyRequests;

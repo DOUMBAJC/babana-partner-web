@@ -16,6 +16,7 @@ export default [
   route("unauthorized", "routes/unauthorized/route.tsx"),
   route("admin", "routes/admin/route.tsx"),
   route("admin/users", "routes/admin/users/route.tsx"),
+  route("admin/camtel-logins", "routes/admin/camtel-logins/route.tsx"),
   route("roles-matrix", "routes/roles-matrix/route.tsx"),
   route("profile", "routes/profile/route.tsx"),
   route("customers/search", "routes/customers/search/route.tsx"),
