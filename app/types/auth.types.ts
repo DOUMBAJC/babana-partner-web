@@ -92,6 +92,19 @@ export interface User {
   name: string;
   email: string;
   camtel_login?: string | null;
+  camtel_login_id?: number | null;
+  /**
+   * Relation backend (ex: `User::with('camtelLogin')`)
+   * Peut contenir les infos du login CAMTEL assigné.
+   */
+  camtelLogin?: {
+    id: number;
+    value?: string | null;
+    owner_name?: string | null;
+    camtel_created_at?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+  } | null;
   personal_phone?: string | null;
   email_verified_at?: string | null;
   account_status: AccountStatus;

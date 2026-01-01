@@ -8,7 +8,9 @@ export type ActionType =
   | "reject"
   | "reactivate"
   | "assign_role"
-  | "remove_role";
+  | "remove_role"
+  | "assign_camtel_login"
+  | "remove_camtel_login";
 
 export function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);

@@ -68,6 +68,7 @@ import {
   Search,
   Shield,
   Slash,
+  Sparkles,
   UserCheck,
   UserX,
   Users,
@@ -93,6 +94,7 @@ type LoaderData = {
   pendingUsers: User[];
   selectedUser: User | null;
   availableRoles: Array<{ slug: string; name?: string; description?: string }>;
+  availableCamtelLogins: Array<{ id: number; value?: string | null; owner_name?: string | null }>;
 };
 
 type ActionData = {
@@ -102,6 +104,7 @@ type ActionData = {
   actionType?: ActionType;
   userId?: number;
   roleSlug?: string;
+  camtelLoginId?: number;
 };
 
 function asNumber(value: string | null): number | null {
@@ -134,6 +137,30 @@ function unwrapRoles(payload: any): Array<{ slug: string; name?: string; descrip
   return list
     .filter((r) => r && typeof r === "object" && typeof r.slug === "string")
     .map((r) => ({ slug: r.slug as string, name: r.name as any, description: r.description as any }));
+}
+
+function normalizeCamtelLoginOptionFromApi(input: any): { id: number; value?: string | null; owner_name?: string | null } {
+  const id = Number(input?.id);
+  return {
+    id: Number.isFinite(id) ? id : 0,
+    value:
+      input?.value ??
+      input?.login ??
+      input?.username ??
+      input?.identifier ??
+      input?.camtel_login ??
+      input?.camtelLogin ??
+      null,
+    owner_name: input?.owner_name ?? input?.ownerName ?? input?.label ?? input?.name ?? null,
+  };
+}
+
+function normalizeCamtelLoginOptionsFromApi(
+  list: any[]
+): Array<{ id: number; value?: string | null; owner_name?: string | null }> {
+  return (list || [])
+    .map((x) => normalizeCamtelLoginOptionFromApi(x))
+    .filter((x) => x.id);
 }
 
 function statusBadgeVariant(
@@ -234,6 +261,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         pendingUsers: [],
         selectedUser: null,
         availableRoles: [],
+        availableCamtelLogins: [],
       });
     }
 
@@ -263,20 +291,26 @@ export async function loader({ request }: Route.LoaderArgs) {
         pendingUsers: [],
         selectedUser: null,
         availableRoles: [],
+        availableCamtelLogins: [],
       });
     }
 
     const api = await createAuthenticatedApi(request);
 
-    const [usersRes, pendingRes, rolesRes] = await Promise.all([
+    const [usersRes, pendingRes, rolesRes, camtelLoginsRes] = await Promise.all([
       api.get("/admin/users"),
       api.get("/admin/users/pending"),
       api.get("/admin/roles"),
+      // Optionnel: certains rôles peuvent voir les users sans avoir accès aux logins CAMTEL
+      canManageRoles ? api.get("/admin/camtel-logins") : Promise.resolve({ data: null }),
     ]);
 
     const users = normalizeUsersFromApi(unwrapList<User>(usersRes.data));
     const pendingUsers = normalizeUsersFromApi(unwrapList<User>(pendingRes.data));
     const availableRoles = unwrapRoles(rolesRes.data);
+    const availableCamtelLogins = canManageRoles
+      ? normalizeCamtelLoginOptionsFromApi(unwrapList<any>(camtelLoginsRes?.data))
+      : [];
 
     let selectedUser: User | null = null;
     if (selectedUserId) {
@@ -304,6 +338,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       pendingUsers,
       selectedUser,
       availableRoles,
+      availableCamtelLogins,
     });
   } catch (error: any) {
     return data<LoaderData>({
@@ -320,6 +355,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       pendingUsers: [],
       selectedUser: null,
       availableRoles: [],
+      availableCamtelLogins: [],
     });
   }
 }
@@ -333,6 +369,7 @@ export async function action({ request }: Route.ActionArgs) {
   const userId = asNumber(formData.get("userId") as string | null);
   const rejectionReason = (formData.get("rejectionReason") as string | null)?.trim() || null;
   const roleSlug = (formData.get("roleSlug") as string | null)?.trim() || null;
+  const camtelLoginId = asNumber(formData.get("camtelLoginId") as string | null);
 
   if (!actionType || !userId) {
     return data<ActionData>(
@@ -385,6 +422,34 @@ export async function action({ request }: Route.ActionArgs) {
           actionType,
           userId,
           roleSlug,
+          message: res.data?.message || t.adminUsers.roles.removeButton,
+        });
+      }
+      case "assign_camtel_login": {
+        if (!camtelLoginId) {
+          return data<ActionData>(
+            { success: false, actionType, userId, error: t.adminUsers.errors.missingParams },
+            { status: 400 }
+          );
+        }
+        const res = await api.post(`/admin/users/${userId}/camtel-login`, {
+          camtel_login_id: camtelLoginId,
+          camtelLoginId,
+        });
+        return data<ActionData>({
+          success: true,
+          actionType,
+          userId,
+          camtelLoginId,
+          message: res.data?.message || t.adminUsers.roles.assignButton,
+        });
+      }
+      case "remove_camtel_login": {
+        const res = await api.delete(`/admin/users/${userId}/camtel-login`);
+        return data<ActionData>({
+          success: true,
+          actionType,
+          userId,
           message: res.data?.message || t.adminUsers.roles.removeButton,
         });
       }
@@ -574,6 +639,21 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
     submit(fd, { method: "post" });
   };
 
+  const assignCamtelLogin = (user: User, camtelLoginId: number) => {
+    const fd = new FormData();
+    fd.set("actionType", "assign_camtel_login");
+    fd.set("userId", String(user.id));
+    fd.set("camtelLoginId", String(camtelLoginId));
+    submit(fd, { method: "post" });
+  };
+
+  const removeCamtelLogin = (user: User) => {
+    const fd = new FormData();
+    fd.set("actionType", "remove_camtel_login");
+    fd.set("userId", String(user.id));
+    submit(fd, { method: "post" });
+  };
+
   const submitAction = () => {
     if (!confirm.user || !confirm.actionType) return;
     const fd = new FormData();
@@ -755,7 +835,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
 
           {/* User details panel - Premium design */}
           <Dialog open={isDrawerOpen} onOpenChange={(open) => (!open ? closeUser() : null)}>
-            <DialogContent className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
+            <DialogContent className="left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(720px,100vw)] max-w-none rounded-none sm:rounded-l-3xl p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
               <UserDetailsPanel
                 user={selected}
                 userId={desiredUserId}
@@ -763,9 +843,12 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                 onClose={closeUser}
                 onAction={openConfirm}
                 availableRoles={loaderData.availableRoles}
+                availableCamtelLogins={loaderData.availableCamtelLogins}
                 canManageRoles={loaderData.canManageRoles}
                 onAssignRole={(roleSlug: string) => (selected ? assignRole(selected, roleSlug) : null)}
                 onRemoveRole={(roleSlug: string) => (selected ? removeRole(selected, roleSlug) : null)}
+                onAssignCamtelLogin={(camtelLoginId: number) => (selected ? assignCamtelLogin(selected, camtelLoginId) : null)}
+                onRemoveCamtelLogin={() => (selected ? removeCamtelLogin(selected) : null)}
                 drawerTab={drawerTab}
                 setDrawerTab={setDrawerTab}
               />
@@ -779,50 +862,125 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
               setConfirm((prev) => ({ ...prev, open, ...(open ? {} : { actionType: null, user: null }) }))
             }
           >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {confirm.actionType === "activate"
-                    ? t.adminUsers.confirm.activateTitle
+            <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+              {/* Header spectaculaire (style AcceptDialog) */}
+              <div
+                className={`relative bg-linear-to-br p-8 pb-12 ${
+                  confirm.actionType === "activate" || confirm.actionType === "reactivate"
+                    ? "from-green-600 via-emerald-600 to-teal-600"
                     : confirm.actionType === "suspend"
-                      ? t.adminUsers.confirm.suspendTitle
-                      : confirm.actionType === "reactivate"
-                        ? t.adminUsers.confirm.reactivateTitle
-                        : t.adminUsers.confirm.rejectTitle}
-                </DialogTitle>
-                <DialogDescription>
-                  {confirm.user ? (
-                    <>
-                      {t.adminUsers.confirm.actionOn} <span className="font-medium">{confirm.user.name}</span> (
-                      {confirm.user.email}).
-                    </>
-                  ) : null}
-                </DialogDescription>
-              </DialogHeader>
+                      ? "from-amber-600 via-orange-600 to-rose-600"
+                      : confirm.actionType === "reject"
+                        ? "from-rose-600 via-red-600 to-slate-700"
+                        : "from-babana-cyan via-emerald-600 to-babana-navy"
+                }`}
+              >
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20" />
 
-              {confirm.actionType === "reject" ? (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">{t.adminUsers.confirm.reasonOptionalLabel}</div>
-                  <Textarea
-                    value={rejectionReason}
-                    onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder={t.adminUsers.confirm.reasonPlaceholder}
-                  />
+                <div className="relative flex items-start gap-4">
+                  <div className="shrink-0">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-white/30 blur-xl rounded-full" />
+                      <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                        {confirm.actionType === "activate" ? (
+                          <PlayCircle className="h-8 w-8 text-white" />
+                        ) : confirm.actionType === "reactivate" ? (
+                          <UserCheck className="h-8 w-8 text-white" />
+                        ) : confirm.actionType === "suspend" ? (
+                          <PauseCircle className="h-8 w-8 text-white" />
+                        ) : (
+                          <UserX className="h-8 w-8 text-white" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 pt-2">
+                    <div className="text-3xl font-black text-white mb-2 tracking-tight">
+                      {confirm.actionType === "activate"
+                        ? t.adminUsers.confirm.activateTitle
+                        : confirm.actionType === "suspend"
+                          ? t.adminUsers.confirm.suspendTitle
+                          : confirm.actionType === "reactivate"
+                            ? t.adminUsers.confirm.reactivateTitle
+                            : t.adminUsers.confirm.rejectTitle}
+                    </div>
+                    <div className="text-emerald-100 text-lg font-medium">
+                      {confirm.user ? (
+                        <>
+                          {t.adminUsers.confirm.actionOn} <span className="font-semibold">{confirm.user.name}</span> •{" "}
+                          {confirm.user.email}
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
                 </div>
-              ) : null}
+              </div>
 
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setConfirm({ open: false, actionType: null, user: null })}>
+              {/* Contenu */}
+              <div className="p-8 space-y-6">
+                {confirm.actionType === "reject" ? (
+                  <div className="space-y-3">
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                      <div className="w-1 h-4 bg-rose-500 rounded-full" />
+                      {t.adminUsers.confirm.reasonOptionalLabel}
+                    </div>
+                    <Textarea
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      placeholder={t.adminUsers.confirm.reasonPlaceholder}
+                      className="text-base bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-rose-500 focus:ring-4 focus:ring-rose-500/20 transition-all duration-200 resize-none"
+                      rows={4}
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-slate-900 dark:text-slate-100">
+                          {t.actions.confirm}
+                        </div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                          {confirm.actionType === "suspend"
+                            ? t.adminUsers.statusDescriptions.suspended
+                            : t.adminUsers.statusDescriptions.active}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer (style AcceptDialog) */}
+              <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setConfirm({ open: false, actionType: null, user: null })}
+                  className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+                >
                   {t.actions.cancel}
                 </Button>
                 <Button
-                  variant={confirm.actionType === "reject" || confirm.actionType === "suspend" ? "destructive" : "default"}
+                  type="button"
                   onClick={submitAction}
+                  className={`h-12 px-8 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                    confirm.actionType === "activate" || confirm.actionType === "reactivate"
+                      ? "bg-linear-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700"
+                      : confirm.actionType === "suspend"
+                        ? "bg-linear-to-r from-amber-600 via-orange-600 to-rose-600 hover:from-amber-700 hover:via-orange-700 hover:to-rose-700"
+                        : "bg-linear-to-r from-rose-600 via-red-600 to-slate-700 hover:from-rose-700 hover:via-red-700 hover:to-slate-800"
+                  }`}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   {t.actions.confirm}
                 </Button>
-              </DialogFooter>
+              </div>
             </DialogContent>
           </Dialog>
         </div>

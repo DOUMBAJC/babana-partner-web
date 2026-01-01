@@ -17,6 +17,7 @@ import {
   PauseCircle,
   Phone,
   PlayCircle,
+  Search,
   Shield,
   Sparkles,
   UserCheck,
@@ -28,6 +29,7 @@ import {
 
 import { Badge } from "~/components";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { Input } from "~/components/ui/input";
 import {
   Button,
   Select,
@@ -59,9 +61,12 @@ export function UserDetailsPanel({
   onClose,
   onAction,
   availableRoles,
+  availableCamtelLogins,
   canManageRoles,
   onAssignRole,
   onRemoveRole,
+  onAssignCamtelLogin,
+  onRemoveCamtelLogin,
   drawerTab,
   setDrawerTab,
 }: {
@@ -71,15 +76,21 @@ export function UserDetailsPanel({
   onClose: () => void;
   onAction: (action: ActionType, user: User) => void;
   availableRoles: Array<{ slug: string; name?: string; description?: string }>;
+  availableCamtelLogins: Array<{ id: number; value?: string | null; owner_name?: string | null }>;
   canManageRoles: boolean;
   onAssignRole: (roleSlug: string) => void;
   onRemoveRole: (roleSlug: string) => void;
+  onAssignCamtelLogin: (camtelLoginId: number) => void;
+  onRemoveCamtelLogin: () => void;
   drawerTab: UserDetailsTab;
   setDrawerTab: (tab: UserDetailsTab) => void;
 }) {
   const { t, language } = useTranslation();
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [roleToAssign, setRoleToAssign] = useState<string>("");
+  const [roleSearch, setRoleSearch] = useState("");
+  const [camtelLoginToAssign, setCamtelLoginToAssign] = useState<string>("");
+  const [camtelLoginSearch, setCamtelLoginSearch] = useState("");
 
   const copyToClipboard = (value: string, field: string) => {
     navigator.clipboard.writeText(value);
@@ -135,194 +146,143 @@ export function UserDetailsPanel({
     (user?.roles_details?.map((r) => r.slug) ?? user?.roles ?? []).filter(Boolean) as string[]
   );
   const rolesToAdd = (availableRoles || []).filter((r) => !assignedSlugs.has(r.slug));
+  const filteredRolesToAdd = roleSearch.trim()
+    ? rolesToAdd.filter((r) => {
+        const q = roleSearch.trim().toLowerCase();
+        const label = (t.roles?.[r.slug]?.name || r.name || r.slug || "").toLowerCase();
+        const desc = (t.roles?.[r.slug]?.description || r.description || "").toLowerCase();
+        return `${label} ${desc} ${r.slug}`.includes(q);
+      })
+    : rolesToAdd;
   const availableRoleNameBySlug = (availableRoles || []).reduce<Record<string, string>>((acc, r) => {
     acc[r.slug] = r.name || r.slug;
     return acc;
   }, {});
 
+  // Le backend peut exposer le login CAMTEL sous plusieurs formes:
+  // - `camtelLogin`: objet relationnel
+  // - `camtel_login`: parfois string, parfois objet (selon serializer)
+  const camtelObj =
+    (user?.camtelLogin && typeof user.camtelLogin === "object" ? user.camtelLogin : null) ||
+    ((user as any)?.camtel_login && typeof (user as any).camtel_login === "object" ? ((user as any).camtel_login as any) : null);
+
+  const currentCamtelLoginId =
+    (typeof camtelObj?.id === "number" ? camtelObj.id : null) ?? user?.camtel_login_id ?? null;
+
+  const currentCamtelValue =
+    (typeof camtelObj?.value === "string" ? camtelObj.value : null) ||
+    (typeof camtelObj?.login === "string" ? camtelObj.login : null) ||
+    (typeof user?.camtel_login === "string" ? user.camtel_login : null) ||
+    null;
+
+  const currentCamtelOwner =
+    (typeof camtelObj?.owner_name === "string" ? camtelObj.owner_name : null) ||
+    (typeof camtelObj?.ownerName === "string" ? camtelObj.ownerName : null) ||
+    null;
+  const camtelLoginsToAdd = (availableCamtelLogins || []).filter((l) => l.id && l.id !== currentCamtelLoginId);
+  const filteredCamtelLoginsToAdd = camtelLoginSearch.trim()
+    ? camtelLoginsToAdd.filter((l) => {
+        const q = camtelLoginSearch.trim().toLowerCase();
+        const hay = `${l.value ?? ""} ${l.owner_name ?? ""} ${l.id}`.toLowerCase();
+        return hay.includes(q);
+      })
+    : camtelLoginsToAdd;
+
   return (
-    <div className="relative h-full w-full flex flex-col overflow-hidden">
-      {/* Background avec effet glassmorphism */}
-      <div className="absolute inset-0 bg-background" />
+    <div className="h-full w-full flex flex-col overflow-hidden bg-white dark:bg-slate-900">
+      {/* Header (style AcceptDialog) */}
+      <div className="relative shrink-0 bg-linear-to-br from-babana-cyan via-emerald-600 to-babana-navy p-8 pb-10">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20" />
 
-      {/* Bordure gauche stylisée */}
-      <div className="absolute left-0 top-0 bottom-0 w-px bg-linear-to-b from-babana-cyan/60 via-babana-cyan/20 to-babana-navy/40" />
+        {/* Bouton fermer */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-5 right-5 z-10 p-3 rounded-2xl bg-white/15 hover:bg-white/25 border-2 border-white/20 backdrop-blur-sm transition-all duration-200"
+        >
+          <X className="h-5 w-5 text-white" />
+        </button>
 
-      {/* Gradient décoratif en haut */}
-      <div className="absolute top-0 left-0 right-0 h-64 bg-linear-to-b from-babana-cyan/8 via-babana-cyan/3 to-transparent dark:from-babana-cyan/12 dark:via-babana-cyan/4 pointer-events-none" />
-
-      {/* Orbes décoratifs */}
-      <div className="absolute top-20 right-10 w-32 h-32 bg-babana-cyan/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-40 left-10 w-24 h-24 bg-babana-navy/10 rounded-full blur-2xl pointer-events-none" />
-
-      {/* Contenu principal */}
-      <div className="relative flex-1 flex flex-col overflow-hidden">
-        {/* Header Premium */}
-        <div className="relative shrink-0 px-6 pt-6 pb-4">
-          {/* Bouton fermer */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border/50 transition-all duration-200 group"
-          >
-            <X className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </button>
-
-          {isLoading ? (
-            <div className="animate-pulse">
-              <div className="flex items-start gap-5">
-                <div className="h-20 w-20 rounded-2xl bg-muted/40" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-6 w-48 rounded-lg bg-muted/40" />
-                  <div className="h-4 w-64 rounded bg-muted/40" />
-                  <div className="flex gap-2">
-                    <div className="h-6 w-20 rounded-full bg-muted/40" />
-                    <div className="h-6 w-16 rounded-full bg-muted/40" />
-                  </div>
-                </div>
+        <div className="relative flex items-start gap-4">
+          <div className="shrink-0">
+            <div className="relative">
+              <div className="absolute inset-0 bg-white/30 blur-xl rounded-full" />
+              <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                <Users className="h-8 w-8 text-white" />
               </div>
             </div>
-          ) : !user ? (
-            <div className="flex items-center gap-4 p-6 rounded-2xl border border-destructive/20 bg-destructive/5">
-              <div className="p-3 rounded-xl bg-destructive/10">
-                <AlertCircle className="h-6 w-6 text-destructive" />
+          </div>
+
+          <div className="flex-1 pt-2 min-w-0">
+            {isLoading ? (
+              <div className="space-y-3">
+                <div className="h-8 w-64 rounded-lg bg-white/20 animate-pulse" />
+                <div className="h-5 w-80 rounded bg-white/15 animate-pulse" />
               </div>
+            ) : !user ? (
               <div>
-                <div className="font-semibold text-foreground">{t.adminUsers.panel.unavailableTitle}</div>
-                <div className="text-sm text-muted-foreground mt-0.5">
-                  {t.adminUsers.panel.unavailableMessage}
-                </div>
+                <div className="text-2xl font-black text-white tracking-tight">{t.adminUsers.panel.unavailableTitle}</div>
+                <div className="text-emerald-100 text-sm font-medium mt-1">{t.adminUsers.panel.unavailableMessage}</div>
               </div>
-            </div>
-          ) : (
-            <div className="flex items-start gap-5">
-              {/* Avatar avec effet glow */}
-              <div className="relative">
-                <div
-                  className={`absolute inset-0 rounded-2xl bg-linear-to-br ${
-                    currentStatus?.gradient || "from-babana-cyan/20"
-                  } blur-xl scale-110`}
-                />
-                <div
-                  className={`relative h-20 w-20 rounded-2xl bg-linear-to-br from-babana-cyan to-babana-navy flex items-center justify-center ring-2 ${
-                    currentStatus?.ringColor || "ring-babana-cyan/30"
-                  } shadow-lg`}
-                >
-                  <span className="text-2xl font-bold text-white">{getInitials(user.name)}</span>
-                  {/* Indicateur de statut */}
-                  <div
-                    className={`absolute -bottom-1 -right-1 p-1.5 rounded-lg ${
-                      currentStatus?.iconBg || "bg-muted"
-                    } ring-2 ring-background`}
-                  >
-                    {user.account_status === "active" ? (
-                      <CheckCircle2 className={`h-3.5 w-3.5 ${currentStatus?.iconColor}`} />
-                    ) : user.account_status === "verified" ? (
-                      <Clock className={`h-3.5 w-3.5 ${currentStatus?.iconColor}`} />
-                    ) : user.account_status === "pending_verification" ? (
-                      <Mail className={`h-3.5 w-3.5 ${currentStatus?.iconColor}`} />
-                    ) : user.account_status === "suspended" ? (
-                      <PauseCircle className={`h-3.5 w-3.5 ${currentStatus?.iconColor}`} />
-                    ) : (
-                      <UserX className={`h-3.5 w-3.5 ${currentStatus?.iconColor}`} />
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Infos principales */}
-              <div className="flex-1 min-w-0 pr-10">
+            ) : (
+              <>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xl font-bold text-foreground truncate">{user.name}</h2>
-                  <Badge variant="outline" className="rounded-lg bg-muted/40 border-border/50 text-xs font-mono">
+                  <h2 className="text-3xl font-black text-white tracking-tight truncate">{user.name}</h2>
+                  <Badge className="rounded-xl bg-white/15 text-white border-2 border-white/20 font-mono">
                     #{userId ?? user.id}
                   </Badge>
                 </div>
+                <p className="text-emerald-100 text-lg font-medium truncate">{user.email}</p>
+              </>
+            )}
+          </div>
 
-                <div className="flex items-center gap-2 mt-1.5 text-muted-foreground">
-                  <Mail className="h-3.5 w-3.5" />
-                  <span className="text-sm truncate">{user.email}</span>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(user.email, "email")}
-                    className="p-1 hover:bg-muted/50 rounded transition-colors"
-                  >
-                    <Copy className={`h-3 w-3 ${copiedField === "email" ? "text-emerald-500" : ""}`} />
-                  </button>
-                </div>
-
-                {/* Rôles */}
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {(user.roles || []).map((role) => (
-                    <Badge
-                      key={role}
-                      className="rounded-lg bg-babana-cyan/10 dark:bg-babana-cyan/15 text-babana-navy dark:text-babana-cyan border-babana-cyan/20 hover:bg-babana-cyan/20 transition-colors"
-                    >
-                      <Shield className="h-3 w-3 mr-1" />
-                      {t.roles?.[role]?.name || availableRoleNameBySlug[role] || role}
-                    </Badge>
-                  ))}
-                  {!(user.roles || []).length && (
-                    <span className="text-xs text-muted-foreground italic">{t.adminUsers.roles.noneAssigned}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Status Banner */}
-          {user && currentStatus && (
-            <div
-              className={`mt-5 p-4 rounded-2xl bg-linear-to-r ${currentStatus.gradient} border border-current/10 relative overflow-hidden`}
-            >
-              <div className="absolute inset-0 bg-background/40 backdrop-blur-sm" />
-              <div className="relative flex items-center gap-3">
-                <div className={`p-2 rounded-xl ${currentStatus.iconBg}`}>
-                  <Activity className={`h-4 w-4 ${currentStatus.iconColor}`} />
-                </div>
-                <div>
-                  <div className={`text-sm font-semibold ${currentStatus.iconColor}`}>
-                    {t.adminUsers.status[user.account_status]}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {t.adminUsers.statusDescriptions[user.account_status]}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Tabs Navigation */}
-          {user && (
-            <div className="mt-5">
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/30 border border-border/40">
-                {[
-                  { id: "profile" as const, label: t.adminUsers.drawer.tabs.profile, icon: Eye },
-                  { id: "roles" as const, label: t.adminUsers.drawer.tabs.roles, icon: Key },
-                  { id: "actions" as const, label: t.adminUsers.drawer.tabs.actions, icon: Zap },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setDrawerTab(tab.id)}
-                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      drawerTab === tab.id
-                        ? "bg-background text-foreground shadow-sm border border-border/50"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                    }`}
-                  >
-                    <tab.icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
         </div>
 
-        {/* Contenu scrollable */}
-        <ScrollArea className="flex-1">
-          <div className="px-6 pb-6">
+        {/* Status + Tabs */}
+        {user && currentStatus ? (
+          <div className="relative mt-6 rounded-2xl bg-white/10 border-2 border-white/15 backdrop-blur-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-white/10">
+                <Activity className="h-4 w-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-white truncate">{t.adminUsers.status[user.account_status]}</div>
+                <div className="text-xs text-emerald-100 truncate">{t.adminUsers.statusDescriptions[user.account_status]}</div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {user ? (
+          <div className="relative mt-5">
+            <div className="flex items-center gap-1 p-1 rounded-2xl bg-white/10 border-2 border-white/15 backdrop-blur-sm">
+              {[
+                { id: "profile" as const, label: t.adminUsers.drawer.tabs.profile, icon: Eye },
+                { id: "roles" as const, label: t.adminUsers.drawer.tabs.roles, icon: Key },
+                { id: "actions" as const, label: t.adminUsers.drawer.tabs.actions, icon: Zap },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setDrawerTab(tab.id)}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
+                    drawerTab === tab.id ? "bg-white/20 text-white" : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <tab.icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Contenu scrollable */}
+      <ScrollArea className="flex-1">
+        <div className="px-8 py-6">
             {isLoading ? (
               <div className="space-y-4 animate-pulse mt-4">
                 {[1, 2, 3].map((i) => (
@@ -361,13 +321,117 @@ export function UserDetailsPanel({
                         <DetailRow
                           icon={IdCard}
                           label={t.adminUsers.fields.camtelLogin}
-                          value={user.camtel_login || t.adminUsers.fields.notProvided}
-                          copiable={!!user.camtel_login}
+                          value={currentCamtelValue || t.adminUsers.fields.notProvided}
+                          copiable={!!currentCamtelValue}
                           onCopy={(v) => copyToClipboard(v, "camtel")}
                           copied={copiedField === "camtel"}
                         />
                       </div>
                     </DetailSection>
+
+                    {/* Gestion CAMTEL login (assign / remove) */}
+                    {(canManageRoles || currentCamtelValue) && (
+                      <DetailSection title="CAMTEL" icon={Key}>
+                        <div className="space-y-4">
+                          <div className="space-y-3">
+                            <DetailRow
+                              icon={IdCard}
+                              label={t.adminUsers.fields.camtelLogin}
+                              value={currentCamtelValue || t.adminUsers.fields.notProvided}
+                              copiable={!!currentCamtelValue}
+                              onCopy={(v) => copyToClipboard(v, "camtel2")}
+                              copied={copiedField === "camtel2"}
+                            />
+                            <DetailRow
+                              icon={Users}
+                              label="Propriétaire"
+                              value={currentCamtelOwner || "—"}
+                              copiable={!!currentCamtelOwner}
+                              onCopy={(v) => copyToClipboard(v, "camtelOwner")}
+                              copied={copiedField === "camtelOwner"}
+                            />
+                          </div>
+
+                          {canManageRoles ? (
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-3">
+                              <div className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                                Assigner un login CAMTEL
+                              </div>
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                                <div className="flex-1">
+                                  <Select
+                                    value={camtelLoginToAssign}
+                                    onValueChange={setCamtelLoginToAssign}
+                                    onOpenChange={(open) => {
+                                      if (!open) setCamtelLoginSearch("");
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Choisir un login…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {/* Recherche locale (sans appel API) */}
+                                      <div className="sticky top-0 z-10 -mx-2 -mt-2 mb-2 p-2 bg-popover/95 backdrop-blur-xl border-b border-border/60">
+                                        <div className="relative">
+                                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                          <Input
+                                            value={camtelLoginSearch}
+                                            onChange={(e) => setCamtelLoginSearch(e.target.value)}
+                                            placeholder="Rechercher un login…"
+                                            className="h-10 pl-9"
+                                            onKeyDown={(e) => e.stopPropagation()}
+                                            onPointerDown={(e) => e.stopPropagation()}
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        </div>
+                                      </div>
+
+                                      {filteredCamtelLoginsToAdd.length ? (
+                                        filteredCamtelLoginsToAdd.map((l) => (
+                                          <SelectItem key={l.id} value={String(l.id)}>
+                                            {l.value || `#${l.id}`} {l.owner_name ? `• ${l.owner_name}` : ""}
+                                          </SelectItem>
+                                        ))
+                                      ) : (
+                                        <SelectItem value="__none__" disabled>
+                                          Aucun résultat
+                                        </SelectItem>
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Button
+                                  type="button"
+                                  className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy"
+                                  disabled={
+                                    !user || !camtelLoginToAssign || camtelLoginToAssign === "__none__" || isLoading
+                                  }
+                                  onClick={() => {
+                                    const id = Number(camtelLoginToAssign);
+                                    if (!Number.isFinite(id) || !id) return;
+                                    onAssignCamtelLogin(id);
+                                    setCamtelLoginToAssign("");
+                                  }}
+                                >
+                                  {t.adminUsers.roles.assignButton}
+                                </Button>
+                              </div>
+
+                              <div className="flex items-center justify-end">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  disabled={!user || !currentCamtelLoginId || isLoading}
+                                  onClick={() => onRemoveCamtelLogin()}
+                                >
+                                  {t.adminUsers.roles.removeButton}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </DetailSection>
+                    )}
 
                     <DetailSection title={t.adminUsers.panel.sections.account} icon={Fingerprint}>
                       <div className="space-y-3">
@@ -459,20 +523,42 @@ export function UserDetailsPanel({
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                           <div className="flex-1">
                             <div className="text-xs text-muted-foreground mb-2">{t.adminUsers.roles.assignLabel}</div>
-                            <Select value={roleToAssign} onValueChange={setRoleToAssign}>
+                            <Select
+                              value={roleToAssign}
+                              onValueChange={setRoleToAssign}
+                              onOpenChange={(open) => {
+                                if (!open) setRoleSearch("");
+                              }}
+                            >
                               <SelectTrigger>
                                 <SelectValue placeholder={t.adminUsers.roles.choosePlaceholder} />
                               </SelectTrigger>
                               <SelectContent>
-                                {rolesToAdd.length ? (
-                                  rolesToAdd.map((r) => (
+                                {/* Recherche locale (sans appel API) */}
+                                <div className="sticky top-0 z-10 -mx-2 -mt-2 mb-2 p-2 bg-popover/95 backdrop-blur-xl border-b border-border/60">
+                                  <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                      value={roleSearch}
+                                      onChange={(e) => setRoleSearch(e.target.value)}
+                                      placeholder="Rechercher un rôle…"
+                                      className="h-10 pl-9"
+                                      onKeyDown={(e) => e.stopPropagation()}
+                                      onPointerDown={(e) => e.stopPropagation()}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  </div>
+                                </div>
+
+                                {filteredRolesToAdd.length ? (
+                                  filteredRolesToAdd.map((r) => (
                                     <SelectItem key={r.slug} value={r.slug}>
                                       {t.roles?.[r.slug]?.name || r.name || r.slug}
                                     </SelectItem>
                                   ))
                                 ) : (
                                   <SelectItem value="__none__" disabled>
-                                    {t.adminUsers.roles.noRoleAvailable}
+                                    {roleSearch.trim() ? "Aucun résultat" : t.adminUsers.roles.noRoleAvailable}
                                   </SelectItem>
                                 )}
                               </SelectContent>
@@ -627,8 +713,19 @@ export function UserDetailsPanel({
                 )}
               </div>
             ) : null}
-          </div>
-        </ScrollArea>
+        </div>
+      </ScrollArea>
+
+      {/* Footer (style AcceptDialog) */}
+      <div className="shrink-0 flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+        >
+          {t.actions.cancel}
+        </Button>
       </div>
     </div>
   );
