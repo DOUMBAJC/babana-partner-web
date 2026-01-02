@@ -127,11 +127,48 @@ const handleUnauthorized = (): void => {
 
 /**
  * Extrait le message d'erreur des données de réponse
+ * Priorise les messages détaillés sur les messages génériques
  */
 const extractErrorMessage = (data: any, defaultMessage: string): string => {
-  return (
-    data?.error?.message || data?.message || data?.error || defaultMessage
-  );
+  // Messages génériques à éviter
+  const genericMessages = [
+    'Unprocessable Entity',
+    'Validation error',
+    'Erreur de validation',
+    'Bad Request',
+    'Internal Server Error',
+  ];
+
+  // 1. Vérifier si data.error est une string détaillée (priorité)
+  if (data?.error && typeof data.error === 'string' && data.error.trim()) {
+    return data.error;
+  }
+
+  // 2. Vérifier si data.error.message existe
+  if (data?.error?.message && typeof data.error.message === 'string') {
+    return data.error.message;
+  }
+
+  // 3. Vérifier data.message, mais seulement s'il n'est pas générique
+  if (data?.message && typeof data.message === 'string') {
+    const message = data.message.trim();
+    // Si le message n'est pas générique, l'utiliser
+    if (message && !genericMessages.includes(message)) {
+      return message;
+    }
+    // Si le message est générique mais qu'on a data.error (string), l'utiliser
+    if (genericMessages.includes(message) && data?.error && typeof data.error === 'string') {
+      return data.error;
+    }
+  }
+
+  // 4. Fallback sur data.error si c'est une string
+  if (data?.error && typeof data.error === 'string') {
+    return data.error;
+  }
+
+  // 5. Message par défaut
+  return defaultMessage;
 };
 
 /**
@@ -189,32 +226,35 @@ const buildResponseError = (
   }
 
   // Messages d'erreur spécifiques selon le code HTTP
+  // Utiliser extractErrorMessage pour tous les cas pour gérer data.error correctement
   switch (status) {
     case 401:
       handleUnauthorized();
-      apiError.message = data?.message || common.sessionExpired;
+      apiError.message = extractErrorMessage(data, common.sessionExpired);
       break;
     case 403:
-      apiError.message = data?.message || common.accessDenied;
+      apiError.message = extractErrorMessage(data, common.accessDenied);
       break;
     case 404:
-      apiError.message = data?.message || common.resourceNotFound;
+      apiError.message = extractErrorMessage(data, common.resourceNotFound);
       break;
     case 422:
-      // Ne pas écraser `data.message` (ex: Laravel "The given data was invalid.")
-      // et, si possible, afficher un message plus précis (première erreur de validation)
+      // Pour les erreurs 422, prioriser :
+      // 1. Premier message de validation (le plus spécifique)
+      // 2. Message détaillé depuis extractErrorMessage (qui gère data.error)
+      // 3. Message par défaut
       apiError.message =
         getFirstValidationMessage(validationErrors) ||
         extractErrorMessage(data, common.invalidData);
       break;
     case 429:
-      apiError.message = data?.message || common.tooManyRequests;
+      apiError.message = extractErrorMessage(data, common.tooManyRequests);
       break;
     case 500:
     case 502:
     case 503:
     case 504:
-      apiError.message = data?.message || common.serverError;
+      apiError.message = extractErrorMessage(data, common.serverError);
       break;
   }
 
