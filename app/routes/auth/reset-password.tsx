@@ -15,12 +15,12 @@ export function meta({}: Route.MetaArgs) {
 
 interface ResetPasswordData {
   password: string;
-  confirmPassword: string;
+  password_confirmation: string;
 }
 
 interface FormErrors {
   password?: string;
-  confirmPassword?: string;
+  password_confirmation?: string;
   general?: string;
 }
 
@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
   const email = searchParams.get('email');
   const [formData, setFormData] = useState<ResetPasswordData>({
     password: '',
-    confirmPassword: '',
+    password_confirmation: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,10 +58,10 @@ export default function ResetPasswordPage() {
     }
 
     // Validation de la confirmation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = t.auth.resetPassword.validation.confirmPasswordRequired;
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t.auth.resetPassword.validation.passwordMismatch;
+    if (!formData.password_confirmation) {
+      newErrors.password_confirmation = t.auth.resetPassword.validation.confirmPasswordRequired;
+    } else if (formData.password !== formData.password_confirmation) {
+      newErrors.password_confirmation = t.auth.resetPassword.validation.passwordMismatch;
     }
 
     setErrors(newErrors);
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
     setErrors({});
 
     try {
-      const response = await authService.resetPassword(token, formData.password, formData.confirmPassword, email);
+      const response = await authService.resetPassword(token, formData.password, formData.password_confirmation, email);
       if (response.success) {
         navigate('/login', {
           state: {
@@ -261,10 +261,10 @@ export default function ResetPasswordPage() {
         {/* Confirmation du mot de passe */}
         <FormInput
           label={t.auth.resetPassword.labels.confirmPassword}
-          name="confirmPassword"
+          name="password_confirmation"
           type={showConfirmPassword ? 'text' : 'password'}
           placeholder="••••••••"
-          value={formData.confirmPassword}
+          value={formData.password_confirmation}
           onChange={handleChange}
           icon={<Lock className="w-5 h-5" />}
           endIcon={
@@ -276,7 +276,7 @@ export default function ResetPasswordPage() {
               {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           }
-          error={errors.confirmPassword}
+          error={errors.password_confirmation}
           required
           autoComplete="new-password"
         />
