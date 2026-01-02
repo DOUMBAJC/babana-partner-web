@@ -5,9 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -82,8 +80,8 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
     // Validation ICCID
     if (!formData.iccid) {
       newErrors.iccid = t.simActivation?.errors?.iccid || 'L\'ICCID est requis';
-    } else if (!/^6240501000\d{9}$/.test(formData.iccid)) {
-      newErrors.iccid = t.simActivation?.errors?.iccidFormat || 'Format invalide (ex: 6240501000XXXXXXXXX)';
+    } else if (!/^62405010000\d{9}$/.test(formData.iccid)) {
+      newErrors.iccid = t.simActivation?.errors?.iccidFormat || 'Format invalide (ex: 62405010000XXXXXXXXX)';
     }
 
     // Validation IMEI (optionnel mais si présent doit être valide)
@@ -196,7 +194,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
                   name="iccid"
                   value={formData.iccid}
                   onChange={(e) => setFormData({ ...formData, iccid: e.target.value })}
-                  placeholder="Ex: 6240501000XXXXXXXXX"
+                  placeholder="Ex: 62405010000XXXXXXXXX"
                   className={`h-14 text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
                     errors.iccid 
                       ? 'border-red-500 focus:ring-4 focus:ring-red-500/20' 
