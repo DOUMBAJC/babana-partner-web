@@ -46,8 +46,17 @@ export function AuthProvider({
   // Écouter les événements d'erreur 401 pour déconnecter automatiquement
   useEffect(() => {
     const handleUnauthorized = () => {
-      // Déconnecter l'utilisateur proprement via React Router
-      submit(null, { method: "post", action: "/logout" });
+      // Mettre à jour l'état local immédiatement pour indiquer que l'utilisateur est déconnecté
+      setState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      
+      // Utiliser window.location pour forcer un rechargement complet
+      // Cela garantit que le cookie est bien effacé avant de rediriger vers /login
+      window.location.href = "/logout";
     };
 
     window.addEventListener("auth:unauthorized", handleUnauthorized);
@@ -55,10 +64,20 @@ export function AuthProvider({
     return () => {
       window.removeEventListener("auth:unauthorized", handleUnauthorized);
     };
-  }, [submit]);
+  }, []);
 
   const logout = () => {
-    submit(null, { method: "post", action: "/logout" });
+    // Mettre à jour l'état local immédiatement pour indiquer que l'utilisateur est déconnecté
+    setState({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    
+    // Utiliser window.location pour forcer un rechargement complet
+    // Cela garantit que le cookie est bien effacé avant de rediriger vers /login
+    window.location.href = "/logout";
   };
 
   const updateUser = (user: User) => {

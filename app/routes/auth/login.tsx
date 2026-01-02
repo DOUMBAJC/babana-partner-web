@@ -4,10 +4,11 @@ import { useAuth, useLanguage } from '~/hooks';
 import { AuthLayout, FormInput, Button } from '~/components';
 import type { LoginCredentials } from '~/types';
 import type { Route } from "./+types/login";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { createUserSession, getLanguage, getUserToken } from '~/services/session.server';
-import { createApiFromRequest } from '~/services/api.server';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
+import { createUserSession, getLanguage, getUserToken, getSession, destroySession } from '~/services/session.server';
+import { createApiFromRequest, getCurrentUser } from '~/services/api.server';
 import { getTranslations, type Language } from '~/lib/translations';
+import { api, type ApiError } from '~/lib/axios';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,11 +18,26 @@ export function meta({}: Route.MetaArgs) {
 
 // Loader pour rediriger les utilisateurs déjà connectés
 export async function loader({ request }: Route.LoaderArgs) {
+  // Vérifier d'abord si un token existe
   const token = await getUserToken(request);
   
-  // Si l'utilisateur a déjà un token (est connecté), rediriger vers l'accueil
+  // Si un token existe, vérifier sa validité réelle
   if (token) {
-    throw redirect('/');
+    const user = await getCurrentUser(request);
+    
+    // Si l'utilisateur est valide et connecté, rediriger vers l'accueil
+    if (user) {
+      throw redirect('/');
+    }
+    
+    // Si le token existe mais est invalide (session supprimée côté serveur),
+    // nettoyer le cookie invalide pour éviter des problèmes futurs
+    const session = await getSession(request.headers.get("Cookie"));
+    return data(null, {
+      headers: {
+        "Set-Cookie": await destroySession(session),
+      },
+    });
   }
   
   return null;
@@ -39,7 +55,12 @@ export async function action({ request }: Route.ActionArgs) {
 
   if (!email || !password) {
     return data(
-      { success: false, error: t.auth.login.errors.emailPasswordRequired },
+      { 
+        success: false, 
+        error: t.auth.login.errors.emailPasswordRequired,
+        emailNotVerified: false,
+        email: undefined
+      },
       { status: 400 }
     );
   }
@@ -60,8 +81,25 @@ export async function action({ request }: Route.ActionArgs) {
       || error.response?.data?.error
       || t.auth.login.errors.loginFailed;
     
+    // Vérifier si l'erreur indique que l'email n'est pas vérifié
+    const errorMessage = message.toLowerCase();
+    const isEmailNotVerified = 
+      errorMessage.includes('vérif') || 
+      errorMessage.includes('verify') || 
+      (errorMessage.includes('email') && 
+       (errorMessage.includes('non vérifié') || 
+        errorMessage.includes('not been verified') ||
+        errorMessage.includes('non confirmé') ||
+        errorMessage.includes('not confirmed'))) ||
+      errorMessage.includes('email non vérifié');
+    
     return data(
-      { success: false, error: message },
+      { 
+        success: false, 
+        error: message,
+        emailNotVerified: isEmailNotVerified,
+        email: isEmailNotVerified ? email : undefined
+      },
       { status: 401 }
     );
   }
@@ -81,9 +119,13 @@ export default function LoginPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(
     location.state?.message || null
   );
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+  const [resendEmailSuccess, setResendEmailSuccess] = useState<string | null>(null);
 
   const isSubmitting = navigation.state === 'submitting';
   const error = actionData?.success === false ? actionData.error : null;
+  const emailNotVerified = (actionData && 'emailNotVerified' in actionData) ? actionData.emailNotVerified === true : false;
+  const userEmail = (actionData && 'email' in actionData && actionData.email) ? actionData.email : credentials.email;
 
   const t = (fr: string, en: string) => language === 'fr' ? fr : en;
 
@@ -100,6 +142,32 @@ export default function LoginPage() {
     
     // Effacer le message de succès quand l'utilisateur tape
     if (successMessage) setSuccessMessage(null);
+    if (resendEmailSuccess) setResendEmailSuccess(null);
+  };
+
+  // Fonction pour renvoyer l'email de vérification
+  const handleResendVerificationEmail = async () => {
+    if (!userEmail) return;
+
+    setIsResendingEmail(true);
+    setResendEmailSuccess(null);
+    
+    try {
+      const response = await api.post('/auth/email/resend', { email: userEmail });
+      setResendEmailSuccess(
+        response.message || 
+        (language === 'fr' 
+          ? 'Email de vérification renvoyé avec succès. Vérifiez votre boîte de réception.' 
+          : 'Verification email sent successfully. Please check your inbox.')
+      );
+    } catch (err: any) {
+      console.error('Resend verification error:', err);
+      const apiError = err as ApiError;
+      // L'erreur sera affichée dans le message d'erreur principal
+      setResendEmailSuccess(null);
+    } finally {
+      setIsResendingEmail(false);
+    }
   };
 
   if (isLoading) {
@@ -185,7 +253,48 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <p className="text-sm text-red-600 dark:text-red-400 flex-1">{error}</p>
+            <div className="flex-1">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              
+              {/* Option pour renvoyer l'email de vérification */}
+              {emailNotVerified && userEmail && (
+                <div className="mt-3 pt-3 border-t border-red-200 dark:border-red-800">
+                  <p className="text-sm text-red-700 dark:text-red-300 mb-2">
+                    {t(
+                      'Votre email n\'a pas encore été vérifié. Souhaitez-vous recevoir un nouvel email de vérification ?',
+                      'Your email has not been verified yet. Would you like to receive a new verification email?'
+                    )}
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={handleResendVerificationEmail}
+                    disabled={isResendingEmail}
+                    variant="outline"
+                    className="w-full text-sm border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30"
+                  >
+                    {isResendingEmail ? (
+                      <>
+                        <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                        {t('Envoi en cours...', 'Sending...')}
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="mr-2 w-4 h-4" />
+                        {t('Renvoyer l\'email de vérification', 'Resend verification email')}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Message de succès pour le renvoi d'email */}
+        {resendEmailSuccess && (
+          <div className="form-element rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 flex items-start space-x-3">
+            <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-green-600 dark:text-green-400 flex-1">{resendEmailSuccess}</p>
           </div>
         )}
 

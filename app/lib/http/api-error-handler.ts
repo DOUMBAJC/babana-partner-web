@@ -51,6 +51,67 @@ export const getErrorLanguage = (): Language => {
 };
 
 /**
+ * Vérifie si une erreur serveur indique une déconnexion/session expirée
+ * Certains serveurs peuvent renvoyer des erreurs 500/502/503 avec un code ou message
+ * indiquant que la session est invalide
+ */
+export const isSessionExpiredError = (error: AxiosError): boolean => {
+  const status = error.response?.status;
+  const data = error.response?.data as any;
+  
+  // Vérifier le code HTTP
+  if (status === 401) {
+    return true;
+  }
+  
+  // Vérifier si le serveur renvoie un code d'erreur spécifique indiquant une déconnexion
+  const errorCode = data?.code || data?.error?.code;
+  if (errorCode) {
+    const sessionExpiredCodes = [
+      'SESSION_EXPIRED',
+      'UNAUTHORIZED',
+      'AUTHENTICATION_REQUIRED',
+      'TOKEN_EXPIRED',
+      'INVALID_SESSION',
+      'LOGOUT_REQUIRED'
+    ];
+    if (sessionExpiredCodes.some(code => 
+      errorCode.toUpperCase().includes(code) || 
+      errorCode.toUpperCase() === code
+    )) {
+      return true;
+    }
+  }
+  
+  // Vérifier le message d'erreur pour des mots-clés indiquant une déconnexion
+  const errorMessage = (
+    data?.message || 
+    data?.error?.message || 
+    data?.error || 
+    ''
+  ).toLowerCase();
+  
+  const sessionExpiredKeywords = [
+    'session expirée',
+    'session expired',
+    'non authentifié',
+    'unauthorized',
+    'déconnecté',
+    'disconnected',
+    'token expiré',
+    'token expired',
+    'invalid session',
+    'session invalide'
+  ];
+  
+  if (sessionExpiredKeywords.some(keyword => errorMessage.includes(keyword))) {
+    return true;
+  }
+  
+  return false;
+};
+
+/**
  * Gère l'erreur 401 (non authentifié)
  * Note: La redirection doit être gérée par l'application (AuthProvider, loaders, etc.)
  * pour éviter les conflits avec le cycle de rendu de React

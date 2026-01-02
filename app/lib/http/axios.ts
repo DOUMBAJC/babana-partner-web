@@ -16,6 +16,7 @@ import {
 } from "../geo/geolocation";
 import {
   handleAxiosError,
+  isSessionExpiredError,
   logRequest,
   logResponse,
   setErrorLanguage,
@@ -148,9 +149,10 @@ axiosInstance.interceptors.response.use(
   (error: AxiosError) => {
     const apiError = handleAxiosError(error, API_CONFIG.isDevelopment);
     
-    // Émettre un événement personnalisé pour les erreurs 401 côté client
+    // Émettre un événement personnalisé pour les erreurs d'authentification côté client
+    // Cela inclut les erreurs 401 et les erreurs serveur qui indiquent une session expirée
     // MAIS PAS pour les endpoints de notifications (pour éviter les déconnexions automatiques)
-    if (typeof window !== "undefined" && error.response?.status === 401) {
+    if (typeof window !== "undefined" && isSessionExpiredError(error)) {
       const url = error.config?.url || "";
       const isNotificationEndpoint = url.includes("/notifications");
       
