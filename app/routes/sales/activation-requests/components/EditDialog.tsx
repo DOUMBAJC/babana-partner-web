@@ -194,7 +194,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
                   name="iccid"
                   value={formData.iccid}
                   onChange={(e) => setFormData({ ...formData, iccid: e.target.value })}
-                  placeholder="Ex: 62405010000XXXXXXXXX"
+                  placeholder="Ex: 6240501000XXXXXXXXX"
                   className={`h-14 text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
                     errors.iccid 
                       ? 'border-red-500 focus:ring-4 focus:ring-red-500/20' 
