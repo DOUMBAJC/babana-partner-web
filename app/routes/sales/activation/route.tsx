@@ -83,7 +83,7 @@ export async function action({ request }: Route.ActionArgs) {
   const t = getTranslations(language);
 
   const formData = await request.formData();
-  const simNumber = formData.get('simNumber') as string;
+  const simNumber = formData.get('sim_number') as string;
   const iccid = formData.get('iccid') as string;
   const imei = formData.get('imei') as string;
   const ba_notes = formData.get('ba_notes') as string;

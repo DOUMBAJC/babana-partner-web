@@ -100,7 +100,7 @@ export function ActivationForm({
                       <Barcode className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                       <Input
                         id="simNumber"
-                        name="simNumber"
+                        name="sim_number"
                         placeholder={t.simActivation.fields.simNumberPlaceholder}
                         value={formData.simNumber}
                         onChange={onInputChange}
@@ -149,7 +149,7 @@ export function ActivationForm({
                         placeholder={t.simActivation.fields.iccidPlaceholder}
                         value={formData.iccid}
                         onChange={onInputChange}
-                        maxLength={19}
+                        maxLength={20}
                         className={`pl-9 font-mono ${errors.iccid ? "border-red-500 ring-red-500" : ""}`}
                         required
                       />

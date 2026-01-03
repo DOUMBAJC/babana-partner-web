@@ -53,12 +53,14 @@ export function useActivationForm(t: Translations) {
     }
 
     setFormData((prev) => {
-      const newFormData = { ...prev, [name]: value };
+      // Map snake_case form field names to camelCase state keys
+      const stateKey = name === 'sim_number' ? 'simNumber' : name;
+      const newFormData = { ...prev, [stateKey]: value };
 
-      // Auto-complete ICCID when simNumber is entered and valid
-      if (name === 'simNumber' && value && ACTIVATION_CONFIG.validation.simNumberRegex.test(value)) {
-        const currentIccidPrefix = prev.iccid.slice(0, Math.max(0, 19 - value.length));
-        const completedIccid = (currentIccidPrefix + value).slice(0, 19);
+      // Auto-complete ICCID when sim_number is entered and valid
+      if (name === 'sim_number' && value && ACTIVATION_CONFIG.validation.simNumberRegex.test(value)) {
+        const currentIccidPrefix = prev.iccid.slice(0, Math.max(0, 20 - value.length));
+        const completedIccid = (currentIccidPrefix + value).slice(0, 20);
         newFormData.iccid = completedIccid;
       }
 
@@ -66,8 +68,9 @@ export function useActivationForm(t: Translations) {
     });
 
     // Clear error when user types
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    const errorKey = name === 'sim_number' ? 'simNumber' : name;
+    if (errors[errorKey as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [errorKey]: undefined }));
     }
   };
 
