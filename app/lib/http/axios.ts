@@ -151,13 +151,15 @@ axiosInstance.interceptors.response.use(
     
     // Émettre un événement personnalisé pour les erreurs d'authentification côté client
     // Cela inclut les erreurs 401 et les erreurs serveur qui indiquent une session expirée
-    // MAIS PAS pour les endpoints de notifications (pour éviter les déconnexions automatiques)
+    // MAIS PAS pour certains endpoints (pour éviter les déconnexions automatiques)
     if (typeof window !== "undefined" && isSessionExpiredError(error)) {
       const url = error.config?.url || "";
       const isNotificationEndpoint = url.includes("/notifications");
+      const isSessionsEndpoint = url.includes("/api/sessions") || url.includes("/auth/sessions");
       
-      // Ne déclencher la déconnexion QUE si ce n'est PAS un endpoint de notifications
-      if (!isNotificationEndpoint) {
+      // Ne déclencher la déconnexion QUE si ce n'est PAS un endpoint exclu
+      // Les endpoints de sessions et notifications peuvent échouer sans déconnecter l'utilisateur
+      if (!isNotificationEndpoint && !isSessionsEndpoint) {
         window.dispatchEvent(new CustomEvent("auth:unauthorized"));
       }
     }

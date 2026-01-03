@@ -101,9 +101,9 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.simActivation,
-        description: language === 'fr' ? 'Initier une nouvelle demande d\'activation de SIM' : 'Initiate a new SIM activation request',
+        description: language === 'fr' ? 'Voir les demandes d\'activation de SIM' : 'View SIM activation requests',
         icon: Zap,
-        href: "/sales/activation",
+        href: "/sales/activation-requests",
         color: "bg-amber-500",
         permission: 'create-requests' as Permission,
       },

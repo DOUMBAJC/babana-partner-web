@@ -9,6 +9,8 @@ import { createUserSession, getLanguage, getUserToken, getSession, destroySessio
 import { createApiFromRequest, getCurrentUser } from '~/services/api.server';
 import { getTranslations, type Language } from '~/lib/translations';
 import { api, type ApiError } from '~/lib/axios';
+import { getClientMetadata } from '~/lib/client/client-metadata';
+import { getCachedGeolocation } from '~/lib/geo/geolocation';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -66,9 +68,36 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
+    // Récupérer les métadonnées du client depuis le formulaire
+    const loginData: Record<string, any> = {
+      email,
+      password,
+      device_name: formData.get('device_name') as string || undefined,
+      client_os: formData.get('client_os') as string || undefined,
+      client_browser: formData.get('client_browser') as string || undefined,
+      client_browser_version: formData.get('client_browser_version') as string || undefined,
+      client_platform: formData.get('client_platform') as string || undefined,
+      screen_resolution: formData.get('screen_resolution') as string || undefined,
+      timezone: formData.get('timezone') as string || undefined,
+      client_language: formData.get('client_language') as string || undefined,
+    };
+
+    // Ajouter la géolocalisation si disponible
+    const latitude = formData.get('latitude') as string;
+    const longitude = formData.get('longitude') as string;
+    const location_accuracy = formData.get('location_accuracy') as string;
+    
+    if (latitude && longitude) {
+      loginData.latitude = parseFloat(latitude);
+      loginData.longitude = parseFloat(longitude);
+      if (location_accuracy) {
+        loginData.location_accuracy = parseFloat(location_accuracy);
+      }
+    }
+
     // Créer l'API avec la langue extraite de la requête
     const api = await createApiFromRequest(request);
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/auth/login', loginData);
     const { token } = response.data.data;
     const welcomeMessage = response.data.message || response.data.data.message;
     
@@ -121,6 +150,7 @@ export default function LoginPage() {
   );
   const [isResendingEmail, setIsResendingEmail] = useState(false);
   const [resendEmailSuccess, setResendEmailSuccess] = useState<string | null>(null);
+  const [clientMetadata, setClientMetadata] = useState<Record<string, string>>({});
 
   const isSubmitting = navigation.state === 'submitting';
   const error = actionData?.success === false ? actionData.error : null;
@@ -128,6 +158,34 @@ export default function LoginPage() {
   const userEmail = (actionData && 'email' in actionData && actionData.email) ? actionData.email : credentials.email;
 
   const t = (fr: string, en: string) => language === 'fr' ? fr : en;
+
+  // Récupérer les métadonnées du client au chargement
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const metadata = getClientMetadata();
+      const geolocation = getCachedGeolocation();
+      
+      const metadataFields: Record<string, string> = {
+        device_name: `${metadata.os} (${metadata.browser})`,
+        client_os: metadata.os,
+        client_browser: metadata.browser,
+        client_browser_version: metadata.browserVersion,
+        client_platform: metadata.platform,
+        screen_resolution: metadata.screenResolution,
+        timezone: metadata.timezone,
+        client_language: metadata.language,
+      };
+
+      // Ajouter la géolocalisation si disponible
+      if (geolocation) {
+        metadataFields.latitude = String(geolocation.latitude);
+        metadataFields.longitude = String(geolocation.longitude);
+        metadataFields.location_accuracy = String(geolocation.accuracy);
+      }
+
+      setClientMetadata(metadataFields);
+    }
+  }, []);
 
   // Réinitialiser le mot de passe en cas d'erreur
   useEffect(() => {
@@ -187,6 +245,11 @@ export default function LoginPage() {
       description={t('Entrez vos identifiants pour accéder à votre compte', 'Enter your credentials to access your account')}
     >
       <Form method="post" className="space-y-5">
+        {/* Champs cachés pour les métadonnées du client */}
+        {Object.entries(clientMetadata).map(([key, value]) => (
+          <input key={key} type="hidden" name={key} value={value} />
+        ))}
+        
         {/* Message de succès */}
         {successMessage && (
           <div className="form-element rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 flex items-start space-x-3">

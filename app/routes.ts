@@ -17,6 +17,7 @@ export default [
   route("admin", "routes/admin/route.tsx"),
   route("admin/users", "routes/admin/users/route.tsx"),
   route("admin/camtel-logins", "routes/admin/camtel-logins/route.tsx"),
+  route("admin/settings", "routes/admin/settings/route.tsx"),
   route("roles-matrix", "routes/roles-matrix/route.tsx"),
   route("profile", "routes/profile/route.tsx"),
   route("customers/search", "routes/customers/search/route.tsx"),
@@ -41,6 +42,16 @@ export default [
   route("api/notifications/unread-count", "routes/api/notifications.unread-count.tsx"),
   route("api/notifications/preferences", "routes/api/notifications.preferences.tsx"),
   route("api/notifications/preferences/reset", "routes/api/notifications.preferences.reset.tsx"),
+  
+  // Sessions API routes (SSR proxies)
+  route("api/sessions", "routes/api/sessions.tsx"),
+  route("api/sessions/:id", "routes/api/sessions.$id.tsx"),
+  route("api/sessions/other/revoke", "routes/api/sessions.other.revoke.tsx"),
+  route("api/sessions/activity", "routes/api/sessions.activity.tsx"),
+  
+  // Auth API routes (SSR proxies)
+  route("api/auth/profile", "routes/api/auth.profile.tsx"),
+  route("api/auth/change-password", "routes/api/auth.change-password.tsx"),
   
   // Route 404 - doit être la dernière pour capturer toutes les routes non définies
   route("*", "routes/$.tsx"),
