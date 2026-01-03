@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, data, useActionData } from "react-router";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation, data, useActionData, useNavigation } from "react-router";
 import { useTranslation, usePageTitle } from '~/hooks';
 import { Layout } from '~/components';
 import { Loader2 } from "lucide-react";
@@ -131,6 +131,7 @@ export default function SimActivationPage({ loaderData }: Route.ComponentProps) 
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
 
   usePageTitle(t.pages.sales.activation.title);
@@ -140,6 +141,9 @@ export default function SimActivationPage({ loaderData }: Route.ComponentProps) 
 
   const [customer, setCustomer] = useState<CustomerData | null>(loaderCustomer);
   const [showNoCustomerError, setShowNoCustomerError] = useState(false);
+  const [shouldShowErrorScreen, setShouldShowErrorScreen] = useState(false);
+  const processedActionDataRef = useRef<any>(null);
+  const shouldProcessActionData = navigation.state === 'idle';
 
   // Utilisation du hook modulaire pour la gestion du formulaire
   const {
@@ -185,16 +189,20 @@ export default function SimActivationPage({ loaderData }: Route.ComponentProps) 
 
   // Gérer la réponse de l'action
   useEffect(() => {
-    if (actionData) {
+    // Ne traiter l'actionData que si on n'affiche pas déjà l'écran d'erreur (pour éviter les re-traitements après retry)
+    if (actionData && actionData !== processedActionDataRef.current && shouldProcessActionData && !shouldShowErrorScreen) {
+      processedActionDataRef.current = actionData;
       if (actionData.success) {
         toast.success(t.simActivation.success || 'Activation réussie !');
         handleSubmitSuccess();
+        setShouldShowErrorScreen(false);
       } else if (actionData.error) {
         toast.error(actionData.error);
         handleSubmitError(actionData.error);
+        setShouldShowErrorScreen(true);
       }
     }
-  }, [actionData, handleSubmitSuccess, handleSubmitError, t]);
+  }, [actionData, shouldProcessActionData, shouldShowErrorScreen, handleSubmitSuccess, handleSubmitError, t]);
 
   const handleSubmit = (e: React.FormEvent) => {
     // La validation côté client avant soumission
@@ -220,10 +228,15 @@ export default function SimActivationPage({ loaderData }: Route.ComponentProps) 
   };
 
   const handleNewActivation = () => {
+    // Réinitialiser la référence pour permettre de traiter une nouvelle actionData
+    processedActionDataRef.current = null;
     resetForNewActivation();
   };
 
   const handleRetry = () => {
+    // Réinitialiser la référence pour permettre de traiter une nouvelle actionData
+    processedActionDataRef.current = null;
+    setShouldShowErrorScreen(false);
     resetForRetry();
   };
 
@@ -255,12 +268,12 @@ export default function SimActivationPage({ loaderData }: Route.ComponentProps) 
   }
 
   // --- ÉCRAN D'ERREUR API ---
-  if (showApiError && errorMessage) {
+  if (shouldShowErrorScreen) {
     return (
       <Layout>
         <Toaster />
         <ErrorScreen
-          errorMessage={errorMessage}
+          errorMessage={errorMessage || 'Une erreur est survenue'}
           onRetry={handleRetry}
           onGoToSearch={handleGoToSearch}
           onGoHome={handleGoHome}

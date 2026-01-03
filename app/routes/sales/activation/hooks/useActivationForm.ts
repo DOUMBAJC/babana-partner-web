@@ -106,6 +106,10 @@ export function useActivationForm(t: Translations) {
   const resetForRetry = () => {
     setShowApiError(false);
     setErrorMessage('');
+    setLoading(false);
+    setSuccessMessage('');
+    setShowSuccess(false);
+    // Garder les données du formulaire pour permettre à l'utilisateur de les modifier avant de réessayer
   };
 
   const resetForNewActivation = () => {
