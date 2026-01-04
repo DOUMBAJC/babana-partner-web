@@ -26,6 +26,9 @@ export default [
   route("sales/activation-requests", "routes/sales/activation-requests/route.tsx"),
   route("sales/activation-requests/:id", "routes/sales.activation-requests.$id.tsx"),
 
+  // Messages
+  route("messages", "routes/messages/route.tsx"),
+
   // Notifications
   route("notifications", "routes/notifications/route.tsx"),
   route("notifications/preferences", "routes/notifications/preferences/route.tsx"),
