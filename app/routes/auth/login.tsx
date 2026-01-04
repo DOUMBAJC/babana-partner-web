@@ -11,6 +11,7 @@ import { getTranslations, type Language } from '~/lib/translations';
 import { api, type ApiError } from '~/lib/axios';
 import { getClientMetadata } from '~/lib/client/client-metadata';
 import { getCachedGeolocation } from '~/lib/geo/geolocation';
+import { hasGeolocationConsent, requestGeolocationWithConsent } from '~/lib/geo/consent-geolocation';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -162,28 +163,44 @@ export default function LoginPage() {
   // Récupérer les métadonnées du client au chargement
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const metadata = getClientMetadata();
-      const geolocation = getCachedGeolocation();
-      
-      const metadataFields: Record<string, string> = {
-        device_name: `${metadata.os} (${metadata.browser})`,
-        client_os: metadata.os,
-        client_browser: metadata.browser,
-        client_browser_version: metadata.browserVersion,
-        client_platform: metadata.platform,
-        screen_resolution: metadata.screenResolution,
-        timezone: metadata.timezone,
-        client_language: metadata.language,
+      const loadMetadata = async () => {
+        const metadata = getClientMetadata();
+        
+        // Récupérer la géolocalisation uniquement si le consentement est accordé
+        const hasConsent = hasGeolocationConsent();
+        let geolocation = hasConsent ? getCachedGeolocation() : null;
+        
+        // Si le consentement est donné mais que la géolocalisation n'est pas en cache, essayer de la demander
+        if (hasConsent && !geolocation) {
+          try {
+            geolocation = await requestGeolocationWithConsent();
+          } catch (error) {
+            console.warn('Impossible de récupérer la géolocalisation:', error);
+          }
+        }
+        
+        const metadataFields: Record<string, string> = {
+          device_name: `${metadata.os} (${metadata.browser})`,
+          client_os: metadata.os,
+          client_browser: metadata.browser,
+          client_browser_version: metadata.browserVersion,
+          client_platform: metadata.platform,
+          screen_resolution: metadata.screenResolution,
+          timezone: metadata.timezone,
+          client_language: metadata.language,
+        };
+
+        // Ajouter la géolocalisation uniquement si disponible ET si le consentement est accordé
+        if (geolocation && hasConsent) {
+          metadataFields.latitude = String(geolocation.latitude);
+          metadataFields.longitude = String(geolocation.longitude);
+          metadataFields.location_accuracy = String(geolocation.accuracy);
+        }
+
+        setClientMetadata(metadataFields);
       };
-
-      // Ajouter la géolocalisation si disponible
-      if (geolocation) {
-        metadataFields.latitude = String(geolocation.latitude);
-        metadataFields.longitude = String(geolocation.longitude);
-        metadataFields.location_accuracy = String(geolocation.accuracy);
-      }
-
-      setClientMetadata(metadataFields);
+      
+      loadMetadata();
     }
   }, []);
 

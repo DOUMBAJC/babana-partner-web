@@ -75,10 +75,31 @@ export const hasGeolocation = (): boolean => {
 
 /**
  * Ajoute les données de géolocalisation aux headers d'une requête
+ * Vérifie le consentement avant d'ajouter les headers
  */
 export const addGeolocationToHeaders = (
   headers: Record<string, string>
 ): Record<string, string> => {
+  // Vérifier le consentement avant d'ajouter la géolocalisation
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('babana-consent-preferences');
+      if (stored) {
+        const consent = JSON.parse(stored);
+        if (consent.geolocation !== true) {
+          // Consentement non accordé, ne pas ajouter la géolocalisation
+          return headers;
+        }
+      } else {
+        // Pas de consentement enregistré, ne pas ajouter la géolocalisation
+        return headers;
+      }
+    } catch {
+      // Erreur de parsing, ne pas ajouter la géolocalisation par sécurité
+      return headers;
+    }
+  }
+
   if (!cachedGeolocation) {
     return headers;
   }

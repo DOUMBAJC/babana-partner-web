@@ -5,6 +5,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
+import { requestGeolocationWithConsent } from '~/lib/geo/consent-geolocation';
 
 export type ConsentType = 'essential' | 'functional' | 'geolocation';
 
@@ -18,6 +19,7 @@ export interface ConsentState {
 interface ConsentContextType {
   consent: ConsentState;
   updateConsent: (type: ConsentType, value: boolean) => void;
+  updateConsents: (updates: Partial<ConsentState>) => void;
   acceptAll: () => void;
   rejectNonEssential: () => void;
   resetConsent: () => void;
@@ -50,6 +52,13 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         const parsedConsent = JSON.parse(stored) as ConsentState;
         setConsent(parsedConsent);
         setShowBanner(!parsedConsent.hasResponded);
+        
+        // Si la géolocalisation est déjà consentie, demander la géolocalisation
+        if (parsedConsent.geolocation === true) {
+          requestGeolocationWithConsent().catch((error) => {
+            console.warn('Erreur lors de la demande de géolocalisation au chargement:', error);
+          });
+        }
       } else {
         // Première visite, afficher le banner
         setShowBanner(true);
@@ -67,6 +76,13 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(newConsent));
       setConsent(newConsent);
+      
+      // Si la géolocalisation est activée, demander la géolocalisation
+      if (newConsent.geolocation === true) {
+        requestGeolocationWithConsent().catch((error) => {
+          console.warn('Erreur lors de la demande de géolocalisation:', error);
+        });
+      }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des préférences de consentement:', error);
     }
@@ -76,6 +92,16 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     const newConsent = {
       ...consent,
       [type]: type === 'essential' ? true : value, // Essential est toujours true
+      hasResponded: true,
+    };
+    saveConsent(newConsent);
+  };
+
+  const updateConsents = (updates: Partial<ConsentState>) => {
+    const newConsent: ConsentState = {
+      ...consent,
+      ...updates,
+      essential: true, // Essential est toujours true
       hasResponded: true,
     };
     saveConsent(newConsent);
@@ -120,6 +146,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
       value={{
         consent,
         updateConsent,
+        updateConsents,
         acceptAll,
         rejectNonEssential,
         resetConsent,
@@ -136,6 +163,28 @@ export function useConsent() {
   const context = useContext(ConsentContext);
   if (context === undefined) {
     throw new Error('useConsent must be used within a ConsentProvider');
+  }
+  return context;
+}
+
+/**
+ * Hook sécurisé qui retourne des valeurs par défaut si le ConsentProvider n'est pas disponible
+ * Utile pour les composants qui peuvent être rendus en dehors du contexte
+ */
+export function useConsentSafe() {
+  const context = useContext(ConsentContext);
+  if (context === undefined) {
+    // Retourner des valeurs par défaut si le contexte n'est pas disponible
+    return {
+      consent: DEFAULT_CONSENT,
+      updateConsent: () => {},
+      updateConsents: () => {},
+      acceptAll: () => {},
+      rejectNonEssential: () => {},
+      resetConsent: () => {},
+      showBanner: false,
+      hideBanner: () => {},
+    };
   }
   return context;
 }

@@ -2,6 +2,7 @@ import { api, type ApiError } from './axios';
 import type { User, LoginCredentials, RegisterFormData, UserSession } from '~/types';
 import { getClientMetadata } from '~/lib/client/client-metadata';
 import { getCachedGeolocation } from '~/lib/geo/geolocation';
+import { hasGeolocationConsent, requestGeolocationWithConsent } from '~/lib/geo/consent-geolocation';
 
 /**
  * Réponse de l'API pour les sessions
@@ -67,7 +68,19 @@ export const authService = {
     try {
       // Récupérer les métadonnées du client
       const metadata = getClientMetadata();
-      const geolocation = getCachedGeolocation();
+      
+      // Récupérer la géolocalisation uniquement si le consentement est accordé
+      const hasConsent = hasGeolocationConsent();
+      let geolocation = hasConsent ? getCachedGeolocation() : null;
+      
+      // Si le consentement est donné mais que la géolocalisation n'est pas en cache, essayer de la demander
+      if (hasConsent && !geolocation) {
+        try {
+          geolocation = await requestGeolocationWithConsent();
+        } catch (error) {
+          console.warn('Impossible de récupérer la géolocalisation pour le login:', error);
+        }
+      }
 
       // Préparer les données de connexion avec les métadonnées
       const loginData = {
@@ -85,7 +98,7 @@ export const authService = {
         client_language: metadata.language,
         
         // Géolocalisation (optionnelle, nécessite consentement)
-        ...(geolocation && {
+        ...(geolocation && hasConsent && {
           latitude: geolocation.latitude,
           longitude: geolocation.longitude,
           location_accuracy: geolocation.accuracy,
@@ -174,23 +187,34 @@ export const authService = {
   /**
    * Changer le mot de passe
    * Utilise la route API proxy Remix pour l'authentification
+   * Le serveur Laravel attend: current_password, new_password, password_confirmation
    */
   changePassword: async (data: {
     current_password: string;
-    password: string;
+    new_password: string;
     password_confirmation: string;
   }): Promise<void> => {
     try {
-      const response = await api.post<{ success: boolean; error?: string }>('/api/auth/change-password', data, {
+      const response = await api.post<{ success: boolean; error?: string; message?: string }>('/api/auth/change-password', data, {
         baseURL: "",
       });
       
-      // Vérifier si la requête a échoué
+      // Vérifier si la requête a échoué (réponse 200 mais success: false)
       if (!response.success) {
-        throw new Error(response.error || "Erreur lors du changement de mot de passe");
+        const errorMessage = response.error || response.message || "Erreur lors du changement de mot de passe";
+        throw new Error(errorMessage);
       }
-    } catch (error) {
-      throw error as ApiError;
+    } catch (error: any) {
+      // Si c'est déjà une ApiError (avec message), la propager telle quelle
+      if (error.message) {
+        throw error;
+      }
+      // Sinon, créer une nouvelle erreur avec le message disponible
+      const errorMessage = error?.response?.data?.error || 
+                          error?.response?.data?.message || 
+                          error?.message || 
+                          "Erreur lors du changement de mot de passe";
+      throw new Error(errorMessage);
     }
   },
 

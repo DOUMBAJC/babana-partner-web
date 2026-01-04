@@ -31,6 +31,8 @@ export function PermissionBadge({
       'dsm': { icon: Shield, color: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border-teal-300 dark:border-teal-700', label: 'DSM' },
       'pos': { icon: Shield, color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-300 dark:border-green-700', label: 'POS' },
       'vendeur': { icon: Shield, color: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 border-cyan-300 dark:border-cyan-700', label: 'Vendeur' },
+      'client': { icon: Shield, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400 border-gray-300 dark:border-gray-700', label: 'Client' },
+      'autre': { icon: Shield, color: 'bg-slate-100 dark:bg-slate-900/30 text-slate-700 dark:text-slate-400 border-slate-300 dark:border-slate-700', label: 'Autre' },
     };
     
     return configs[roleSlug] || { 

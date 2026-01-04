@@ -7,6 +7,7 @@ import { useLanguage } from "~/hooks/useLanguage";
 import { useTheme } from "~/hooks/useTheme";
 import { authService } from "~/lib/auth.service";
 import type { UserSession } from "~/types";
+import type { RoleSlug, User } from "~/types/auth.types";
 import { notificationService } from "~/lib/services/notification.service";
 import type { UpdateNotificationPreferencesParams } from "~/types/notification.types";
 import { toast } from "sonner";
@@ -170,6 +171,21 @@ export default function ProfilePage() {
     }
   };
 
+  // Normaliser les rôles pour s'assurer qu'ils sont toujours des strings (RoleSlug)
+  const normalizeRoles = (roles: any[]): RoleSlug[] => {
+    if (!Array.isArray(roles)) return [];
+    return roles.map(role => {
+      // Si c'est déjà une string, la retourner comme RoleSlug
+      if (typeof role === 'string') return role as RoleSlug;
+      // Si c'est un objet avec un slug, extraire le slug
+      if (typeof role === 'object' && role !== null && 'slug' in role) {
+        return role.slug as RoleSlug;
+      }
+      // Sinon, essayer de convertir en string
+      return String(role) as RoleSlug;
+    });
+  };
+
   // Sauvegarder le profil général
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -179,7 +195,14 @@ export default function ProfilePage() {
         last_name: lastNameRef.current?.value || "",
         personal_phone: phoneRef.current?.value || "",
       });
-      updateUser(updatedUser);
+      
+      // Normaliser les rôles avant de mettre à jour l'utilisateur
+      const normalizedUser: User = {
+        ...updatedUser,
+        roles: normalizeRoles(updatedUser.roles || []),
+      };
+      
+      updateUser(normalizedUser);
       toast.success(language === 'fr' ? 'Profil mis à jour avec succès' : 'Profile updated successfully');
     } catch (error: any) {
       console.error("Error updating profile:", error);
@@ -203,10 +226,15 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
+      // S'assurer que toutes les valeurs sont des chaînes (pas des tableaux)
+      const currentPassword = String(currentPasswordRef.current.value || "");
+      const newPassword = String(newPasswordRef.current.value || "");
+      const confirmPassword = String(confirmPasswordRef.current?.value || "");
+      
       await authService.changePassword({
-        current_password: currentPasswordRef.current.value,
-        password: newPasswordRef.current.value,
-        password_confirmation: confirmPasswordRef.current?.value || "",
+        current_password: currentPassword,
+        new_password: newPassword,
+        password_confirmation: confirmPassword,
       });
       toast.success(language === 'fr' ? 'Mot de passe modifié avec succès' : 'Password changed successfully');
       // Réinitialiser les champs
@@ -215,7 +243,36 @@ export default function ProfilePage() {
       if (confirmPasswordRef.current) confirmPasswordRef.current.value = "";
     } catch (error: any) {
       console.error("Error changing password:", error);
-      toast.error(error?.message || (language === 'fr' ? 'Erreur lors du changement de mot de passe' : 'Error changing password'));
+      
+      // Extraire le message d'erreur de différentes façons possibles
+      let errorMessage = error?.message;
+      
+      // Si l'erreur a une réponse avec des données
+      if (error?.response?.data) {
+        const data = error.response.data;
+        // Vérifier les différents formats d'erreur Laravel
+        if (data.error && typeof data.error === 'string') {
+          errorMessage = data.error;
+        } else if (data.message && typeof data.message === 'string') {
+          errorMessage = data.message;
+        } else if (data.errors && typeof data.errors === 'object') {
+          // Erreurs de validation Laravel
+          const firstErrorKey = Object.keys(data.errors)[0];
+          const firstError = data.errors[firstErrorKey];
+          if (Array.isArray(firstError) && firstError.length > 0) {
+            errorMessage = firstError[0];
+          } else if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          }
+        }
+      }
+      
+      // Message par défaut si aucun message n'a été trouvé
+      if (!errorMessage) {
+        errorMessage = language === 'fr' ? 'Erreur lors du changement de mot de passe' : 'Error changing password';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -303,6 +360,32 @@ export default function ProfilePage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Formate le temps relatif et remplace "il y a 0 seconde" par "à l'instant"
+  const formatRelativeTime = (timeString: string): string => {
+    if (!timeString) return '';
+    
+    // Remplacer "il y a 0 seconde" ou "il y a 0 secondes" par "à l'instant"
+    if (language === 'fr') {
+      if (timeString.includes('il y a 0 seconde') || timeString.includes('il y a 0 secondes')) {
+        return 'à l\'instant';
+      }
+      // Remplacer aussi les variantes possibles
+      if (timeString.match(/il y a\s*0\s*(seconde|secondes)/i)) {
+        return 'à l\'instant';
+      }
+    } else {
+      // Version anglaise
+      if (timeString.includes('0 second') || timeString.includes('0 seconds')) {
+        return 'just now';
+      }
+      if (timeString.match(/0\s*(second|seconds)\s*ago/i)) {
+        return 'just now';
+      }
+    }
+    
+    return timeString;
   };
 
   // Composant pour afficher l'icône du navigateur et de l'OS
@@ -460,6 +543,43 @@ export default function ProfilePage() {
 
   const whatsAppSupportUrl = `https://wa.me/237622037000?text=${getWhatsAppSupportMessage()}`;
 
+  // Fonction helper pour formater la localisation (affiche les valeurs brutes)
+  const formatLocation = (location: any): string => {
+    if (!location) {
+      return language === 'fr' ? 'Localisation inconnue' : 'Unknown location';
+    }
+    
+    // Si c'est déjà une chaîne, la retourner
+    if (typeof location === 'string') {
+      return location;
+    }
+    
+    // Si c'est un objet avec latitude/longitude, afficher les coordonnées brutes
+    if (typeof location === 'object') {
+      if (location.latitude && location.longitude) {
+        const lat = typeof location.latitude === 'number' 
+          ? location.latitude 
+          : parseFloat(String(location.latitude));
+        const lon = typeof location.longitude === 'number' 
+          ? location.longitude 
+          : parseFloat(String(location.longitude));
+        if (!isNaN(lat) && !isNaN(lon)) {
+          return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+        }
+      }
+      // Si c'est un objet avec coordinates (format GeoJSON)
+      if (location.coordinates && Array.isArray(location.coordinates)) {
+        const lon = location.coordinates[0];
+        const lat = location.coordinates[1];
+        if (!isNaN(lat) && !isNaN(lon)) {
+          return `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+        }
+      }
+    }
+    
+    return language === 'fr' ? 'Localisation inconnue' : 'Unknown location';
+  };
+
   // Générer l'historique de connexion à partir des sessions réelles
   const loginHistory = sessions
     .sort((a, b) => {
@@ -472,7 +592,7 @@ export default function ProfilePage() {
     .map((session) => ({
       id: session.id,
       device: session.device_name || `${session.device_info.browser} on ${session.device_info.os}`,
-      location: session.location || (language === 'fr' ? 'Localisation inconnue' : 'Unknown location'),
+      location: formatLocation(session.location),
       date: formatDateTime(session.last_used_at),
       success: true, // Les sessions actives sont toutes des connexions réussies
       isCurrent: session.is_current,
@@ -507,7 +627,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <p className="text-zinc-500 dark:text-zinc-400 max-w-2xl">
-                {user.email} • {user.roles.join(', ')}
+                {user.email} • {normalizeRoles(user.roles || []).join(', ')}
               </p>
             </div>
 
@@ -698,10 +818,10 @@ export default function ProfilePage() {
 
                     <Separator className="bg-zinc-100 dark:bg-zinc-800" />
 
-                    <div className="space-y-4">
+                      <div className="space-y-4">
                       <Label className="text-xs font-bold uppercase text-zinc-500">Rôles assignés</Label>
                       <div className="flex flex-wrap gap-2">
-                        {user.roles.map((role) => (
+                        {normalizeRoles(user.roles || []).map((role) => (
                           <div key={role} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium border border-zinc-200 dark:border-zinc-700">
                             <Shield className="w-3 h-3 text-babana-cyan" />
                             {role}
@@ -997,12 +1117,12 @@ export default function ProfilePage() {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
                                     <div className="flex items-center gap-1.5">
                                       <MapPin className="w-3 h-3 text-zinc-400" />
-                                      <span>{session.location || "Localisation inconnue"}</span>
+                                      <span>{formatLocation(session.location)}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                       <Clock className="w-3 h-3 text-zinc-400" />
                                       <span>
-                                        {t.profile.sessions.lastActive}: {session.last_used_human}
+                                        {t.profile.sessions.lastActive}: {formatRelativeTime(session.last_used_human || '')}
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-1.5">

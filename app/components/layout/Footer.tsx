@@ -10,12 +10,12 @@ export function Footer() {
 
   const t = {
     fr: {
-      rights: '© 2025 BABANA. Tous droits réservés.',
+      rights: `© 2025 - ${new Date().getFullYear()} BABANA. Tous droits réservés.`,
       privacy: 'Politique de confidentialité',
       terms: 'Conditions d\'utilisation',
     },
     en: {
-      rights: '© 2025 BABANA. All rights reserved.',
+      rights: `© 2025 - ${new Date().getFullYear()} BABANA. All rights reserved.`,
       privacy: 'Privacy Policy',
       terms: 'Terms of Service',
     },

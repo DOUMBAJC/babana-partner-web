@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Settings, Cookie } from 'lucide-react';
-import { useConsent } from '~/hooks/useConsent';
+import { useConsentSafe } from '~/hooks/useConsent';
 import { useLanguage } from '~/hooks';
 import { ConsentModal } from './ConsentModal';
 import { Button } from '~/components/ui/button';
@@ -17,7 +17,7 @@ interface ConsentSettingsProps {
 export function ConsentSettings({ variant = 'button', className = '' }: ConsentSettingsProps) {
   const [showModal, setShowModal] = useState(false);
   const { language } = useLanguage();
-  const { consent } = useConsent();
+  const { consent } = useConsentSafe();
 
   const t = {
     fr: {
