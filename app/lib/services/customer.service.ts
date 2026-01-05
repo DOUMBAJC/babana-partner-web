@@ -1,10 +1,10 @@
+import { type AxiosInstance } from 'axios';
 import { api, type ApiError } from './axios';
 import type {
   Customer,
   CreateCustomerData,
   UpdateCustomerData,
   CustomerFilters,
-  IdCardType,
   PaginatedResponse,
   ApiResponse,
   QueryParams,
@@ -53,8 +53,12 @@ export const customerService = {
   /**
    * Créer un nouveau client
    */
-  createCustomer: async (data: CreateCustomerData): Promise<Customer> => {
+  createCustomer: async (data: CreateCustomerData, customApi?: AxiosInstance): Promise<Customer> => {
     try {
+      if (customApi) {
+        const response = await customApi.post('/customers', data);
+        return response.data?.data || response.data;
+      }
       const response = await api.post<ApiResponse<Customer>>('/customers', data);
       return response.data;
     } catch (error) {
@@ -170,50 +174,35 @@ export const customerService = {
       throw error as ApiError;
     }
   },
+
+  /**
+   *  Envoyer la demande d'identification d'un client
+   */
+  identifyCustomer: async (
+    formData: FormData,
+    customApi?: AxiosInstance
+  ): Promise<Customer> => {
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      if (customApi) {
+        const response = await customApi.post('/customers/identify', formData, config);
+        return response.data?.data || response.data;
+      }
+
+      const response = await api.post<ApiResponse<Customer>>('/customers/identify', formData, config);
+      return response.data;
+    } catch (error) {
+      throw error as ApiError;
+    }
+  },
 };
 
-/**
- * Exemple d'utilisation dans un composant :
- *
- * ```tsx
- * import { customerService } from '~/lib/customer.service';
- * import { useState, useEffect } from 'react';
- *
- * function CustomerList() {
- *   const [customers, setCustomers] = useState([]);
- *   const [loading, setLoading] = useState(true);
- *
- *   useEffect(() => {
- *     const fetchCustomers = async () => {
- *       try {
- *         const response = await customerService.getCustomers(
- *           { phoneOperator: 'CAMTEL' },
- *           { page: 1, perPage: 10, sortBy: 'createdAt', sortOrder: 'desc' }
- *         );
- *         setCustomers(response.data);
- *       } catch (error) {
- *         console.error('Erreur:', error.message);
- *       } finally {
- *         setLoading(false);
- *       }
- *     };
- *
- *     fetchCustomers();
- *   }, []);
- *
- *   return <div>...</div>;
- * }
- *
- * // Créer un client
- * const newCustomer = await customerService.createCustomer({
- *   fullName: 'Jean Dupont',
- *   idCardTypeId: 1,
- *   idCardNumber: '123456789',
- *   phone: '237612345678',
- *   phoneOperator: 'CAMTEL',
- *   address: 'Yaoundé, Cameroun',
- *   email: 'jean@example.com',
- * });
- * ```
- */
+
+
+
 

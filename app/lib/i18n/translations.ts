@@ -404,6 +404,10 @@ export interface Translations {
         title: string;
         description: string;
       };
+      identify: {
+        title: string;
+        description: string;
+      };
     };
     sales: {
       activation: {
@@ -524,6 +528,68 @@ export interface Translations {
       sessionsRevoked: string;
     };
   };
+
+  // Credits
+  credits: {
+    title: string;
+    subtitle: string;
+    badge: string;
+    balance: {
+      title: string;
+      subtitle: string;
+      current: string;
+      readyFor: string;
+      activations: string;
+      stats: {
+        today: string;
+        currentMonth: string;
+      };
+    };
+    stats: {
+      title: string;
+      avgConsumption: string;
+      lastRecharge: string;
+      estEnd: string;
+      unitDay: string;
+      unitDays: string;
+      yesterday: string;
+    };
+    recharge: {
+      title: string;
+      promoCode: string;
+      customAmount: string;
+      minRequired: string;
+      validate: string;
+      submit: string;
+      bonus: string;
+      included: string;
+      creditsLabel: string;
+      popular: string;
+      bestValue: string;
+    };
+    history: {
+      title: string;
+      viewAll: string;
+      table: {
+        type: string;
+        details: string;
+        date: string;
+        credits: string;
+      };
+      types: {
+        recharge: string;
+        usage: string;
+      };
+    };
+    payment: {
+      secureTitle: string;
+      methods: {
+        orange: string;
+        mtn: string;
+      };
+    };
+  };
+
   // Rôles
   roles: Record<string, {
     name: string;
@@ -645,6 +711,30 @@ export interface Translations {
       minLength: string;
       maxLength: string;
     };
+  };
+  // Customer Identify
+  customerIdentify: {
+    title: string;
+    subtitle: string;
+    documents: {
+      title: string;
+      description: string;
+      idCardFront: string;
+      idCardFrontHelper: string;
+      idCardBack: string;
+      idCardBackHelper: string;
+      portraitPhoto: string;
+      portraitPhotoHelper: string;
+      locationPlan: string;
+      locationPlanHelper: string;
+      change: string;
+      remove: string;
+      dragDrop: string;
+      fileType: string;
+    };
+    success: string;
+    submit: string;
+    submitting: string;
   };
   // SIM Activation
   simActivation: {
@@ -1453,6 +1543,10 @@ export const translations: Record<Language, Translations> = {
           title: "Création de Client - BABANA Partner",
           description: "Créez un nouveau client dans la plateforme BABANA Partner",
         },
+        identify: {
+          title: "Identification Client - BABANA Partner",
+          description: "Identifiez un client existant avec ses documents",
+        },
       },
       sales: {
         activation: {
@@ -1632,6 +1726,29 @@ export const translations: Record<Language, Translations> = {
         minLength: "Minimum {min} caractères requis",
         maxLength: "Maximum {max} caractères autorisés",
       },
+    },
+    customerIdentify: {
+      title: "Identification Client",
+      subtitle: "Remplissez le formulaire et ajoutez les documents requis pour identifier le client.",
+      documents: {
+        title: "Documents & Photos",
+        description: "Veuillez fournir les documents d'identification et photos requis.",
+        idCardFront: "Carte d'identité (Recto)",
+        idCardFrontHelper: "Photo claire du recto de la CNI",
+        idCardBack: "Carte d'identité (Verso)",
+        idCardBackHelper: "Photo claire du verso de la CNI",
+        portraitPhoto: "Photo Portrait",
+        portraitPhotoHelper: "Photo du client tenant sa CNI (optionnel)",
+        locationPlan: "Plan de localisation",
+        locationPlanHelper: "Croquis ou photo du plan de localisation",
+        change: "Changer l'image",
+        remove: "Supprimer",
+        dragDrop: "Cliquez ou glissez une image",
+        fileType: "JPG, PNG, GIF (max. 5MB)",
+      },
+      success: "Demande d'identification soumise avec succès",
+      submit: "Soumettre la demande",
+      submitting: "Envoi en cours...",
     },
     simActivation: {
       title: "Activation SIM",
@@ -2160,6 +2277,65 @@ export const translations: Record<Language, Translations> = {
         sessionsRevoked: "Toutes les sessions ont été révoquées",
       },
     },
+    credits: {
+      title: "Gestion des Crédits",
+      subtitle: "Boostez votre activité avec nos forfaits partenaires",
+      badge: "BA Certifié",
+      balance: {
+        title: "Mon Portefeuille",
+        subtitle: "Suivez vos actifs",
+        current: "Solde Actuel",
+        readyFor: "Prêt pour",
+        activations: "activations SIM",
+        stats: {
+          today: "Aujourd'hui",
+          currentMonth: "Ce mois-ci",
+        },
+      },
+      stats: {
+        title: "Analyse d'Activité",
+        avgConsumption: "Conso. Quotidienne",
+        lastRecharge: "Dernier Top-up",
+        estEnd: "Autonomie Estimée",
+        unitDay: "jour",
+        unitDays: "jours",
+        yesterday: "hier",
+      },
+      recharge: {
+        title: "Choisissez votre forfait",
+        promoCode: "Code de réduction ?",
+        customAmount: "Autre montant",
+        minRequired: "Min. 10 crédits",
+        validate: "Appliquer",
+        submit: "ACTIVER MON FORFAIT",
+        bonus: "CADEAU",
+        included: "OFFERT",
+        creditsLabel: "Crédits",
+        popular: "Recommandé",
+        bestValue: "Meilleur choix",
+      },
+      history: {
+        title: "Historique des Flux",
+        viewAll: "Voir les détails",
+        table: {
+          type: "Action",
+          details: "Détails",
+          date: "Horodatage",
+          credits: "Montant",
+        },
+        types: {
+          recharge: "Provisionnement",
+          usage: "Service",
+        },
+      },
+      payment: {
+        secureTitle: "Sécurisé par nos partenaires",
+        methods: {
+          orange: "Orange Money",
+          mtn: "MTN MoMo",
+        },
+      },
+    },
   },
   en: {
     nav: {
@@ -2540,6 +2716,10 @@ export const translations: Record<Language, Translations> = {
           title: "Create Customer - BABANA Partner",
           description: "Create a new customer in the BABANA partner platform",
         },
+        identify: {
+          title: "Identify Customer - BABANA Partner",
+          description: "Identify an existing customer with their documents",
+        },
       },
       sales: {
         activation: {
@@ -2844,6 +3024,29 @@ export const translations: Record<Language, Translations> = {
         minLength: "Minimum {min} characters required",
         maxLength: "Maximum {max} characters allowed",
       },
+    },
+    customerIdentify: {
+      title: "Customer Identification",
+      subtitle: "Complete the form and upload required documents to identify the customer.",
+      documents: {
+        title: "Documents & Photos",
+        description: "Please provide the required identification documents and photos.",
+        idCardFront: "ID Card (Front)",
+        idCardFrontHelper: "Clear photo of the ID card front",
+        idCardBack: "ID Card (Back)",
+        idCardBackHelper: "Clear photo of the ID card back",
+        portraitPhoto: "Portrait Photo",
+        portraitPhotoHelper: "Photo of the customer holding their ID (optional)",
+        locationPlan: "Location Plan",
+        locationPlanHelper: "Sketch or photo of the location plan",
+        change: "Change image",
+        remove: "Remove",
+        dragDrop: "Click or drag an image",
+        fileType: "JPG, PNG, GIF (max. 5MB)",
+      },
+      success: "Identification request submitted successfully!",
+      submit: "Submit Request",
+      submitting: "Submitting...",
     },
     simActivation: {
       title: "SIM Activation",
@@ -3245,6 +3448,65 @@ export const translations: Record<Language, Translations> = {
         passwordError: "Error changing password",
         sessionRevoked: "Session revoked successfully",
         sessionsRevoked: "All sessions have been revoked",
+      },
+    },
+    credits: {
+      title: "Credit Management",
+      subtitle: "Power up your business with our partner packs",
+      badge: "Certified BA",
+      balance: {
+        title: "My Wallet",
+        subtitle: "Track your assets",
+        current: "Current Balance",
+        readyFor: "Ready for",
+        activations: "SIM activations",
+        stats: {
+          today: "Today",
+          currentMonth: "This month",
+        },
+      },
+      stats: {
+        title: "Activity Analysis",
+        avgConsumption: "Daily Usage",
+        lastRecharge: "Last Top-up",
+        estEnd: "Estimated Autonomy",
+        unitDay: "day",
+        unitDays: "days",
+        yesterday: "yesterday",
+      },
+      recharge: {
+        title: "Select your power-pack",
+        promoCode: "Discount code?",
+        customAmount: "Other amount",
+        minRequired: "Min. 10 credits",
+        validate: "Apply",
+        submit: "ACTIVATE MY PACK",
+        bonus: "GIFT",
+        included: "FREE",
+        creditsLabel: "Credits",
+        popular: "Popular",
+        bestValue: "Best Value",
+      },
+      history: {
+        title: "Transaction History",
+        viewAll: "View details",
+        table: {
+          type: "Action",
+          details: "Details",
+          date: "Timestamp",
+          credits: "Amount",
+        },
+        types: {
+          recharge: "Top-up",
+          usage: "Service",
+        },
+      },
+      payment: {
+        secureTitle: "Secured by our partners",
+        methods: {
+          orange: "Orange Money",
+          mtn: "MTN MoMo",
+        },
       },
     },
   },

@@ -5,8 +5,7 @@ import {
   Save,
   ArrowLeft,
   CheckCircle,
-  AlertTriangle,
-  UserCheck
+  AlertTriangle
 } from 'lucide-react';
 import {
   Card,
@@ -15,7 +14,7 @@ import {
 } from '~/components';
 import { useTranslation, usePageTitle } from '~/hooks';
 import type { IdCardType } from '~/types/customer.types';
-import type { Route } from "./+types/route";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
 import { createAuthenticatedApi } from '~/services/api.server';
 import { getLanguage } from '~/services/session.server';
 import { getTranslations, type Language } from '~/lib/translations';
@@ -23,17 +22,17 @@ import { toast } from "sonner";
 import { Toaster } from '~/components/ui/toaster';
 import { customerService } from '~/lib/services/customer.service';
 
-// Import des composants et configurations modulaires
 import { INITIAL_FORM_DATA } from './config';
 import { useCustomerForm } from './hooks/useCustomerForm';
 import { useIdCardValidation } from '../search/hooks/useIdCardValidation';
 import {
   PersonalInfoSection,
-  ContactInfoSection
+  ContactInfoSection,
+  DocumentsSection
 } from './components';
 
 // --- LOADER ---
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const api = await createAuthenticatedApi(request);
     const response = await api.get('/idCardTypes');
@@ -50,24 +49,34 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 // --- ACTION ---
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const language = (await getLanguage(request)) as Language;
   const t = getTranslations(language);
   
+  // Utilisation de unstable_parseMultipartFormData si nécessaire pour les fichiers lourds,
+  // mais request.formData() standard gère généralement multipart/form-data dans Remix/RR modernes.
   const formData = await request.formData();
-  const firstName = formData.get('firstName') as string;
-  const lastName = formData.get('lastName') as string;
-  const idCardTypeId = formData.get('idCardTypeId') as string;
-  const idCardNumber = formData.get('idCardNumber') as string;
+  
+  const firstName = formData.get('first_name') as string;
+  const lastName = formData.get('last_name') as string;
+  const idCardTypeId = formData.get('id_card_type_id') as string;
+  const idCardNumber = formData.get('id_card_number') as string;
   const phone = formData.get('phone') as string;
   const email = formData.get('email') as string;
   const address = formData.get('address') as string;
+  
+  // Fichiers
+  const idCardFront = formData.get('id_card_front');
+  const idCardBack = formData.get('id_card_back');
+  const portraitPhoto = formData.get('portrait_photo');
+  const locationPlan = formData.get('location_plan');
 
-  // firstName est optionnel, les autres champs sont requis
-  if (!lastName || !idCardTypeId || !idCardNumber || !phone || !address) {
+  // Validation basique
+  if (!lastName || !idCardTypeId || !idCardNumber || !phone || !address || 
+      !idCardFront || !idCardBack || !portraitPhoto || !locationPlan) {
     return data({
       success: false,
-      error: t.customerCreate.errors.createFailed || 'Veuillez remplir tous les champs requis',
+      error: 'Veuillez remplir tous les champs et ajouter tous les documents requis',
       customer: null
     }, { status: 400 });
   }
@@ -75,19 +84,27 @@ export async function action({ request }: Route.ActionArgs) {
   try {
     const api = await createAuthenticatedApi(request);
     
-    // Construire le nom complet - firstName est optionnel
     const fullName = firstName && firstName.trim() 
       ? `${firstName.trim()} ${lastName.trim()}` 
       : lastName.trim();
     
-    const customer = await customerService.createCustomer({
-      full_name: fullName,
-      id_card_type_id: parseInt(idCardTypeId),
-      id_card_number: idCardNumber.trim(),
-      phone: phone.trim(),
-      email: email.trim() || undefined,
-      address: address.trim()
-    }, api);
+    // Préparer FormData pour l'envoi API
+    const apiFormData = new FormData();
+    apiFormData.append('full_name', fullName);
+    apiFormData.append('id_card_type_id', idCardTypeId);
+    apiFormData.append('id_card_number', idCardNumber.trim());
+    apiFormData.append('phone', phone.trim());
+    if (email && email.trim()) apiFormData.append('email', email.trim());
+    apiFormData.append('address', address.trim());
+    
+    // Ajouter les fichiers
+    if (idCardFront instanceof File) apiFormData.append('id_card_front', idCardFront);
+    if (idCardBack instanceof File) apiFormData.append('id_card_back', idCardBack);
+    if (portraitPhoto instanceof File) apiFormData.append('portrait_photo', portraitPhoto);
+    if (locationPlan instanceof File) apiFormData.append('location_plan', locationPlan);
+
+    // Endpoint d'identification via customerService
+    const customer = await customerService.identifyCustomer(apiFormData, api);
 
     return data({
       success: true,
@@ -95,7 +112,7 @@ export async function action({ request }: Route.ActionArgs) {
       error: null
     });
   } catch (error: any) {
-    console.error('Erreur lors de la création du client:', error);
+    console.error('Erreur lors de l\'identification du client:', error);
     
     // Gérer les erreurs spécifiques
     const status = error?.response?.status;
@@ -111,7 +128,7 @@ export async function action({ request }: Route.ActionArgs) {
       }, { status: 401 });
     }
     
-    // 409 - Client existe déjà
+    // 409 - Client existe déjà (si applicable à l'identification)
     if (status === 409) {
       const existingCustomer = errorData?.data;
       const errorMessage = errorData?.message || 'Ce client existe déjà';
@@ -140,16 +157,16 @@ export async function action({ request }: Route.ActionArgs) {
     // Autres erreurs
     return data({
       success: false,
-      error: error?.message || errorData?.message || t.customerCreate.errors.createFailed || 'Une erreur est survenue',
+      error: error?.message || errorData?.message || 'Une erreur est survenue lors de l\'identification',
       customer: null,
       errorType: 'general'
     }, { status: 500 });
   }
 }
 
-export default function CustomerCreatePage() {
+export default function CustomerIdentifyPage() {
   const { t } = useTranslation();
-  usePageTitle(t.pages.customers.create.title);
+  usePageTitle(t.customerIdentify.title);
   const navigate = useNavigate();
   const { idCardTypes } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -163,13 +180,13 @@ export default function CustomerCreatePage() {
     errors,
     touchedFields,
     updateField,
+    updateFileField,
     touchField,
     validateForm,
     resetForm,
     isFormValid
   } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
 
-  // Validation du numéro de carte selon le type sélectionné (comme dans customers.search.tsx)
   const selectedCardType = idCardTypes.find(
     (type: IdCardType) => type.id.toString() === formData.idCardTypeId
   );
@@ -180,71 +197,39 @@ export default function CustomerCreatePage() {
     setValidationError: setIdCardValidationError 
   } = useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
 
-  // Gérer la réponse de l'action
   useEffect(() => {
     if (actionData) {
       setLoading(false);
       
       if (actionData.success && actionData.customer) {
-        toast.success(t.customerCreate.success);
-        setSuccessMessage(t.customerCreate.success);
+        toast.success(t.customerIdentify.success);
+        setSuccessMessage(t.customerIdentify.success);
         setErrorMessage('');
         
-        // Rediriger vers la page d'activation après 1.5 secondes
-        const timeoutId = setTimeout(() => {
-          navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
-            state: {
-              customer: actionData.customer
-            }
-          });
-        }, 1500);
-        
-        return () => clearTimeout(timeoutId);
+        setTimeout(() => {
+          // Redirection vers une page de succès ou dashboard
+          navigate('/customers/search'); 
+        }, 2000);
       } else if (actionData.error) {
         const errorType = (actionData as any).errorType;
         
-        // Erreur de duplication - proposer d'activer le client existant
-        if (errorType === 'duplicate' && (actionData as any).existingCustomer) {
-          const existingCustomer = (actionData as any).existingCustomer;
-          const errorMsg = `${actionData.error} - Client: ${existingCustomer.full_name}. Souhaitez-vous l'activer ?`;
-          toast.error(errorMsg);
-          setErrorMessage(errorMsg);
-        } 
-        // Erreurs de validation backend
-        else if (errorType === 'validation' && (actionData as any).validationErrors) {
-          const validationErrors = (actionData as any).validationErrors;
-          const errorMessages = Object.entries(validationErrors)
-            .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
-            .join(' | ');
-          const errorMsg = `${actionData.error}: ${errorMessages}`;
-          toast.error(errorMsg);
-          setErrorMessage(errorMsg);
+        if (errorType === 'validation' && (actionData as any).validationErrors) {
+           const validationErrors = (actionData as any).validationErrors;
+           const errorMessages = Object.entries(validationErrors)
+             .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+             .join(' | ');
+           setErrorMessage(`${actionData.error}: ${errorMessages}`);
+           toast.error(actionData.error);
+        } else {
+           setErrorMessage(actionData.error);
+           toast.error(actionData.error);
         }
-        // Erreur d'authentification
-        else if (errorType === 'authentication') {
-          toast.error(actionData.error);
-          setErrorMessage(actionData.error);
-          // Rediriger vers login après 2 secondes
-          setTimeout(() => {
-            navigate('/login');
-          }, 2000);
-        }
-        // Autres erreurs
-        else {
-          toast.error(actionData.error);
-          setErrorMessage(actionData.error);
-        }
-        
-        setSuccessMessage('');
       }
     }
-  }, [actionData, navigate, t.customerCreate.success]);
+  }, [actionData, navigate]);
 
-  // Gérer le changement du type de carte
   const handleIdCardTypeChange = (value: string) => {
     updateField('idCardTypeId', value);
-    
-    // Revalider le numéro de carte si déjà rempli
     if (formData.idCardNumber) {
       setTimeout(() => {
         const newCardType = idCardTypes.find(
@@ -259,10 +244,8 @@ export default function CustomerCreatePage() {
     }
   };
 
-  // Gérer le changement du numéro de carte
   const handleIdCardNumberChange = (value: string) => {
     updateField('idCardNumber', value);
-    
     if (value.length > 0) {
       validateIdCardNumber(value);
     } else {
@@ -271,33 +254,34 @@ export default function CustomerCreatePage() {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    // La validation côté client avant soumission
+    // Note: <Form> handle la submission généralement, mais on intercepte pour validation client-side
+    // Si on utilisait useSubmit de remix, ce serait plus "standard", mais ici on utilise onSubmit sur le Form
+    
     if (!validateForm() || idCardValidationError) {
       e.preventDefault();
-      setErrorMessage(t.customerCreate.errors.createFailed);
+      setErrorMessage("Veuillez corriger les erreurs avant de soumettre.");
       return;
     }
     
     setLoading(true);
     setErrorMessage('');
-    setSuccessMessage('');
+    // FormData standard submission follows
   };
 
-  // Vérifier si le formulaire est vraiment valide (tous les champs + pas d'erreur de validation carte)
+  // Vérification de validité globale
   const isFormReallyValid = isFormValid && !idCardValidationError && formData.idCardNumber.length >= 5;
 
   return (
     <Layout>
       <Toaster />
       <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Background Elements */}
+        {/* Background Elements - copied from create route */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow" />
           <div className="absolute top-[40%] -left-[10%] w-[40%] h-[40%] bg-secondary/20 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse-slow delay-1000" />
         </div>
 
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* Bouton retour */}
           <div className="mb-8">
             <Button 
               variant="ghost" 
@@ -306,21 +290,19 @@ export default function CustomerCreatePage() {
               disabled={loading}
             >
               <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-              {t.customerSearch.results.cancel}
+              {t.actions.back}
             </Button>
           </div>
 
-          {/* Header */}
           <div className="text-center mb-12 space-y-4">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60 drop-shadow-sm">
-              {t.customerCreate.title}
+              {t.customerIdentify.title}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t.customerCreate.subtitle}
+              {t.customerIdentify.subtitle}
             </p>
           </div>
 
-          {/* Message de succès */}
           {successMessage && (
             <div className="mb-6 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
               <CheckCircle className="h-6 w-6 text-green-600 shrink-0" />
@@ -328,74 +310,38 @@ export default function CustomerCreatePage() {
             </div>
           )}
 
-          {/* Message d'erreur */}
           {errorMessage && (
             <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-5 animate-in fade-in slide-in-from-top-2 duration-300">
               <div className="flex items-start gap-4">
-                <div className="p-2 bg-red-500/20 rounded-full shrink-0">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-1">
-                    Erreur
-                  </h4>
-                  <p className="text-red-600 dark:text-red-400 text-sm">{errorMessage}</p>
-                  
-                  {/* Si client existe, proposer d'aller à l'activation */}
-                  {(actionData as any)?.errorType === 'duplicate' && (actionData as any)?.existingCustomer && (
-                    <div className="mt-4 flex gap-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="border-red-500/30 hover:bg-red-500/10"
-                        onClick={() => {
-                          const customer = (actionData as any).existingCustomer;
-                          navigate(`/sales/activation?customerId=${customer.id}`, {
-                            state: { customer }
-                          });
-                        }}
-                      >
-                        <UserCheck className="w-4 h-4 mr-2" />
-                        Activer ce client
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => {
-                          setErrorMessage('');
-                          resetForm();
-                        }}
-                      >
-                        Réessayer
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                 <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+                 <div>
+                   <h4 className="font-semibold text-red-700 dark:text-red-400 mb-1">Erreur</h4>
+                   <p className="text-red-600 dark:text-red-400 text-sm">{errorMessage}</p>
+                 </div>
               </div>
             </div>
           )}
 
-          {/* Carte du formulaire */}
           <Card className="border-0 shadow-2xl bg-card/50 backdrop-blur-xl ring-1 ring-white/10 dark:ring-white/5 overflow-hidden">
-            {/* Card Top Decoration */}
             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-primary" />
 
-            <Form method="post" onSubmit={handleSubmit}>
-              {/* Hidden inputs pour le FormData */}
-              <input type="hidden" name="firstName" value={formData.firstName} />
-              <input type="hidden" name="lastName" value={formData.lastName} />
-              <input type="hidden" name="idCardTypeId" value={formData.idCardTypeId} />
-              <input type="hidden" name="idCardNumber" value={formData.idCardNumber} />
+            <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
+              {/* Hidden inputs pour le FormData - Requis car les composants Custom ne passent pas toujours les name natifs */}
+              <input type="hidden" name="first_name" value={formData.firstName} />
+              <input type="hidden" name="last_name" value={formData.lastName} />
+              <input type="hidden" name="id_card_type_id" value={formData.idCardTypeId} />
+              <input type="hidden" name="id_card_number" value={formData.idCardNumber} />
               <input type="hidden" name="phone" value={formData.phone} />
               <input type="hidden" name="email" value={formData.email} />
               <input type="hidden" name="address" value={formData.address} />
-              
+
               <div className="p-8 md:p-10 space-y-8">
                 {/* Section: Informations Personnelles */}
+                {/* Note: Nous avons besoin d'adapter les props car nous avons réutilisé des composants conçus pour le 'create' */}
                 <PersonalInfoSection
-                  formData={formData}
-                  errors={errors}
-                  touchedFields={touchedFields}
+                  formData={formData as any}
+                  errors={errors as any}
+                  touchedFields={touchedFields as any}
                   onFieldChange={updateField}
                   onFieldBlur={touchField}
                   onIdCardTypeChange={handleIdCardTypeChange}
@@ -406,17 +352,22 @@ export default function CustomerCreatePage() {
                   t={t}
                 />
 
-                {/* Section: Coordonnées */}
                 <ContactInfoSection
-                  formData={formData}
-                  errors={errors}
-                  touchedFields={touchedFields}
+                  formData={formData as any}
+                  errors={errors as any}
+                  touchedFields={touchedFields as any}
                   onFieldChange={updateField}
                   onFieldBlur={touchField}
                   t={t}
                 />
 
-                {/* Actions */}
+                <DocumentsSection
+                  formData={formData}
+                  errors={errors}
+                  onFileChange={updateFileField}
+                  t={t}
+                />
+
                 <div className="pt-6 border-t border-border/40 flex flex-col sm:flex-row justify-end gap-4">
                   <Button 
                     type="button" 
@@ -425,7 +376,7 @@ export default function CustomerCreatePage() {
                     className="group h-12 rounded-xl px-6 border-2 hover:border-primary/50 transition-all"
                     disabled={loading}
                   >
-                    {t.customerSearch.results.cancel}
+                    {t.actions.cancel}
                   </Button>
                   <Button 
                     type="submit" 
@@ -435,23 +386,20 @@ export default function CustomerCreatePage() {
                       background: 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 100%)',
                     }}
                   >
-                    {/* Effet de brillance */}
-                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                    
-                    {/* Contenu */}
-                    <div className="relative z-10 flex items-center justify-center text-white">
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                          {t.customerCreate.saving}
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                          {t.customerCreate.save}
-                        </>
-                      )}
-                    </div>
+                     <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                     <div className="relative z-10 flex items-center justify-center text-white">
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                            {t.customerIdentify.submitting}
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                            {t.customerIdentify.submit}
+                          </>
+                        )}
+                     </div>
                   </Button>
                 </div>
               </div>

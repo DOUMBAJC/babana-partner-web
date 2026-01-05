@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { CreditDisplay } from "./CreditDisplay";
 
 interface NavLink {
   href: string;
@@ -96,10 +97,10 @@ export function Header() {
                 <Logo logoUrl={logoUrl} />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-xl bg-linear-to-r from-babana-cyan to-babana-navy dark:from-babana-cyan dark:to-white bg-clip-text text-transparent group-hover:from-babana-navy group-hover:to-babana-cyan dark:group-hover:from-white dark:group-hover:to-babana-cyan transition-all duration-300">
+                <span className="font-bold text-lg sm:text-xl bg-linear-to-r from-babana-cyan to-babana-navy dark:from-babana-cyan dark:to-white bg-clip-text text-transparent group-hover:from-babana-navy group-hover:to-babana-cyan dark:group-hover:from-white dark:group-hover:to-babana-cyan transition-all duration-300">
                   BABANA
                 </span>
-                <span className="text-[10px] text-muted-foreground font-medium -mt-1">Partner Platform</span>
+                <span className="hidden sm:inline text-[10px] text-muted-foreground font-medium -mt-1">Partner Platform</span>
               </div>
             </Link>
           </div>
@@ -196,7 +197,10 @@ export function Header() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Credit Display */}
+            <CreditDisplay />
+            
             {/* Language Toggle */}
             <LanguageToggle />
             

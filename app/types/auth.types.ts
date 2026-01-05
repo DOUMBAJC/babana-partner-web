@@ -137,6 +137,15 @@ export interface User {
   isSuspended?: boolean;
   isVerified?: boolean;
   canLogin?: boolean;
+  
+  // Credits for actions
+  wallet?: {
+    id: number,
+    user_id: number,
+    balance: number,
+    created_at: string,
+    updated_at: string,
+  };
 }
 
 /**
