@@ -37,8 +37,8 @@ export function DocumentsSection({
           name="id_card_front"
           label={docs.idCardFront}
           required
-          error={errors.idCardFront}
-          onChange={(file) => onFileChange('idCardFront', file)}
+          error={errors.id_card_front}
+          onChange={(file) => onFileChange('id_card_front', file)}
           helperText={docs.idCardFrontHelper}
           texts={imageUploadTexts}
         />
@@ -48,8 +48,8 @@ export function DocumentsSection({
           name="id_card_back"
           label={docs.idCardBack}
           required
-          error={errors.idCardBack}
-          onChange={(file) => onFileChange('idCardBack', file)}
+          error={errors.id_card_back}
+          onChange={(file) => onFileChange('id_card_back', file)}
           helperText={docs.idCardBackHelper}
           texts={imageUploadTexts}
         />
@@ -59,8 +59,8 @@ export function DocumentsSection({
           name="portrait_photo"
           label={docs.portraitPhoto}
           required
-          error={errors.portraitPhoto}
-          onChange={(file) => onFileChange('portraitPhoto', file)}
+          error={errors.portrait_photo}
+          onChange={(file) => onFileChange('portrait_photo', file)}
           helperText={docs.portraitPhotoHelper}
           texts={imageUploadTexts}
         />
@@ -70,8 +70,8 @@ export function DocumentsSection({
           name="location_plan"
           label={docs.locationPlan}
           required
-          error={errors.locationPlan}
-          onChange={(file) => onFileChange('locationPlan', file)}
+          error={errors.location_plan}
+          onChange={(file) => onFileChange('location_plan', file)}
           helperText={docs.locationPlanHelper}
           texts={imageUploadTexts}
         />

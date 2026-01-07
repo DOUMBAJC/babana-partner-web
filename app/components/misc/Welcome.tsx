@@ -1,16 +1,10 @@
 import { Logo } from '~/components/Logo';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent } from '~/components/ui/card';
 import { FeatureCard } from '~/components/features/FeatureCard';
-import { useTranslation, useAuth, usePermissions } from '~/hooks';
+import { useTranslation, useAuth } from '~/hooks';
 import { Link } from 'react-router';
 import { 
-  Smartphone, 
-  TrendingUp, 
-  Shield, 
   Zap,
-  Users,
-  BarChart3,
   ArrowRight,
   UserPlus,
   ClipboardList,
@@ -46,43 +40,18 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
     }
   }, [welcomeMessage]);
 
-  // Utiliser une version "hydration-safe" de isAuthenticated
-  // Pendant l'hydratation (isMounted=false), on affiche toujours la version publique
   const safeIsAuthenticated = isMounted && isAuthenticated;
-
-  const features = [
-    {
-      icon: Smartphone,
-      title: language === 'fr' ? 'Gestion de cartes SIM' : 'SIM Card Management',
-      description: language === 'fr' 
-        ? 'Gérez facilement vos stocks de cartes SIM avec notre interface intuitive'
-        : 'Easily manage your SIM card inventory with our intuitive interface',
-    },
-    {
-      icon: TrendingUp,
-      title: language === 'fr' ? 'Suivi des ventes' : 'Sales Tracking',
-      description: language === 'fr'
-        ? 'Suivez vos performances en temps réel avec des statistiques détaillées'
-        : 'Track your performance in real-time with detailed statistics',
-    },
-    {
-      icon: Shield,
-      title: language === 'fr' ? 'Sécurisé et fiable' : 'Secure & Reliable',
-      description: language === 'fr'
-        ? 'Vos données sont protégées avec les plus hauts standards de sécurité'
-        : 'Your data is protected with the highest security standards',
-    },
-    {
-      icon: Zap,
-      title: language === 'fr' ? 'Activation rapide' : 'Fast Activation',
-      description: language === 'fr'
-        ? 'Activez vos cartes SIM en quelques clics seulement'
-        : 'Activate your SIM cards with just a few clicks',
-    },
-  ];
 
   const getDashboardActions = () => {
     const allActions = [
+      {
+        title: t.pages.customers.identify.title,
+        description: t.pages.customers.identify.description,
+        icon: Sparkles,
+        href: "/customers/identify",
+        color: "bg-pink-500",
+        permission: 'create-orders' as Permission,
+      },
       {
         title: t.nav.searchCustomer,
         description: language === 'fr' ? 'Rechercher et vérifier les informations d\'un client' : 'Search and verify customer information',
@@ -136,13 +105,22 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
     ];
 
     // Retourner toutes les actions avec l'info d'accès
-    return allActions.map(action => ({
-      ...action,
-      hasAccess: safeIsAuthenticated && user ? (
+    return allActions.map(action => {
+      const hasBasePermission = safeIsAuthenticated && user && action.permission ? (
         hasPermission(user, action.permission) ||
         (action.permission === 'admin-access' && isAdmin(user))
-      ) : false,
-    }));
+      ) : false;
+
+      // Vérification spécifique des crédits pour l'identification
+      const hasRequiredCredits = action.href === "/customers/identify" 
+        ? (user?.wallet?.balance ?? 0) >= 1 
+        : true;
+
+      return {
+        ...action,
+        hasAccess: hasBasePermission && hasRequiredCredits,
+      };
+    });
   };
 
   // Ne garder que les actions accessibles
@@ -288,74 +266,6 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
           </div>
         </section>
       )}
-
-      {/* Landing Features Section (Always visible, but secondary if authenticated) */}
-      <section className={cn(
-        "relative py-16",
-        safeIsAuthenticated ? "mt-12 bg-transparent" : "bg-linear-to-b from-transparent to-babana-navy/5 dark:to-babana-cyan/5"
-      )}>
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {language === 'fr' ? 'Pourquoi choisir BABANA ?' : 'Why Choose BABANA?'}
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {language === 'fr' 
-                ? 'Une plateforme complète pour gérer vos activités de vente de SIM'
-                : 'A complete platform to manage your SIM sales activities'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card 
-                  key={index}
-                  className="group relative overflow-hidden border border-gray-200 dark:border-gray-800 hover:border-babana-cyan/50 transition-all duration-300 hover:shadow-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
-                >
-                  <CardContent className="p-6 space-y-4">
-                    <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-babana-cyan to-babana-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {feature.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section (Visible if not authenticated or as footer) */}
-      <section className="relative py-12">
-        <div className="container mx-auto px-4">
-          <div className="relative rounded-3xl overflow-hidden bg-linear-to-br from-babana-navy to-babana-blue dark:from-babana-navy/80 dark:to-babana-cyan/80 p-8 md:p-12 shadow-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex flex-col items-center text-center space-y-2">
-                <div className="text-4xl font-bold text-white">500+</div>
-                <div className="text-babana-cyan font-medium">{language === 'fr' ? 'Partenaires actifs' : 'Active Partners'}</div>
-              </div>
-              <div className="flex flex-col items-center text-center space-y-2">
-                <div className="text-4xl font-bold text-white">50K+</div>
-                <div className="text-babana-cyan font-medium">{language === 'fr' ? 'SIM vendues' : 'SIMs Sold'}</div>
-              </div>
-              <div className="flex flex-col items-center text-center space-y-2">
-                <div className="text-4xl font-bold text-white">99.9%</div>
-                <div className="text-babana-cyan font-medium">{language === 'fr' ? 'Disponibilité' : 'Uptime'}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

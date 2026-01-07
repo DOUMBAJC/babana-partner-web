@@ -27,10 +27,16 @@ export interface Customer {
   phoneOperator: string;
   address?: string;
   email?: string;
-  createdBy: number;
+  created_by: number;
   metadata?: Record<string, any>;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  
+  // URLs des images
+  id_card_front_url?: string | null;
+  id_card_back_url?: string | null;
+  portrait_url?: string | null;
+  location_plan_url?: string | null;
 
   // Relations (chargées via include)
   id_card_type?: IdCardType;

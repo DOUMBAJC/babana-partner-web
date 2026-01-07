@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, data, useLoaderData, useActionData, Form } from 'react-router';
+import { useNavigate, data, useLoaderData, useActionData, Form, useSubmit } from 'react-router';
 import { 
   Loader2,
   Save,
@@ -53,8 +53,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const language = (await getLanguage(request)) as Language;
   const t = getTranslations(language);
   
-  // Utilisation de unstable_parseMultipartFormData si nécessaire pour les fichiers lourds,
-  // mais request.formData() standard gère généralement multipart/form-data dans Remix/RR modernes.
   const formData = await request.formData();
   
   const firstName = formData.get('first_name') as string;
@@ -207,8 +205,12 @@ export default function CustomerIdentifyPage() {
         setErrorMessage('');
         
         setTimeout(() => {
-          // Redirection vers une page de succès ou dashboard
-          navigate('/customers/search'); 
+
+          navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
+            state: {
+              customer: actionData.customer
+            }
+          });
         }, 2000);
       } else if (actionData.error) {
         const errorType = (actionData as any).errorType;
@@ -253,19 +255,49 @@ export default function CustomerIdentifyPage() {
     }
   };
 
+  const submit = useSubmit();
+
   const handleSubmit = (e: React.FormEvent) => {
-    // Note: <Form> handle la submission généralement, mais on intercepte pour validation client-side
-    // Si on utilisait useSubmit de remix, ce serait plus "standard", mais ici on utilise onSubmit sur le Form
+    e.preventDefault();
     
     if (!validateForm() || idCardValidationError) {
-      e.preventDefault();
       setErrorMessage("Veuillez corriger les erreurs avant de soumettre.");
+      return;
+    }
+    
+    // Vérifier que tous les fichiers sont présents
+    if (!formData.id_card_front || !formData.id_card_back || 
+        !formData.portrait_photo || !formData.location_plan) {
+      setErrorMessage("Veuillez ajouter tous les documents requis.");
       return;
     }
     
     setLoading(true);
     setErrorMessage('');
-    // FormData standard submission follows
+    
+    // Construire le FormData manuellement avec tous les champs et fichiers
+    const submitFormData = new FormData();
+    
+    // Champs texte
+    submitFormData.append('first_name', formData.firstName || '');
+    submitFormData.append('last_name', formData.lastName);
+    submitFormData.append('id_card_type_id', formData.idCardTypeId);
+    submitFormData.append('id_card_number', formData.idCardNumber);
+    submitFormData.append('phone', formData.phone);
+    if (formData.email) submitFormData.append('email', formData.email);
+    submitFormData.append('address', formData.address);
+    
+    // Fichiers
+    if (formData.id_card_front) submitFormData.append('id_card_front', formData.id_card_front);
+    if (formData.id_card_back) submitFormData.append('id_card_back', formData.id_card_back);
+    if (formData.portrait_photo) submitFormData.append('portrait_photo', formData.portrait_photo);
+    if (formData.location_plan) submitFormData.append('location_plan', formData.location_plan);
+    
+    // Soumettre avec useSubmit
+    submit(submitFormData, {
+      method: 'post',
+      encType: 'multipart/form-data'
+    });
   };
 
   // Vérification de validité globale
@@ -326,15 +358,6 @@ export default function CustomerIdentifyPage() {
             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-primary" />
 
             <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
-              {/* Hidden inputs pour le FormData - Requis car les composants Custom ne passent pas toujours les name natifs */}
-              <input type="hidden" name="first_name" value={formData.firstName} />
-              <input type="hidden" name="last_name" value={formData.lastName} />
-              <input type="hidden" name="id_card_type_id" value={formData.idCardTypeId} />
-              <input type="hidden" name="id_card_number" value={formData.idCardNumber} />
-              <input type="hidden" name="phone" value={formData.phone} />
-              <input type="hidden" name="email" value={formData.email} />
-              <input type="hidden" name="address" value={formData.address} />
-
               <div className="p-8 md:p-10 space-y-8">
                 {/* Section: Informations Personnelles */}
                 {/* Note: Nous avons besoin d'adapter les props car nous avons réutilisé des composants conçus pour le 'create' */}

@@ -127,10 +127,10 @@ export function useCustomerForm(
            formData.idCardNumber.trim() !== '' &&
            formData.phone.trim() !== '' &&
            formData.address.trim() !== '' &&
-           formData.idCardFront !== null &&
-           formData.idCardBack !== null &&
-           formData.portraitPhoto !== null &&
-           formData.locationPlan !== null;
+           formData.id_card_front !== null &&
+           formData.id_card_back !== null &&
+           formData.portrait_photo !== null &&
+           formData.location_plan !== null;
   };
 
   return {

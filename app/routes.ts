@@ -24,6 +24,7 @@ export default [
   route("customers/search", "routes/customers/search/route.tsx"),
   route("customers/create", "routes/customers/create/route.tsx"),
   route("customers/identify", "routes/customers/identify/route.tsx"),
+  route("customers/update/identify/:id", "routes/customers/update/identify.$id.tsx"),
   route("sales/activation", "routes/sales/activation/route.tsx"),
   route("sales/activation-requests", "routes/sales/activation-requests/route.tsx"),
   route("sales/activation-requests/:id", "routes/sales.activation-requests.$id.tsx"),

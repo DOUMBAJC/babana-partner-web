@@ -13,10 +13,10 @@ export interface CustomerIdentifyFormData {
   email: string;
   address: string;
   // File fields
-  idCardFront: File | null;
-  idCardBack: File | null;
-  portraitPhoto: File | null;
-  locationPlan: File | null;
+  id_card_front: File | null;
+  id_card_back: File | null;
+  portrait_photo: File | null;
+  location_plan: File | null;
 }
 
 // Type pour les erreurs de validation
@@ -28,10 +28,10 @@ export interface CustomerIdentifyFormErrors {
   phone?: string;
   email?: string;
   address?: string;
-  idCardFront?: string;
-  idCardBack?: string;
-  portraitPhoto?: string;
-  locationPlan?: string;
+  id_card_front?: string;
+  id_card_back?: string;
+  portrait_photo?: string;
+  location_plan?: string;
 }
 
 // État initial du formulaire
@@ -43,10 +43,10 @@ export const INITIAL_FORM_DATA: CustomerIdentifyFormData = {
   phone: '',
   email: '',
   address: '',
-  idCardFront: null,
-  idCardBack: null,
-  portraitPhoto: null,
-  locationPlan: null
+  id_card_front: null,
+  id_card_back: null,
+  portrait_photo: null,
+  location_plan: null
 };
 
 // Patterns de validation pour le Cameroun

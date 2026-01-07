@@ -598,6 +598,13 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
               mono
               icon={<Shield className="h-4 w-4" />}
             />
+            <Separator className="my-3" />
+            <CopyableValue
+              label="Adresse"
+              value={request.customer?.address || '-'}
+              mono
+              icon={<Shield className="h-4 w-4" />}
+            />
           </InfoCard>
 
           {/* Informations SIM */}

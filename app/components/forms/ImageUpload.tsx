@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon, FileImage } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Label } from '~/components';
 
@@ -11,6 +11,7 @@ interface ImageUploadProps {
   className?: string;
   helperText?: string;
   required?: boolean;
+  defaultImage?: string | null; // URL de l'image existante
   texts?: {
     change: string;
     dragDrop: string;
@@ -26,15 +27,22 @@ export function ImageUpload({
   className,
   helperText,
   required,
+  defaultImage,
   texts = {
     change: "Changer l'image",
     dragDrop: "Cliquez ou glissez une image",
     fileType: "JPG, PNG, GIF (max. 3MB)"
   }
 }: ImageUploadProps) {
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(defaultImage || null);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (defaultImage && (preview === null || preview === defaultImage)) {
+      setPreview(defaultImage);
+    }
+  }, [defaultImage]);
 
   const handleFile = (file: File) => {
     if (file && file.type.startsWith('image/')) {
