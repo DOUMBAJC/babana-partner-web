@@ -831,7 +831,9 @@ export interface Translations {
       fullName: string;
       phone: string;
       cardType: string;
+      cardTypePiece: string;
       cardNumber: string;
+      address: string;
       notProvided: string;
       name: string;
       email: string;
@@ -839,6 +841,14 @@ export interface Translations {
       adminNotes: string;
       rejectionReason: string;
       processedBy: string;
+      simNumber: string;
+      iccid: string;
+      imei: string;
+      camtelLogin: string;
+      businessAdvisor: string;
+      noNotesAvailable: string;
+      createdOn: string;
+      processedOn: string;
     };
     accept: {
       title: string;
@@ -885,6 +895,9 @@ export interface Translations {
       updateError: string;
       cancelSuccess: string;
       cancelError: string;
+      copySuccess: string;
+      copyError: string;
+      copyEmpty: string;
     };
     accessDenied: {
       title: string;
@@ -1839,18 +1852,28 @@ export const translations: Record<Language, Translations> = {
         customerInfo: "Informations Client",
         simInfo: "Informations SIM",
         baInfo: "Brand Ambassador",
-        notesDetails: "Notes et Détails",
+        notesDetails: "Notes et Commentaires",
         fullName: "Nom complet",
         phone: "Téléphone",
         cardType: "Type de carte",
-        cardNumber: "Numéro de carte",
-        notProvided: "Non renseigné",
+        cardTypePiece: "Type de pièce",
+        cardNumber: "Numéro de pièce",
+        address: "Adresse",
+        notProvided: "Non fourni",
         name: "Nom",
         email: "Email",
         baNotes: "Notes BA",
         adminNotes: "Notes Admin",
         rejectionReason: "Raison du rejet",
         processedBy: "Traité par",
+        simNumber: "Numéro SIM",
+        iccid: "ICCID",
+        imei: "IMEI",
+        camtelLogin: "Login Camtel",
+        businessAdvisor: "Business Advisor",
+        noNotesAvailable: "Aucune note disponible",
+        createdOn: "Créée le",
+        processedOn: "Traitée le",
       },
       accept: {
         title: "Accepter la requête",
@@ -1897,6 +1920,9 @@ export const translations: Record<Language, Translations> = {
         updateError: "Impossible de modifier la requête",
         cancelSuccess: "Requête annulée avec succès",
         cancelError: "Impossible d'annuler la requête",
+        copySuccess: "Copié !",
+        copyError: "Erreur lors de la copie",
+        copyEmpty: "Aucune valeur à copier",
       },
       accessDenied: {
         title: "Accès Refusé",
@@ -3137,11 +3163,13 @@ export const translations: Record<Language, Translations> = {
         customerInfo: "Customer Information", 
         simInfo: "SIM Information",
         baInfo: "Brand Ambassador",
-        notesDetails: "Notes and Details",
+        notesDetails: "Notes and Comments",
         fullName: "Full name",
         phone: "Phone",
         cardType: "Card type",
-        cardNumber: "Card number",
+        cardTypePiece: "ID type",
+        cardNumber: "ID number",
+        address: "Address",
         notProvided: "Not provided",
         name: "Name",
         email: "Email",
@@ -3149,6 +3177,14 @@ export const translations: Record<Language, Translations> = {
         adminNotes: "Admin Notes",
         rejectionReason: "Rejection reason",
         processedBy: "Processed by",
+        simNumber: "SIM Number",
+        iccid: "ICCID",
+        imei: "IMEI",
+        camtelLogin: "Camtel Login",
+        businessAdvisor: "Business Advisor",
+        noNotesAvailable: "No notes available",
+        createdOn: "Created on",
+        processedOn: "Processed on",
       },
       accept: {
         title: "Accept request",
@@ -3195,6 +3231,9 @@ export const translations: Record<Language, Translations> = {
         updateError: "Unable to update the request",
         cancelSuccess: "Request cancelled successfully",
         cancelError: "Unable to cancel the request",
+        copySuccess: "Copied!",
+        copyError: "Error copying to clipboard",
+        copyEmpty: "No value to copy",
       },
       accessDenied: {
         title: "Access Denied",

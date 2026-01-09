@@ -3,6 +3,7 @@ import { Copy, Check, Sparkles } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import { toast } from 'sonner';
+import { useTranslation } from '~/hooks';
 
 interface CopyButtonProps {
   value: string;
@@ -16,24 +17,64 @@ interface CopyButtonProps {
 export function CopyButton({
   value,
   label,
-  successMessage = 'Copié !',
+  successMessage,
   className,
   size = 'sm',
   variant = 'default',
 }: CopyButtonProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
+      // Vérifier que la valeur est valide et non vide
+      if (!value || value.trim() === '' || value === '-') {
+        toast.error(t.activationRequests.toast.copyEmpty);
+        return;
+      }
+
+      // Vérifier que l'API Clipboard est disponible
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        // Fallback pour les navigateurs qui ne supportent pas l'API Clipboard
+        const textArea = document.createElement('textarea');
+        textArea.value = value;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            setCopied(true);
+            toast.success(successMessage);
+            setTimeout(() => {
+              setCopied(false);
+            }, 2000);
+          } else {
+            toast.error(t.activationRequests.toast.copyError);
+          }
+        } catch (err) {
+          toast.error(t.activationRequests.toast.copyError);
+        } finally {
+          document.body.removeChild(textArea);
+        }
+        return;
+      }
+
+      // Utiliser l'API Clipboard moderne
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      toast.success(successMessage);
+      toast.success(successMessage || t.activationRequests.toast.copySuccess);
       
       setTimeout(() => {
         setCopied(false);
       }, 2000);
     } catch (error) {
-      toast.error('Erreur lors de la copie');
+      console.error('Erreur lors de la copie:', error);
+      toast.error(t.activationRequests.toast.copyError);
     }
   };
 
@@ -58,7 +99,7 @@ export function CopyButton({
       className={cn(
         sizeClasses[size],
         'transition-all duration-300 transform hover:scale-110',
-        'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700',
+        'bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700',
         'text-white shadow-lg hover:shadow-xl',
         'border-0',
         copied && 'from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 scale-110',
@@ -109,7 +150,7 @@ export function CopyableValue({
             className={cn(
               'break-all transition-all duration-200',
               mono && 'font-mono text-sm',
-              highlight && 'text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
+              highlight && 'text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
               !highlight && 'text-base font-semibold text-foreground',
               'group-hover:text-primary'
             )}
@@ -117,7 +158,7 @@ export function CopyableValue({
             {value || '-'}
           </p>
         </div>
-        {value && (
+        {value && value !== '-' && value.trim() !== '' && (
           <div className="shrink-0">
             <CopyButton
               value={value}
@@ -151,7 +192,7 @@ export function InfoCard({ icon, title, children, className, gradient = "from-bl
       {/* Gradient decoratif */}
       <div className={cn(
         "absolute top-0 left-0 right-0 h-1.5",
-        `bg-gradient-to-r ${gradient}`
+        `bg-linear-to-r ${gradient}`
       )} />
       
       {/* Header */}
@@ -159,14 +200,14 @@ export function InfoCard({ icon, title, children, className, gradient = "from-bl
         <div className="flex items-center gap-4">
           <div className={cn(
             "h-14 w-14 rounded-xl flex items-center justify-center",
-            "bg-gradient-to-br shadow-lg transform hover:rotate-6 transition-transform",
+            "bg-linear-to-br shadow-lg transform hover:rotate-6 transition-transform",
             gradient
           )}>
             <span className="text-white text-2xl">{icon}</span>
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-foreground">{title}</h3>
-            <div className={cn("h-1 w-12 rounded-full mt-1.5 bg-gradient-to-r", gradient)} />
+            <div className={cn("h-1 w-12 rounded-full mt-1.5 bg-linear-to-r", gradient)} />
           </div>
         </div>
       </div>

@@ -27,9 +27,9 @@ export interface ActivationRequest {
   iccid: string;
   imei?: string;
   status: ActivationRequestStatus;
-  baNotes?: string;
-  adminNotes?: string;
-  rejectionReason?: string;
+  ba_notes?: string;
+  admin_notes?: string;
+  rejection_reason?: string;
   submitted_at?: string;
   processed_at?: string;
   activated_at?: string;

@@ -35,7 +35,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
     sim_number: request.sim_number,
     iccid: request.iccid,
     imei: request.imei || '',
-    baNotes: request.baNotes || '',
+    baNotes: request.ba_notes || '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -54,10 +54,29 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
       toast.success(message);
       onOpenChange(false);
       setErrors({});
-    } else if (data.error) {
-      toast.error(data.error || t.activationRequests.toast?.updateError || 'Impossible de modifier la requête');
-    } else if (data.success === false) {
-      toast.error(t.activationRequests.toast?.updateError || 'Impossible de modifier la requête');
+    } else if (data.error || data.success === false) {
+      // Afficher le message d'erreur principal dans le toast
+      const errorMessage = data.error || t.activationRequests.toast?.updateError || 'Impossible de modifier la requête';
+      toast.error(errorMessage);
+
+      // Extraire et afficher les erreurs de validation sur les champs
+      if (data.errors && typeof data.errors === 'object') {
+        const validationErrors: Record<string, string> = {};
+        Object.keys(data.errors).forEach((field) => {
+          const fieldErrors = data.errors[field];
+          if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+            // Mapper les noms de champs de l'API vers les noms du formulaire
+            let formField = field;
+            if (field === 'sim_number') formField = 'sim_number';
+            else if (field === 'iccid') formField = 'iccid';
+            else if (field === 'imei') formField = 'imei';
+            else if (field === 'ba_notes' || field === 'baNotes') formField = 'baNotes';
+            
+            validationErrors[formField] = fieldErrors[0]; // Prendre le premier message
+          }
+        });
+        setErrors(validationErrors);
+      }
     }
   }, [fetcher.data, onOpenChange, t]);
 

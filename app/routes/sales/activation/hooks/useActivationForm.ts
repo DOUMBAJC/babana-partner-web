@@ -87,10 +87,41 @@ export function useActivationForm(t: Translations) {
     setShowApiError(false);
   };
 
-  const handleSubmitError = (error: string) => {
+  const handleSubmitError = (error: string, apiErrors?: Record<string, string[]>) => {
     setLoading(false);
     setErrorMessage(error);
     setShowApiError(true);
+    
+    // Mapper les erreurs de l'API vers les erreurs du formulaire
+    if (apiErrors) {
+      const newErrors: FormErrors = {};
+      
+      // Mapper les champs de l'API (snake_case) vers les champs du formulaire (camelCase)
+      Object.keys(apiErrors).forEach((field) => {
+        const fieldErrors = apiErrors[field];
+        if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+          // Mapper les noms de champs
+          let formField: keyof FormErrors;
+          if (field === 'sim_number' || field === 'customer_id') {
+            formField = 'simNumber';
+          } else if (field === 'iccid') {
+            formField = 'iccid';
+          } else if (field === 'imei') {
+            formField = 'imei';
+          } else if (field === 'ba_notes') {
+            formField = 'ba_notes';
+          } else {
+            return; // Ignorer les champs non reconnus
+          }
+          
+          // Prendre le premier message d'erreur pour ce champ
+          newErrors[formField] = fieldErrors[0];
+        }
+      });
+      
+      // Fusionner avec les erreurs existantes
+      setErrors((prev) => ({ ...prev, ...newErrors }));
+    }
   };
 
   const resetForm = () => {
@@ -109,7 +140,13 @@ export function useActivationForm(t: Translations) {
     setLoading(false);
     setSuccessMessage('');
     setShowSuccess(false);
+    // Ne pas réinitialiser les erreurs pour permettre à l'utilisateur de voir les erreurs
     // Garder les données du formulaire pour permettre à l'utilisateur de les modifier avant de réessayer
+  };
+
+  const clearApiErrors = () => {
+    setErrorMessage('');
+    setShowApiError(false);
   };
 
   const resetForNewActivation = () => {
@@ -133,5 +170,6 @@ export function useActivationForm(t: Translations) {
     resetForm,
     resetForRetry,
     resetForNewActivation,
+    clearApiErrors,
   };
 }

@@ -32,6 +32,7 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
   const lastProcessedData = useRef<any>(null);
   
   const [cancelReason, setCancelReason] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const isSubmitting = fetcher.state === 'submitting';
 
   // Toasts + fermeture après réponse backend
@@ -46,10 +47,27 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
       toast.success(message);
       onOpenChange(false);
       setCancelReason('');
-    } else if (data.error) {
-      toast.error(data.error || t.activationRequests.toast?.cancelError || 'Impossible d\'annuler la requête');
-    } else if (data.success === false) {
-      toast.error(t.activationRequests.toast?.cancelError || 'Impossible d\'annuler la requête');
+      setErrors({});
+    } else if (data.error || data.success === false) {
+      // Afficher le message d'erreur principal dans le toast
+      const errorMessage = data.error || t.activationRequests.toast?.cancelError || 'Impossible d\'annuler la requête';
+      toast.error(errorMessage);
+
+      // Extraire et afficher les erreurs de validation
+      if (data.errors && typeof data.errors === 'object') {
+        const validationErrors: Record<string, string> = {};
+        Object.keys(data.errors).forEach((field) => {
+          const fieldErrors = data.errors[field];
+          if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+            // Mapper les noms de champs de l'API vers les noms du formulaire
+            let formField = field;
+            if (field === 'cancel_reason' || field === 'cancelReason') formField = 'cancelReason';
+            
+            validationErrors[formField] = fieldErrors[0]; // Prendre le premier message
+          }
+        });
+        setErrors(validationErrors);
+      }
     }
   }, [fetcher.data, onOpenChange, t]);
 
@@ -156,12 +174,27 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
               <Textarea
                 id="cancelReason"
                 value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
+                onChange={(e) => {
+                  setCancelReason(e.target.value);
+                  if (errors.cancelReason) {
+                    setErrors((prev) => ({ ...prev, cancelReason: '' }));
+                  }
+                }}
                 placeholder={t.activationRequests.cancel?.reasonPlaceholder || 'Expliquez pourquoi vous annulez cette requête...'}
                 rows={4}
                 disabled={isSubmitting}
-                className="text-base bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 resize-none"
+                className={`text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
+                  errors.cancelReason 
+                    ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/20' 
+                    : 'border-slate-200 dark:border-slate-700 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20'
+                }`}
               />
+              {errors.cancelReason && (
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg">
+                  <AlertTriangle className="h-4 w-4" />
+                  {errors.cancelReason}
+                </div>
+              )}
             </div>
           </div>
 

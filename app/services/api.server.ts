@@ -128,19 +128,48 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
     
     let user: User | null = null;
     
+    // Fonction helper pour normaliser les rôles en slugs
+    const normalizeRoles = (rolesInput: any): string[] => {
+      if (!rolesInput) return [];
+      if (!Array.isArray(rolesInput)) return [];
+      
+      return rolesInput.map((role: Role | string) => {
+        if (typeof role === 'string') {
+          return role;
+        }
+        if (typeof role === 'object' && role !== null && 'slug' in role) {
+          return role.slug;
+        }
+        return String(role);
+      }).filter(Boolean);
+    };
+    
     // Si c'est un succès et qu'on a data.user
     if (apiData.success && apiData.data) {
       const { user: userData, roles, permissions } = apiData.data;
       
-      // Merger user avec roles transformés en objets { slug }
+      // Extraire les slugs des rôles (les rôles peuvent être des objets Role ou des strings)
+      // Utiliser les rôles de data.roles en priorité, sinon userData.roles
+      const rolesToNormalize = roles || userData?.roles || [];
+      const roleSlugs = normalizeRoles(rolesToNormalize);
+      
+      // Merger user avec roles transformés en slugs
       user = {
         ...userData,
-        roles: roles.map((role: Role) => role),
-        permissions: permissions || []
+        roles: roleSlugs,
+        permissions: permissions || userData?.permissions || []
       };
     } else {
       // Fallback : si la structure est différente
-      user = apiData.user || apiData.data?.user || null;
+      const fallbackUser = apiData.user || apiData.data?.user || null;
+      if (fallbackUser) {
+        // Normaliser les rôles même dans le fallback
+        const normalizedRoles = normalizeRoles(fallbackUser.roles);
+        user = {
+          ...fallbackUser,
+          roles: normalizedRoles
+        };
+      }
     }
     
     // Mettre en cache

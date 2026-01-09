@@ -27,7 +27,7 @@ export default [
   route("customers/update/identify/:id", "routes/customers/update/identify.$id.tsx"),
   route("sales/activation", "routes/sales/activation/route.tsx"),
   route("sales/activation-requests", "routes/sales/activation-requests/route.tsx"),
-  route("sales/activation-requests/:id", "routes/sales.activation-requests.$id.tsx"),
+  route("sales/activation-requests/:id", "routes/sales/activation-requests/$id/route.tsx"),
 
   // Messages
   route("messages", "routes/messages/route.tsx"),

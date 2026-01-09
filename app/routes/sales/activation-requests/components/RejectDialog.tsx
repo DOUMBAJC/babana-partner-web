@@ -32,6 +32,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
   const [rejectionReason, setRejectionReason] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const lastProcessedData = useRef<any>(null);
 
   const isSubmitting = fetcher.state === "submitting";
@@ -50,10 +51,33 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
       setRejectionReason("");
       setAdminNotes("");
       setError("");
-    } else if (data.error) {
-      toast.error(data.error || t.activationRequests.toast.rejectError);
-    } else if (data.success === false) {
-      toast.error(t.activationRequests.toast.rejectError);
+      setErrors({});
+    } else if (data.error || data.success === false) {
+      // Afficher le message d'erreur principal dans le toast
+      const errorMessage = data.error || t.activationRequests.toast.rejectError;
+      toast.error(errorMessage);
+
+      // Extraire et afficher les erreurs de validation
+      if (data.errors && typeof data.errors === 'object') {
+        const validationErrors: Record<string, string> = {};
+        Object.keys(data.errors).forEach((field) => {
+          const fieldErrors = data.errors[field];
+          if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+            // Mapper les noms de champs de l'API vers les noms du formulaire
+            let formField = field;
+            if (field === 'rejection_reason' || field === 'rejectionReason') formField = 'rejectionReason';
+            else if (field === 'admin_notes' || field === 'adminNotes') formField = 'adminNotes';
+            
+            validationErrors[formField] = fieldErrors[0]; // Prendre le premier message
+          }
+        });
+        setErrors(validationErrors);
+        
+        // Si on a une erreur sur rejectionReason, l'afficher aussi dans error
+        if (validationErrors.rejectionReason) {
+          setError(validationErrors.rejectionReason);
+        }
+      }
     }
   }, [fetcher.data, onOpenChange, t.activationRequests.toast.rejectError, t.activationRequests.toast.rejectSuccess]);
 
@@ -147,6 +171,9 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                 onChange={(e) => {
                   setRejectionReason(e.target.value);
                   if (error) setError("");
+                  if (errors.rejectionReason) {
+                    setErrors((prev) => ({ ...prev, rejectionReason: '' }));
+                  }
                 }}
                 rows={3}
                 disabled={isSubmitting}
@@ -156,10 +183,10 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                     : 'border-slate-200 dark:border-slate-700 focus:border-red-500 focus:ring-4 focus:ring-red-500/20'
                 }`}
               />
-              {error && (
+              {(error || errors.rejectionReason) && (
                 <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg">
                   <AlertTriangle className="h-4 w-4" />
-                  {error}
+                  {errors.rejectionReason || error}
                 </div>
               )}
             </div>
@@ -174,11 +201,26 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                 id="adminNotes"
                 placeholder={t.activationRequests.reject.notesPlaceholder}
                 value={adminNotes}
-                onChange={(e) => setAdminNotes(e.target.value)}
+                onChange={(e) => {
+                  setAdminNotes(e.target.value);
+                  if (errors.adminNotes) {
+                    setErrors((prev) => ({ ...prev, adminNotes: '' }));
+                  }
+                }}
                 rows={3}
                 disabled={isSubmitting}
-                className="text-base bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-pink-500 focus:ring-4 focus:ring-pink-500/20 transition-all duration-200 resize-none"
+                className={`text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
+                  errors.adminNotes 
+                    ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/20' 
+                    : 'border-slate-200 dark:border-slate-700 focus:border-pink-500 focus:ring-4 focus:ring-pink-500/20'
+                }`}
               />
+              {errors.adminNotes && (
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg">
+                  <AlertTriangle className="h-4 w-4" />
+                  {errors.adminNotes}
+                </div>
+              )}
             </div>
           </div>
 
@@ -190,6 +232,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
               onClick={() => {
                 onOpenChange(false);
                 setError("");
+                setErrors({});
               }}
               disabled={isSubmitting}
               className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"

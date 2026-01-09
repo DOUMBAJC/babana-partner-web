@@ -11,7 +11,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { CheckCircle, Loader2, Sparkles } from "lucide-react";
+import { CheckCircle, Loader2, Sparkles, AlertTriangle } from "lucide-react";
 import { useTranslation } from "~/hooks";
 import type { ActivationRequest } from "~/types";
 
@@ -30,6 +30,7 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
   const { t } = useTranslation();
   const fetcher = useFetcher();
   const [adminNotes, setAdminNotes] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const lastProcessedData = useRef<any>(null);
 
   const isSubmitting = fetcher.state === "submitting";
@@ -46,10 +47,27 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
       toast.success(message);
       onOpenChange(false);
       setAdminNotes("");
-    } else if (data.error) {
-      toast.error(data.error || t.activationRequests.toast.acceptError);
-    } else if (data.success === false) {
-      toast.error(t.activationRequests.toast.acceptError);
+      setErrors({});
+    } else if (data.error || data.success === false) {
+      // Afficher le message d'erreur principal dans le toast
+      const errorMessage = data.error || t.activationRequests.toast.acceptError;
+      toast.error(errorMessage);
+
+      // Extraire et afficher les erreurs de validation
+      if (data.errors && typeof data.errors === 'object') {
+        const validationErrors: Record<string, string> = {};
+        Object.keys(data.errors).forEach((field) => {
+          const fieldErrors = data.errors[field];
+          if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+            // Mapper les noms de champs de l'API vers les noms du formulaire
+            let formField = field;
+            if (field === 'admin_notes' || field === 'adminNotes') formField = 'adminNotes';
+            
+            validationErrors[formField] = fieldErrors[0]; // Prendre le premier message
+          }
+        });
+        setErrors(validationErrors);
+      }
     }
   }, [fetcher.data, onOpenChange, t.activationRequests.toast.acceptError, t.activationRequests.toast.acceptSuccess]);
 
@@ -133,14 +151,31 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
                 id="adminNotes"
                 placeholder={t.activationRequests.accept.notesPlaceholder}
                 value={adminNotes}
-                onChange={(e) => setAdminNotes(e.target.value)}
+                onChange={(e) => {
+                  setAdminNotes(e.target.value);
+                  if (errors.adminNotes) {
+                    setErrors((prev) => ({ ...prev, adminNotes: '' }));
+                  }
+                }}
                 rows={4}
                 disabled={isSubmitting}
-                className="text-base bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 transition-all duration-200 resize-none"
+                className={`text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
+                  errors.adminNotes 
+                    ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/20' 
+                    : 'border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20'
+                }`}
               />
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {t.activationRequests.accept.notesHelp}
-              </p>
+              {errors.adminNotes && (
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg">
+                  <AlertTriangle className="h-4 w-4" />
+                  {errors.adminNotes}
+                </div>
+              )}
+              {!errors.adminNotes && (
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {t.activationRequests.accept.notesHelp}
+                </p>
+              )}
             </div>
           </div>
 

@@ -66,13 +66,29 @@ export function ActivationForm({
         </div>
       </div>
 
-      {/* Message d'erreur de validation (pas d'erreur API) */}
+      {/* Message d'erreur API */}
       {errorMessage && (
-        <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="h-6 w-6 rounded-full bg-red-500/20 flex items-center justify-center">
-            <span className="text-red-600 text-sm">!</span>
+        <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-start gap-3">
+            <div className="h-6 w-6 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-red-600 text-sm font-bold">!</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-red-700 dark:text-red-400 font-medium mb-1">{errorMessage}</p>
+              {/* Afficher les erreurs de validation supplémentaires s'il y en a */}
+              {Object.keys(errors).length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {Object.entries(errors).map(([field, error]) => (
+                    error && (
+                      <li key={field} className="text-sm text-red-600 dark:text-red-400">
+                        • {error}
+                      </li>
+                    )
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
-          <p className="text-red-700 dark:text-red-400 font-medium">{errorMessage}</p>
         </div>
       )}
 
