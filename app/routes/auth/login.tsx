@@ -106,22 +106,14 @@ export async function action({ request }: Route.ActionArgs) {
     // et rediriger vers la page d'accueil avec un message de bienvenue
     return createUserSession(token, '/', welcomeMessage);
   } catch (error: any) {
-    const message = error.response?.data?.message 
-      || error.response?.data?.error?.message 
-      || error.response?.data?.error
+    const responseData = error.response?.data;
+    const message = responseData?.message 
+      || responseData?.error?.message 
+      || responseData?.error
       || t.auth.login.errors.loginFailed;
     
-    // Vérifier si l'erreur indique que l'email n'est pas vérifié
-    const errorMessage = message.toLowerCase();
-    const isEmailNotVerified = 
-      errorMessage.includes('vérif') || 
-      errorMessage.includes('verify') || 
-      (errorMessage.includes('email') && 
-       (errorMessage.includes('non vérifié') || 
-        errorMessage.includes('not been verified') ||
-        errorMessage.includes('non confirmé') ||
-        errorMessage.includes('not confirmed'))) ||
-      errorMessage.includes('email non vérifié');
+    // Vérifier directement le champ requires_email_verification retourné par le backend
+    const isEmailNotVerified = responseData?.requires_email_verification === true;
     
     return data(
       { 
@@ -130,7 +122,7 @@ export async function action({ request }: Route.ActionArgs) {
         emailNotVerified: isEmailNotVerified,
         email: isEmailNotVerified ? email : undefined
       },
-      { status: 401 }
+      { status: error.response?.status || 401 }
     );
   }
 }

@@ -40,7 +40,7 @@ export function CamtelLoginDetailsPanel({
   setDrawerTab,
 }: {
   login: CamtelLogin | null;
-  loginId: number | null;
+  loginId: string | null;
   isLoading: boolean;
   onClose: () => void;
   onRevealPassword: () => void;

@@ -76,7 +76,7 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
 
     const formData = new FormData();
     formData.append('actionType', 'cancel');
-    formData.append('requestId', request.id.toString());
+    formData.append('requestId', request.id);
     if (cancelReason.trim()) {
       formData.append('cancelReason', cancelReason.trim());
     }

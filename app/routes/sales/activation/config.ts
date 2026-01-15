@@ -48,7 +48,7 @@ const ROLES_WITH_FULL_CUSTOMER_ACCESS: string[] = [
  */
 export function canAccessCustomerForActivation(
   user: User | null,
-  customer: { created_by?: number | null } | null
+  customer: { created_by?: string | null } | null
 ): boolean {
   if (!user || !customer) {
     return false;

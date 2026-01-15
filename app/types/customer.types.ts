@@ -6,7 +6,7 @@
  * Type de carte d'identité
  */
 export interface IdCardType {
-  id: number;
+  id: string;
   name: string;
   code: string;
   description?: string;
@@ -19,15 +19,15 @@ export interface IdCardType {
  * Client (Customer)
  */
 export interface Customer {
-  id: number;
+  id: string;
   full_name: string;
-  id_card_type_id: number;
+  id_card_type_id: string;
   id_card_number: string;
   phone: string;
   phoneOperator: string;
   address?: string;
   email?: string;
-  created_by: number;
+  created_by: string;
   metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -41,7 +41,7 @@ export interface Customer {
   // Relations (chargées via include)
   id_card_type?: IdCardType;
   creator?: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -53,7 +53,7 @@ export interface Customer {
  */
 export interface CreateCustomerData {
   full_name: string;
-  id_card_type_id: number;
+  id_card_type_id: string;
   id_card_number: string;
   phone: string;
   address?: string;
@@ -71,11 +71,11 @@ export interface UpdateCustomerData extends Partial<CreateCustomerData> {}
  */
 export interface CustomerFilters {
   search?: string;
-  idCardTypeId?: number;
+  idCardTypeId?: string;
   idCardNumber?: string;
   phone?: string;
   phoneOperator?: string;
-  createdBy?: number;
+  createdBy?: string;
   createdFrom?: string;
   createdTo?: string;
 }

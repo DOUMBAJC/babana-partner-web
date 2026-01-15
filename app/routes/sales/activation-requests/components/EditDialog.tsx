@@ -121,7 +121,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
 
     const formDataToSubmit = new FormData();
     formDataToSubmit.append('actionType', 'update');
-    formDataToSubmit.append('requestId', request.id.toString());
+    formDataToSubmit.append('requestId', request.id);
     formDataToSubmit.append('sim_number', formData.sim_number);
     formDataToSubmit.append('iccid', formData.iccid);
     if (formData.imei) {

@@ -68,7 +68,7 @@ export interface Role {
  * Peut inclure des métadonnées + pivot (relation many-to-many).
  */
 export type ApiRole = Role & {
-  id: number;
+  id: string;
   created_at?: string;
   updated_at?: string;
   pivot?: unknown;
@@ -88,17 +88,17 @@ export type AccountStatus =
  * Utilisateur (User)
  */
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   camtel_login?: string | null;
-  camtel_login_id?: number | null;
+  camtel_login_id?: string | null;
   /**
    * Relation backend (ex: `User::with('camtelLogin')`)
    * Peut contenir les infos du login CAMTEL assigné.
    */
   camtelLogin?: {
-    id: number;
+    id: string;
     value?: string | null;
     owner_name?: string | null;
     camtel_created_at?: string | null;
@@ -121,13 +121,13 @@ export interface User {
   avatar?: string;
   created_at: string;
   updated_at: string;
-  activated_by?: number | null;
+  activated_by?: string | null;
   activated_at?: string | null;
   rejection_reason?: string | null;
 
   // Relations (chargées via include)
   activator?: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -140,8 +140,8 @@ export interface User {
   
   // Credits for actions
   wallet?: {
-    id: number,
-    user_id: number,
+    id: string,
+    user_id: string,
     balance: number,
     created_at: string,
     updated_at: string,
@@ -187,7 +187,7 @@ export interface RegisterFormErrors {
 }
 
 export interface UserSession {
-  id: number;
+  id: string;
   device_name: string;
   device_info: {
     os: string;

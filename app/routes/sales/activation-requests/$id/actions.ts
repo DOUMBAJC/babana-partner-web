@@ -6,7 +6,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   try {
     const formData = await request.formData();
     const actionType = formData.get('actionType') as string;
-    const requestId = parseInt(formData.get('requestId') as string);
+    const requestId = formData.get('requestId') as string;
 
     const api = await createAuthenticatedApi(request);
 

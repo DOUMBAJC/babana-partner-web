@@ -19,10 +19,10 @@ export type ActivationRequestStatus =
  * Requête d'activation de SIM
  */
 export interface ActivationRequest {
-  id: number;
-  baId: number;
-  customerId: number;
-  processedBy?: number;
+  id: string;
+  baId: string;
+  customerId: string;
+  processedBy?: string;
   sim_number: string;
   iccid: string;
   imei?: string;
@@ -39,14 +39,14 @@ export interface ActivationRequest {
 
   // Relations (chargées via include)
   ba?: {
-    id: number;
+    id: string;
     name: string;
     email: string;
     camtelLogin?: string;
   };
   customer?: Customer;
   processor?: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -62,9 +62,9 @@ export interface ActivationRequest {
  * Historique d'une requête d'activation
  */
 export interface ActivationHistory {
-  id: number;
-  activationRequestId: number;
-  userId: number;
+  id: string;
+  activationRequestId: string;
+  userId: string;
   action: string;
   oldStatus?: ActivationRequestStatus;
   newStatus?: ActivationRequestStatus;
@@ -74,7 +74,7 @@ export interface ActivationHistory {
   
   // Relations
   user?: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -84,7 +84,7 @@ export interface ActivationHistory {
  * Données pour créer une requête d'activation (BA)
  */
 export interface CreateActivationRequestData {
-  customerId: number;
+  customerId: string;
   sim_number: string;
   iccid: string;
   imei?: string;
@@ -118,9 +118,9 @@ export interface ProcessActivationRequestData {
 export interface ActivationRequestFilters {
   search?: string;
   status?: ActivationRequestStatus | ActivationRequestStatus[];
-  baId?: number;
-  customerId?: number;
-  processedBy?: number;
+  baId?: string;
+  customerId?: string;
+  processedBy?: string;
   sim_number?: string;
   iccid?: string;
   submittedFrom?: string;
@@ -155,7 +155,7 @@ export interface ActivationRequestStatsResponse {
     total_processed: number;
   };
   by_ba: Array<{
-    ba_id: number;
+    ba_id: string;
     ba_name: string;
     total: number;
     activated: number;

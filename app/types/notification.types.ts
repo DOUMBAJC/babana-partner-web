@@ -29,7 +29,7 @@ export interface Notification {
    */
   type: string;
   notifiable_type: string;
-  notifiable_id: number;
+  notifiable_id: string;
   data: NotificationData;
   read_at: string | null;
   created_at: string;
@@ -99,8 +99,8 @@ export interface NotificationActionResponse {
  * Préférences de notifications
  */
 export interface NotificationPreferences {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   // Email notifications
   email_activation_request: boolean;
   email_activation_approved: boolean;

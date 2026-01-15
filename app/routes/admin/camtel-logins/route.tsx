@@ -58,7 +58,7 @@ type LoaderData = {
   hasAccess: boolean;
   error: string | null;
   q: string;
-  selectedLoginId: number | null;
+  selectedLoginId: string | null;
   logins: CamtelLogin[];
   selectedLogin: CamtelLogin | null;
   pagination: {
@@ -74,7 +74,7 @@ type ActionData = {
   message?: string | null;
   error?: string | null;
   actionType?: ActionType;
-  loginId?: number;
+  loginId?: string;
   password?: string | null;
 };
 
@@ -82,6 +82,10 @@ function asNumber(value: string | null): number | null {
   if (!value) return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+}
+
+function asString(value: string | null): string | null {
+  return value || null;
 }
 
 function unwrapList<T = any>(payload: any): T[] {
@@ -129,9 +133,9 @@ function unwrapOne(payload: any): any | null {
 }
 
 function normalizeCamtelLoginFromApi(input: any): CamtelLogin {
-  const id = Number(input?.id);
+  const id = input?.id;
   return {
-    id: Number.isFinite(id) ? id : 0,
+    id: id ? String(id) : "",
     // Backend (controller): owner_name, value, camtel_created_at, users_count
     value:
       input?.value ??
@@ -174,7 +178,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
     const url = new URL(request.url);
     const q = url.searchParams.get("q") || "";
-    const selectedLoginId = asNumber(url.searchParams.get("loginId"));
+    const selectedLoginId = asString(url.searchParams.get("loginId"));
     const page = Math.max(1, asNumber(url.searchParams.get("page")) || 1);
     const perPage = Math.max(1, Math.min(100, asNumber(url.searchParams.get("perPage")) || 15));
 
@@ -259,7 +263,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const actionType = formData.get("actionType") as ActionType | null;
-  const loginId = asNumber(formData.get("loginId") as string | null);
+  const loginId = asString(formData.get("loginId") as string | null);
 
   // Backend controller fields: owner_name, value, camtel_created_at, password
   // On garde compat avec l'ancien form (login/label/notes).
@@ -407,7 +411,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
   const [formDialog, setFormDialog] = useState<{
     open: boolean;
     mode: "create" | "edit";
-    loginId: number | null;
+    loginId: string | null;
     login: string;
     password: string;
     label: string;
@@ -415,13 +419,13 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
   }>({ open: false, mode: "create", loginId: null, login: "", password: "", label: "", notes: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; loginId: number | null; loginLabel: string }>({
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; loginId: string | null; loginLabel: string }>({
     open: false,
     loginId: null,
     loginLabel: "",
   });
 
-  const [passwordDialog, setPasswordDialog] = useState<{ open: boolean; loginId: number | null; password: string | null }>({
+  const [passwordDialog, setPasswordDialog] = useState<{ open: boolean; loginId: string | null; password: string | null }>({
     open: false,
     loginId: null,
     password: null,
@@ -456,7 +460,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
 
   const desiredLoginId = useMemo(() => {
     const sp = new URLSearchParams(location.search);
-    return asNumber(sp.get("loginId"));
+    return asString(sp.get("loginId"));
   }, [location.search]);
 
   const isDrawerOpen = desiredLoginId != null;
@@ -498,7 +502,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionData]);
 
-  const openLogin = (id: number) => setParam("loginId", String(id));
+  const openLogin = (id: string) => setParam("loginId", id);
   const closeLogin = () => setParam("loginId", null);
 
   const openCreate = () =>
@@ -532,7 +536,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
 
     const fd = new FormData();
     fd.set("actionType", formDialog.mode === "create" ? "create" : "update");
-    if (formDialog.mode === "edit" && formDialog.loginId) fd.set("loginId", String(formDialog.loginId));
+    if (formDialog.mode === "edit" && formDialog.loginId) fd.set("loginId", formDialog.loginId);
     if (value) fd.set("value", value);
     if (formDialog.password) fd.set("password", formDialog.password);
     fd.set("ownerName", owner);
@@ -550,12 +554,12 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
     if (!confirmDelete.loginId) return;
     const fd = new FormData();
     fd.set("actionType", "delete");
-    fd.set("loginId", String(confirmDelete.loginId));
+    fd.set("loginId", confirmDelete.loginId || '');
     setConfirmDelete({ open: false, loginId: null, loginLabel: "" });
     submit(fd, { method: "post" });
   };
 
-  const revealPassword = (id: number) => {
+  const revealPassword = (id: string) => {
     const fd = new FormData();
     fd.set("actionType", "reveal_password");
     fd.set("loginId", String(id));
@@ -1042,8 +1046,8 @@ function CamtelLoginsTable({
   onOpenLogin,
 }: {
   logins: CamtelLogin[];
-  selectedLoginId: number | null;
-  onOpenLogin: (id: number) => void;
+  selectedLoginId: string | null;
+  onOpenLogin: (id: string) => void;
 }) {
   const { t, language } = useTranslation();
   const navigation = useNavigation();

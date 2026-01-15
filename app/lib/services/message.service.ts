@@ -7,10 +7,10 @@ import { api, type ApiError } from "./axios";
 import type { User } from "~/types/auth.types";
 
 export interface Message {
-  id: number;
-  conversation_id: number;
-  sender_id: number;
-  receiver_id: number;
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  receiver_id: string;
   content: string;
   is_read: boolean;
   created_at: string;
@@ -20,10 +20,10 @@ export interface Message {
 }
 
 export interface Conversation {
-  id: number;
-  participant_one_id: number;
-  participant_two_id: number;
-  last_message_id: number | null;
+  id: string;
+  participant_one_id: string;
+  participant_two_id: string;
+  last_message_id: string | null;
   last_message_at: string | null;
   created_at: string;
   updated_at: string;
@@ -33,7 +33,7 @@ export interface Conversation {
 }
 
 export interface SendMessageData {
-  receiver_id: number;
+  receiver_id: string;
   content: string;
 }
 
@@ -76,7 +76,7 @@ export const messageService = {
    * Récupère les messages d'une conversation
    */
   getMessages: async (
-    conversationId: number,
+    conversationId: string,
     page: number = 1,
     perPage: number = 50
   ): Promise<MessagesResponse> => {
@@ -107,7 +107,7 @@ export const messageService = {
   /**
    * Marque les messages d'une conversation comme lus
    */
-  markAsRead: async (conversationId: number): Promise<void> => {
+  markAsRead: async (conversationId: string): Promise<void> => {
     try {
       await api.post(`/messages/conversations/${conversationId}/mark-as-read`);
     } catch (error) {
@@ -129,7 +129,7 @@ export const messageService = {
   /**
    * Crée ou récupère une conversation avec un utilisateur
    */
-  getOrCreateConversation: async (userId: number): Promise<Conversation> => {
+  getOrCreateConversation: async (userId: string): Promise<Conversation> => {
     try {
       const response = await api.post<{ data: Conversation }>(
         `/messages/conversations/get-or-create`,

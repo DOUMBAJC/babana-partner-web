@@ -82,7 +82,7 @@ export async function action({ request }: Route.ActionArgs) {
     
     const customer = await customerService.createCustomer({
       full_name: fullName,
-      id_card_type_id: parseInt(idCardTypeId),
+      id_card_type_id: idCardTypeId,
       id_card_number: idCardNumber.trim(),
       phone: phone.trim(),
       email: email.trim() || undefined,

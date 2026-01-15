@@ -1,12 +1,12 @@
 export type CamtelLoginUser = {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  camtel_login_id?: number | null;
+  camtel_login_id?: string | null;
 };
 
 export type CamtelLogin = {
-  id: number;
+  id: string;
   /**
    * Champ principal côté API: `value` (format: BA_xxx)
    */

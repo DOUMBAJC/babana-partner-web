@@ -74,7 +74,7 @@ export function useActivationRequests(
 /**
  * Hook pour gérer une requête d'activation spécifique
  */
-export function useActivationRequest(id?: number, include?: string[]) {
+export function useActivationRequest(id?: string, include?: string[]) {
   const [request, setRequest] = useState<ActivationRequest | null>(null);
   const [loading, setLoading] = useState(!!id);
   const [error, setError] = useState<string | null>(null);
@@ -157,7 +157,7 @@ export function useUpdateActivationRequest() {
   const [error, setError] = useState<string | null>(null);
 
   const updateRequest = async (
-    id: number,
+    id: string,
     data: UpdateActivationRequestData
   ): Promise<ActivationRequest | null> => {
     try {
@@ -192,7 +192,7 @@ export function useCancelActivationRequest() {
   const [error, setError] = useState<string | null>(null);
 
   const cancelRequest = async (
-    id: number
+    id: string
   ): Promise<ActivationRequest | null> => {
     try {
       setLoading(true);
@@ -223,7 +223,7 @@ export function useProcessActivationRequest() {
   const [error, setError] = useState<string | null>(null);
 
   const processRequest = async (
-    id: number,
+    id: string,
     data: ProcessActivationRequestData
   ): Promise<ActivationRequest | null> => {
     try {
@@ -244,7 +244,7 @@ export function useProcessActivationRequest() {
   };
 
   const acceptRequest = async (
-    id: number,
+    id: string,
     adminNotes?: string
   ): Promise<ActivationRequest | null> => {
     try {
@@ -265,7 +265,7 @@ export function useProcessActivationRequest() {
   };
 
   const rejectRequest = async (
-    id: number,
+    id: string,
     rejectionReason: string,
     adminNotes?: string
   ): Promise<ActivationRequest | null> => {
@@ -299,7 +299,7 @@ export function useProcessActivationRequest() {
 /**
  * Hook pour récupérer l'historique d'une requête
  */
-export function useActivationRequestHistory(requestId?: number) {
+export function useActivationRequestHistory(requestId?: string) {
   const [history, setHistory] = useState<ActivationHistory[]>([]);
   const [loading, setLoading] = useState(!!requestId);
   const [error, setError] = useState<string | null>(null);

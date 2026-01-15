@@ -70,7 +70,7 @@ export const customerService = {
    * Modifier un client
    */
   updateCustomer: async (
-    id: number,
+    id: string,
     data: UpdateCustomerData
   ): Promise<Customer> => {
     try {
@@ -87,7 +87,7 @@ export const customerService = {
   /**
    * Supprimer un client
    */
-  deleteCustomer: async (id: number): Promise<void> => {
+  deleteCustomer: async (id: string): Promise<void> => {
     try {
       await api.delete(`/customers/${id}`);
     } catch (error) {
@@ -99,7 +99,7 @@ export const customerService = {
    * Rechercher un client par CNI
    */
   searchByIdCard: async (
-    idCardTypeId: number,
+    idCardTypeId: string,
     idCardNumber: string
   ): Promise<{
     success: boolean;
@@ -163,7 +163,7 @@ export const customerService = {
    * Récupérer les clients créés par un BA spécifique
    */
   getCustomersByBa: async (
-    baId: number,
+    baId: string,
     params?: QueryParams
   ): Promise<PaginatedResponse<Customer>> => {
     try {

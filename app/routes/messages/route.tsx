@@ -39,7 +39,7 @@ import {
 
 interface Message {
   id: string;
-  sender_id: number;
+  sender_id: string;
   content: string;
   created_at: string;
   status: "sent" | "delivered" | "read";
@@ -47,7 +47,7 @@ interface Message {
 }
 
 interface Contact {
-  id: number;
+  id: string;
   name: string;
   avatar?: string;
   role: string;
@@ -71,7 +71,7 @@ declare global {
 
 const MOCK_CONTACTS: Contact[] = [
   {
-    id: 1,
+    id: "1",
     name: "Support Admin",
     role: "Super Admin",
     is_online: true,
@@ -82,7 +82,7 @@ const MOCK_CONTACTS: Contact[] = [
     },
   },
   {
-    id: 2,
+    id: "2",
     name: "Jean Activateur",
     role: "Activateur",
     is_online: false,
@@ -94,7 +94,7 @@ const MOCK_CONTACTS: Contact[] = [
     },
   },
   {
-    id: 3,
+    id: "3",
     name: "Marie Gestion",
     role: "Admin",
     is_online: true,
@@ -106,21 +106,21 @@ const MOCK_CONTACTS: Contact[] = [
   },
 ];
 
-const MOCK_MESSAGES: Record<number, Message[]> = {
-  1: [
+const MOCK_MESSAGES: Record<string, Message[]> = {
+  "1": [
     {
       id: "1",
-      sender_id: 1,
+      sender_id: "1",
       content: "Bonjour, comment puis-je vous aider ?",
       created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
       status: "read",
       is_mine: false,
     },
   ],
-  2: [
+  "2": [
     {
       id: "2",
-      sender_id: 999, // User
+      sender_id: "999", // User
       content: "J'ai activé le client #12345",
       created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
       status: "read",
@@ -128,7 +128,7 @@ const MOCK_MESSAGES: Record<number, Message[]> = {
     },
     {
       id: "3",
-      sender_id: 2,
+      sender_id: "2",
       content: "Le client a validé son compte.",
       created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
       status: "delivered",
@@ -242,7 +242,7 @@ export default function MessagesPage() {
 
     const newMessage: Message = {
       id: Date.now().toString(),
-      sender_id: user?.id || 0,
+      sender_id: user?.id || "",
       content: inputText,
       created_at: new Date().toISOString(),
       status: "sent",

@@ -71,16 +71,16 @@ export function UserDetailsPanel({
   setDrawerTab,
 }: {
   user: User | null;
-  userId: number | null;
+  userId: string | null;
   isLoading: boolean;
   onClose: () => void;
   onAction: (action: ActionType, user: User) => void;
   availableRoles: Array<{ slug: string; name?: string; description?: string }>;
-  availableCamtelLogins: Array<{ id: number; value?: string | null; owner_name?: string | null }>;
+  availableCamtelLogins: Array<{ id: string; value?: string | null; owner_name?: string | null }>;
   canManageRoles: boolean;
   onAssignRole: (roleSlug: string) => void;
   onRemoveRole: (roleSlug: string) => void;
-  onAssignCamtelLogin: (camtelLoginId: number) => void;
+  onAssignCamtelLogin: (camtelLoginId: string) => void;
   onRemoveCamtelLogin: () => void;
   drawerTab: UserDetailsTab;
   setDrawerTab: (tab: UserDetailsTab) => void;
@@ -167,7 +167,7 @@ export function UserDetailsPanel({
     ((user as any)?.camtel_login && typeof (user as any).camtel_login === "object" ? ((user as any).camtel_login as any) : null);
 
   const currentCamtelLoginId =
-    (typeof camtelObj?.id === "number" ? camtelObj.id : null) ?? user?.camtel_login_id ?? null;
+    (camtelObj?.id ? String(camtelObj.id) : null) ?? user?.camtel_login_id ?? null;
 
   const currentCamtelValue =
     (typeof camtelObj?.value === "string" ? camtelObj.value : null) ||
@@ -407,9 +407,8 @@ export function UserDetailsPanel({
                                     !user || !camtelLoginToAssign || camtelLoginToAssign === "__none__" || isLoading
                                   }
                                   onClick={() => {
-                                    const id = Number(camtelLoginToAssign);
-                                    if (!Number.isFinite(id) || !id) return;
-                                    onAssignCamtelLogin(id);
+                                    if (!camtelLoginToAssign || camtelLoginToAssign === "__none__") return;
+                                    onAssignCamtelLogin(camtelLoginToAssign);
                                     setCamtelLoginToAssign("");
                                   }}
                                 >

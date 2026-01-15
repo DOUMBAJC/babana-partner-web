@@ -148,7 +148,7 @@ export function useUpdateCustomer() {
   const [error, setError] = useState<string | null>(null);
 
   const updateCustomer = async (
-    id: number,
+    id: string,
     data: UpdateCustomerData
   ): Promise<Customer | null> => {
     try {
@@ -179,7 +179,7 @@ export function useDeleteCustomer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deleteCustomer = async (id: number): Promise<boolean> => {
+  const deleteCustomer = async (id: string): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);

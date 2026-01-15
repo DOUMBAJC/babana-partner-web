@@ -149,7 +149,7 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     const response = await api.post('/activation-requests', {
-      customer_id: parseInt(customerId),
+      customer_id: customerId,
       sim_number: simNumber,
       iccid: iccid,
       imei: imei,

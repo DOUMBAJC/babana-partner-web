@@ -43,7 +43,7 @@ export const activationRequestService = {
    * Récupérer une requête d'activation par son ID
    */
   getActivationRequestById: async (
-    id: number,
+    id: string,
     include?: string[]
   ): Promise<ActivationRequest> => {
     try {
@@ -83,7 +83,7 @@ export const activationRequestService = {
    * Seulement pour les requêtes en attente ou rejetées
    */
   updateActivationRequest: async (
-    id: number,
+    id: string,
     data: UpdateActivationRequestData
   ): Promise<ActivationRequest> => {
     try {
@@ -101,7 +101,7 @@ export const activationRequestService = {
    * Annuler une requête d'activation (BA)
    * Seulement pour les requêtes en attente
    */
-  cancelActivationRequest: async (id: number): Promise<ActivationRequest> => {
+  cancelActivationRequest: async (id: string): Promise<ActivationRequest> => {
     try {
       const response = await api.post<ApiResponse<ActivationRequest>>(
         `/activation-requests/${id}/cancel`
@@ -116,7 +116,7 @@ export const activationRequestService = {
    * Traiter une requête d'activation (Activateur)
    */
   processActivationRequest: async (
-    id: number,
+    id: string,
     data: ProcessActivationRequestData
   ): Promise<ActivationRequest> => {
     try {
@@ -134,7 +134,7 @@ export const activationRequestService = {
    * Accepter une requête d'activation (Activateur)
    */
   acceptActivationRequest: async (
-    id: number,
+    id: string,
     adminNotes?: string
   ): Promise<ActivationRequest> => {
     try {
@@ -155,7 +155,7 @@ export const activationRequestService = {
    * Rejeter une requête d'activation (Activateur)
    */
   rejectActivationRequest: async (
-    id: number,
+    id: string,
     rejectionReason: string,
     adminNotes?: string
   ): Promise<ActivationRequest> => {
@@ -178,7 +178,7 @@ export const activationRequestService = {
    * Récupérer les requêtes d'un BA spécifique
    */
   getActivationRequestsByBa: async (
-    baId: number,
+    baId: string,
     filters?: ActivationRequestFilters,
     params?: QueryParams
   ): Promise<PaginatedResponse<ActivationRequest>> => {
@@ -201,7 +201,7 @@ export const activationRequestService = {
    * Récupérer les requêtes traitées par un activateur spécifique
    */
   getActivationRequestsByProcessor: async (
-    processorId: number,
+    processorId: string,
     filters?: ActivationRequestFilters,
     params?: QueryParams
   ): Promise<PaginatedResponse<ActivationRequest>> => {
@@ -224,7 +224,7 @@ export const activationRequestService = {
    * Récupérer les requêtes d'un client spécifique
    */
   getActivationRequestsByCustomer: async (
-    customerId: number,
+    customerId: string,
     params?: QueryParams
   ): Promise<PaginatedResponse<ActivationRequest>> => {
     try {
@@ -243,7 +243,7 @@ export const activationRequestService = {
    * Récupérer l'historique d'une requête
    */
   getActivationRequestHistory: async (
-    id: number
+    id: string
   ): Promise<ActivationHistory[]> => {
     try {
       const response = await api.get<ApiResponse<ActivationHistory[]>>(

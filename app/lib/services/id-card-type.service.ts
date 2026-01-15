@@ -20,7 +20,7 @@ export const idCardTypeService = {
   /**
    * Récupérer un type de carte d'identité par son ID
    */
-  getIdCardType: async (id: number): Promise<IdCardType> => {
+  getIdCardType: async (id: string): Promise<IdCardType> => {
     try {
       const response = await api.get<ApiResponse<IdCardType>>(`/idCardTypes/${id}`);
       return response.data;

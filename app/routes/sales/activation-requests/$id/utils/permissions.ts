@@ -2,7 +2,7 @@ import type { ActivationRequest, RoleSlug } from "~/types";
 import { ACTIVATOR_ROLES, ADMIN_ROLES } from "../constants";
 
 export interface User {
-  id: number;
+  id: string;
   roles?: RoleSlug[];
 }
 

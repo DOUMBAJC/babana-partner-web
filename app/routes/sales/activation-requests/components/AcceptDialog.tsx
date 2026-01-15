@@ -76,7 +76,7 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
     
     const formData = new FormData();
     formData.append('actionType', 'accept');
-    formData.append('requestId', request.id.toString());
+    formData.append('requestId', request.id);
     if (adminNotes) {
       formData.append('adminNotes', adminNotes);
     }

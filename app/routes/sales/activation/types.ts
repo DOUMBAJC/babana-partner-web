@@ -5,7 +5,7 @@ export interface CustomerData {
   firstName?: string;
   phone?: string;
   id_card_number: string;
-  id_card_type_id: number;
+  id_card_type_id: string;
 }
 
 export interface ActivationFormData {

@@ -103,7 +103,7 @@ export async function action({ request }: Route.ActionArgs) {
     const api = await createAuthenticatedApi(request);
     
     const response = await api.post('/customers/searchByIdCard', {
-      id_card_type_id: parseInt(idCardTypeId),
+      id_card_type_id: idCardTypeId,
       id_card_number: idCardNumber
     });
 

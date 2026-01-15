@@ -91,7 +91,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
 
     const formData = new FormData();
     formData.append('actionType', 'reject');
-    formData.append('requestId', request.id.toString());
+    formData.append('requestId', request.id);
     formData.append('rejectionReason', rejectionReason);
     if (adminNotes) {
       formData.append('adminNotes', adminNotes);

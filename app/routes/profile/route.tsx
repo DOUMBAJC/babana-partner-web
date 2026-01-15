@@ -145,10 +145,10 @@ export default function ProfilePage() {
     }
   };
 
-  const handleRevokeSession = async (sessionId: number) => {
-    setRevokingSessionId(sessionId.toString());
+  const handleRevokeSession = async (sessionId: string) => {
+    setRevokingSessionId(sessionId);
     try {
-      await authService.revokeSession(sessionId.toString());
+      await authService.revokeSession(sessionId);
       setSessions(sessions.filter(s => s.id !== sessionId));
     } catch (error) {
       console.error("Error revoking session:", error);

@@ -93,12 +93,12 @@ type LoaderData = {
   q: string;
   status: AccountStatus | "all";
   role: RoleSlug | "all";
-  selectedUserId: number | null;
+  selectedUserId: string | null;
   users: User[];
   pendingUsers: User[];
   selectedUser: User | null;
   availableRoles: Array<{ slug: string; name?: string; description?: string }>;
-  availableCamtelLogins: Array<{ id: number; value?: string | null; owner_name?: string | null }>;
+  availableCamtelLogins: Array<{ id: string; value?: string | null; owner_name?: string | null }>;
   pagination: {
     currentPage: number;
     perPage: number;
@@ -118,15 +118,19 @@ type ActionData = {
   message?: string | null;
   error?: string | null;
   actionType?: ActionType;
-  userId?: number;
+  userId?: string;
   roleSlug?: string;
-  camtelLoginId?: number;
+  camtelLoginId?: string;
 };
 
 function asNumber(value: string | null): number | null {
   if (!value) return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+}
+
+function asString(value: string | null): string | null {
+  return value || null;
 }
 
 function unwrapList<T = any>(payload: any): T[] {
@@ -182,10 +186,10 @@ function unwrapRoles(payload: any): Array<{ slug: string; name?: string; descrip
     .map((r) => ({ slug: r.slug as string, name: r.name as any, description: r.description as any }));
 }
 
-function normalizeCamtelLoginOptionFromApi(input: any): { id: number; value?: string | null; owner_name?: string | null } {
-  const id = Number(input?.id);
+function normalizeCamtelLoginOptionFromApi(input: any): { id: string; value?: string | null; owner_name?: string | null } {
+  const id = input?.id;
   return {
-    id: Number.isFinite(id) ? id : 0,
+    id: id ? String(id) : '',
     value:
       input?.value ??
       input?.login ??
@@ -200,7 +204,7 @@ function normalizeCamtelLoginOptionFromApi(input: any): { id: number; value?: st
 
 function normalizeCamtelLoginOptionsFromApi(
   list: any[]
-): Array<{ id: number; value?: string | null; owner_name?: string | null }> {
+): Array<{ id: string; value?: string | null; owner_name?: string | null }> {
   return (list || [])
     .map((x) => normalizeCamtelLoginOptionFromApi(x))
     .filter((x) => x.id);
@@ -319,7 +323,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const q = url.searchParams.get("q") || "";
     const status = (url.searchParams.get("status") as AccountStatus | "all") || "all";
     const role = (url.searchParams.get("role") as RoleSlug | "all") || "all";
-    const selectedUserId = asNumber(url.searchParams.get("userId"));
+    const selectedUserId = asString(url.searchParams.get("userId"));
     const page = Math.max(1, asNumber(url.searchParams.get("page")) || 1);
     const perPage = Math.max(1, Math.min(100, asNumber(url.searchParams.get("perPage")) || 15));
     const pendingPage = Math.max(1, asNumber(url.searchParams.get("pendingPage")) || 1);
@@ -437,10 +441,10 @@ export async function action({ request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const actionType = formData.get("actionType") as ActionType | null;
-  const userId = asNumber(formData.get("userId") as string | null);
+  const userId = asString(formData.get("userId") as string | null);
   const rejectionReason = (formData.get("rejectionReason") as string | null)?.trim() || null;
   const roleSlug = (formData.get("roleSlug") as string | null)?.trim() || null;
-  const camtelLoginId = asNumber(formData.get("camtelLoginId") as string | null);
+    const camtelLoginId = asString(formData.get("camtelLoginId") as string | null);
 
   if (!actionType || !userId) {
     return data<ActionData>(
@@ -648,7 +652,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
 
   const desiredUserId = useMemo(() => {
     const sp = new URLSearchParams(location.search);
-    return asNumber(sp.get("userId"));
+    return asString(sp.get("userId"));
   }, [location.search]);
 
   const isDrawerOpen = desiredUserId != null;
@@ -688,7 +692,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
     setParam(paramKey, String(page));
   };
 
-  const openUser = (id: number) => setParam("userId", String(id));
+  const openUser = (id: string) => setParam("userId", id);
   const closeUser = () => setParam("userId", null);
 
   const openConfirm = (actionType: ActionType, user: User) => {
@@ -712,11 +716,11 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
     submit(fd, { method: "post" });
   };
 
-  const assignCamtelLogin = (user: User, camtelLoginId: number) => {
+  const assignCamtelLogin = (user: User, camtelLoginId: string) => {
     const fd = new FormData();
     fd.set("actionType", "assign_camtel_login");
     fd.set("userId", String(user.id));
-    fd.set("camtelLoginId", String(camtelLoginId));
+    fd.set("camtelLoginId", camtelLoginId);
     submit(fd, { method: "post" });
   };
 
@@ -938,7 +942,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                 canManageRoles={loaderData.canManageRoles}
                 onAssignRole={(roleSlug: string) => (selected ? assignRole(selected, roleSlug) : null)}
                 onRemoveRole={(roleSlug: string) => (selected ? removeRole(selected, roleSlug) : null)}
-                onAssignCamtelLogin={(camtelLoginId: number) => (selected ? assignCamtelLogin(selected, camtelLoginId) : null)}
+                onAssignCamtelLogin={(camtelLoginId: string) => (selected ? assignCamtelLogin(selected, camtelLoginId) : null)}
                 onRemoveCamtelLogin={() => (selected ? removeCamtelLogin(selected) : null)}
                 drawerTab={drawerTab}
                 setDrawerTab={setDrawerTab}
@@ -1126,8 +1130,8 @@ function UsersTable({
   roleNameBySlug,
 }: {
   users: User[];
-  onOpenUser: (id: number) => void;
-  selectedUserId: number | null;
+  onOpenUser: (id: string) => void;
+  selectedUserId: string | null;
   roleNameBySlug: Record<string, string>;
 }) {
   const { t, language } = useTranslation();

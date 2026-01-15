@@ -50,7 +50,7 @@ interface RequestsTableProps {
   requests: ActivationRequest[];
   pagination: PaginationMeta | null;
   userRole?: string;
-  userId?: number;
+  userId?: string;
 }
 
 export function RequestsTable({ requests, pagination, userRole, userId }: RequestsTableProps) {
