@@ -140,37 +140,37 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+      <DialogContent className="w-[95vw] sm:max-w-[700px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-4xl sm:rounded-3xl p-0 overflow-hidden max-h-[96vh] sm:max-h-[90vh] overflow-y-auto left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
         {/* Header spectaculaire avec gradient animé */}
-        <div className="relative bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 p-8 pb-12">
+        <div className="relative bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 p-6 sm:p-8 sm:pb-12">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
           
-          <div className="relative flex items-start gap-4">
+          <div className="relative flex items-start gap-3 sm:gap-4">
             <div className="shrink-0">
               <div className="relative">
                 <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
-                <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
-                  <Edit className="h-8 w-8 text-white" />
+                <div className="relative bg-white/20 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-white/30 shadow-xl">
+                  <Edit className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
               </div>
             </div>
             
-            <div className="flex-1 pt-2">
-              <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+            <div className="flex-1 pt-1 sm:pt-2 min-w-0">
+              <DialogTitle className="text-xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight leading-tight">
                 {t.activationRequests.edit?.title || 'Modifier la requête'}
               </DialogTitle>
-              <DialogDescription className="text-blue-100 text-lg font-medium">
-                Requête <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
+              <DialogDescription className="text-blue-100 text-sm sm:text-lg font-medium leading-snug">
+                Requête <span className="font-mono bg-white/10 px-1.5 py-0.5 rounded">#{formatRequestId(request.id)}</span> <span className="hidden sm:inline">•</span> <div className="sm:inline block mt-1 sm:mt-0">{request.customer?.full_name || 'Client'}</div>
               </DialogDescription>
             </div>
 
-            <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-300 animate-pulse shrink-0" />
           </div>
         </div>
 
         {/* Contenu du formulaire */}
         <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900">
-          <div className="p-8 space-y-6">
+          <div className="p-5 sm:p-8 space-y-4 sm:space-y-6">
             {/* SIM Number - Design moderne */}
             <div className="group space-y-3">
               <Label htmlFor="sim_number" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
@@ -185,7 +185,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
                   value={formData.sim_number}
                   onChange={(e) => setFormData({ ...formData, sim_number: e.target.value })}
                   placeholder="Ex: 62XXXXXXX"
-                  className={`h-14 text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
+                  className={`h-12 sm:h-14 text-base sm:text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
                     errors.sim_number 
                       ? 'border-red-500 focus:ring-4 focus:ring-red-500/20' 
                       : 'border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20'
@@ -215,7 +215,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
                   value={formData.iccid}
                   onChange={(e) => setFormData({ ...formData, iccid: e.target.value })}
                   placeholder="Ex: 6240501000XXXXXXXXX"
-                  className={`h-14 text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
+                  className={`h-12 sm:h-14 text-base sm:text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
                     errors.iccid 
                       ? 'border-red-500 focus:ring-4 focus:ring-red-500/20' 
                       : 'border-slate-200 dark:border-slate-700 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20'
@@ -245,7 +245,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
                   value={formData.imei}
                   onChange={(e) => setFormData({ ...formData, imei: e.target.value })}
                   placeholder="Ex: 123456789012345 (15 chiffres)"
-                  className={`h-14 text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
+                  className={`h-12 sm:h-14 text-base sm:text-lg font-mono bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 ${
                     errors.imei 
                       ? 'border-red-500 focus:ring-4 focus:ring-red-500/20' 
                       : 'border-slate-200 dark:border-slate-700 focus:border-pink-500 focus:ring-4 focus:ring-pink-500/20'
@@ -281,20 +281,20 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
           </div>
 
           {/* Footer avec design moderne */}
-          <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 px-5 sm:px-8 py-4 sm:py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-              className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+              className="h-11 sm:h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
             >
               {t.common?.cancel || 'Annuler'}
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="h-12 px-8 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="h-11 sm:h-12 px-6 sm:px-8 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform sm:hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
             >
               {isSubmitting && <Loader2 className="h-5 w-5 mr-2 animate-spin" />}
               {isSubmitting ? (

@@ -90,51 +90,51 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+      <DialogContent className="w-[95vw] sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-4xl sm:rounded-3xl p-0 overflow-hidden max-h-[96vh] sm:max-h-[90vh] overflow-y-auto left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
         {/* Header spectaculaire avec gradient rouge/orange */}
-        <div className="relative bg-linear-to-br from-red-600 via-orange-600 to-pink-600 p-8 pb-12">
+        <div className="relative bg-linear-to-br from-red-600 via-orange-600 to-pink-600 p-6 sm:p-8 sm:pb-12">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
           
-          <div className="relative flex items-start gap-4">
+          <div className="relative flex items-start gap-3 sm:gap-4">
             <div className="shrink-0">
               <div className="relative">
                 <div className="absolute inset-0 bg-white/30 blur-xl rounded-full animate-pulse"></div>
-                <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
-                  <XCircle className="h-8 w-8 text-white" />
+                <div className="relative bg-white/20 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-white/30 shadow-xl">
+                  <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
               </div>
             </div>
             
-            <div className="flex-1 pt-2">
-              <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+            <div className="flex-1 pt-1 sm:pt-2 min-w-0">
+              <DialogTitle className="text-xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight leading-tight">
                 {t.activationRequests.cancel?.title || 'Annuler la requête'}
               </DialogTitle>
-              <DialogDescription className="text-orange-100 text-lg font-medium">
-                Requête <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
+              <DialogDescription className="text-orange-100 text-sm sm:text-lg font-medium leading-snug">
+                Requête <span className="font-mono bg-white/10 px-1.5 py-0.5 rounded">#{formatRequestId(request.id)}</span> <span className="hidden sm:inline">•</span> <div className="sm:inline block mt-1 sm:mt-0">{request.customer?.full_name || 'Client'}</div>
               </DialogDescription>
             </div>
 
-            <AlertTriangle className="h-6 w-6 text-yellow-300 animate-bounce" />
+            <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-300 animate-bounce shrink-0" />
           </div>
         </div>
 
         {/* Contenu du formulaire */}
         <fetcher.Form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900">
-          <div className="p-8 space-y-6">
+          <div className="p-5 sm:p-8 space-y-4 sm:space-y-6">
             {/* Avertissement spectaculaire */}
-            <div className="relative overflow-hidden bg-linear-to-br from-red-50 via-orange-50 to-pink-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-pink-950/30 border-2 border-red-300 dark:border-red-700 rounded-2xl p-6">
+            <div className="relative overflow-hidden bg-linear-to-br from-red-50 via-orange-50 to-pink-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-pink-950/30 border-2 border-red-300 dark:border-red-700 rounded-2xl p-4 sm:p-6">
               <div className="absolute top-0 right-0 w-32 h-32 bg-red-400/20 dark:bg-red-600/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
-              <div className="relative flex gap-4">
+              <div className="relative flex gap-3 sm:gap-4">
                 <div className="shrink-0">
-                  <div className="bg-red-100 dark:bg-red-900/50 p-3 rounded-xl">
-                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  <div className="bg-red-100 dark:bg-red-900/50 p-2 sm:p-3 rounded-xl">
+                    <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
                   </div>
                 </div>
-                <div>
-                  <p className="font-black text-red-900 dark:text-red-200 text-lg mb-2">
+                <div className="min-w-0">
+                  <p className="font-black text-red-900 dark:text-red-200 text-base sm:text-lg mb-1 sm:mb-2">
                     ⚠️ {t.activationRequests.cancel?.warning || 'Attention - Action Irréversible'}
                   </p>
-                  <p className="text-sm text-red-800 dark:text-red-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-red-800 dark:text-red-300 leading-relaxed">
                     {t.activationRequests.cancel?.warningMessage || 'Cette requête sera définitivement annulée et ne pourra plus être traitée. Cette action ne peut pas être annulée.'}
                   </p>
                 </div>
@@ -142,8 +142,8 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
             </div>
 
             {/* Informations de la requête - Design moderne */}
-            <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6">
-              <div className="grid grid-cols-2 gap-6">
+            <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
@@ -151,16 +151,16 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
                       {t.activationRequests.details?.customerInfo || 'Client'}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{request.customer?.full_name}</p>
+                  <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">{request.customer?.full_name}</p>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-purple-500 rounded-full"></div>
-                    <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                    <div className="w-1 h-3 sm:h-4 bg-purple-500 rounded-full"></div>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                       {t.activationRequests.table?.simNumber || 'Numéro SIM'}
                     </span>
                   </div>
-                  <p className="text-lg font-bold font-mono text-slate-900 dark:text-slate-100">{request.sim_number}</p>
+                  <p className="text-base sm:text-lg font-bold font-mono text-slate-900 dark:text-slate-100 break-all">{request.sim_number}</p>
                 </div>
               </div>
             </div>
@@ -200,20 +200,20 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
           </div>
 
           {/* Footer avec design moderne */}
-          <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 px-5 sm:px-8 py-4 sm:py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-              className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+              className="h-11 sm:h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
             >
               {t.common?.cancel || 'Annuler'}
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="h-12 px-8 bg-linear-to-r from-red-600 via-orange-600 to-pink-600 hover:from-red-700 hover:via-orange-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="h-11 sm:h-12 px-6 sm:px-8 bg-linear-to-r from-red-600 via-orange-600 to-pink-600 hover:from-red-700 hover:via-orange-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform sm:hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
             >
               {isSubmitting && <Loader2 className="h-5 w-5 mr-2 animate-spin" />}
               {isSubmitting ? (

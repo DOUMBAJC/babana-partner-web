@@ -87,7 +87,7 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-[2rem] sm:rounded-3xl p-0 overflow-hidden max-h-[96vh] sm:max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-4xl sm:rounded-3xl p-0 overflow-hidden max-h-[96vh] sm:max-h-[90vh] overflow-y-auto left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
         {/* Header spectaculaire avec gradient vert */}
         <div className="relative bg-linear-to-br from-green-600 via-emerald-600 to-teal-600 p-6 sm:p-8 sm:pb-12">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
