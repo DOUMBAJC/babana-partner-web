@@ -18,37 +18,46 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       });
     }
 
-    const hasAccess = user.roles?.some((role) => AUTHORIZED_ROLES.includes(role));
-
-    if (!hasAccess) {
-      return data({
-        user,
-        hasAccess: false,
-        error: null,
-        request: null,
-        statusChanged: false,
+    // Récupérer la requête d'abord pour vérifier si l'utilisateur est le propriétaire
+    const api = await createAuthenticatedApi(request);
+    let activationRequest;
+    
+    try {
+      const response = await api.get(`/activation-requests/${id}`, {
+        params: {
+          include: 'ba,customer,processor,history',
+        },
       });
+      activationRequest = response.data?.data || response.data;
+    } catch (error: any) {
+      // Si l'erreur est 404 ou accès refusé, on retourne un accès refusé
+      if (error?.response?.status === 404 || error?.response?.status === 403) {
+        return data({
+          user,
+          hasAccess: false,
+          error: 'Requête non trouvée ou accès refusé',
+          request: null,
+          statusChanged: false,
+        });
+      }
+      throw error;
     }
 
-    const api = await createAuthenticatedApi(request);
-    const response = await api.get(`/activation-requests/${id}`, {
-      params: {
-        include: 'ba,customer,processor,history',
-      },
-    });
-
-    const activationRequest = response.data?.data || response.data;
-
+    // Vérifier si l'utilisateur est le propriétaire de la requête
     const isOwner = activationRequest.baId === user.id;
+    
+    // Vérifier si l'utilisateur a un rôle autorisé
+    const hasAuthorizedRole = user.roles?.some((role) => AUTHORIZED_ROLES.includes(role));
+    
     const isActivator = user.roles?.some((role) => 
       ['activateur', 'admin', 'super_admin'].includes(role)
     );
     
     // Règles d'accès :
     // - Les activateurs peuvent voir toutes les requêtes
-    // - Les BA peuvent voir leurs propres requêtes (quel que soit le statut)
-    // - Personne d'autre ne peut voir les requêtes
-    if (!isOwner && !isActivator) {
+    // - Le propriétaire de la requête peut voir sa propre requête (même sans rôle autorisé)
+    // - Les autres utilisateurs avec rôles autorisés peuvent voir les requêtes
+    if (!isOwner && !hasAuthorizedRole) {
       return data({
         user,
         hasAccess: false,
