@@ -144,6 +144,12 @@ axiosInstance.interceptors.response.use(
     if (API_CONFIG.isDevelopment) {
       logResponse(response.status, response.config.url);
     }
+    
+    // Émettre un événement de succès réseau pour réinitialiser l'alerte
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("network:success"));
+    }
+    
     return response;
   },
   (error: AxiosError) => {
@@ -162,6 +168,16 @@ axiosInstance.interceptors.response.use(
       if (!isNotificationEndpoint && !isSessionsEndpoint) {
         window.dispatchEvent(new CustomEvent("auth:unauthorized"));
       }
+    }
+    
+    // Émettre un événement pour les erreurs réseau (pas de réponse du serveur)
+    if (typeof window !== "undefined" && error.request && !error.response) {
+      window.dispatchEvent(new CustomEvent("network:error", {
+        detail: {
+          code: apiError.code || "NETWORK_ERROR",
+          message: apiError.message,
+        },
+      }));
     }
     
     return Promise.reject(apiError);

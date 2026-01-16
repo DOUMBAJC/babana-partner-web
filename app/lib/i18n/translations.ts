@@ -345,6 +345,18 @@ export interface Translations {
       contact: string;
     };
   };
+  // Connection Alert
+  connection: {
+    title: string;
+    offline: string;
+    offlineSub: string;
+    timeout: string;
+    serverError: string;
+    networkError: string;
+    retry: string;
+    retrySub: string;
+    checking: string;
+  };
   // Pages Metadata
   pages: {
     home: {
@@ -1497,6 +1509,17 @@ export const translations: Record<Language, Translations> = {
         useNavigation: "Utilisez la navigation pour trouver ce que vous cherchez",
         contact: "Contactez-nous si vous pensez qu'il s'agit d'une erreur",
       },
+    },
+    connection: {
+      title: "Problème de connexion",
+      offline: "Vous êtes hors ligne",
+      offlineSub: "Vérifiez votre connexion internet",
+      timeout: "La connexion prend trop de temps",
+      serverError: "Le serveur ne répond pas correctement",
+      networkError: "Problème de connexion réseau détecté",
+      retry: "Réessayer",
+      retrySub: "Veuillez réessayer dans quelques instants",
+      checking: "Vérification en cours...",
     },
     pages: {
       home: {
@@ -2683,6 +2706,17 @@ export const translations: Record<Language, Translations> = {
         useNavigation: "Use the navigation to find what you're looking for",
         contact: "Contact us if you think this is an error",
       },
+    },
+    connection: {
+      title: "Connection problem",
+      offline: "You are offline",
+      offlineSub: "Check your internet connection",
+      timeout: "Connection is taking too long",
+      serverError: "Server is not responding correctly",
+      networkError: "Network connection problem detected",
+      retry: "Retry",
+      retrySub: "Please try again in a few moments",
+      checking: "Checking...",
     },
     pages: {
       home: {

@@ -11,6 +11,7 @@ import type { Route } from "./+types/root";
 import { ThemeProvider, LanguageProvider, AuthProvider, ConsentProvider } from "~/hooks";
 import { LanguageSync } from "~/components/LanguageSync";
 import { ConsentBanner } from "~/components/ConsentBanner";
+import { ConnectionAlert } from "~/components/ConnectionAlert";
 import { Toaster } from "~/components";
 import "./app.css";
 
@@ -77,6 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <ConsentProvider>
               <AuthProvider initialUser={user}>
                 <LanguageSync />
+                <ConnectionAlert />
                 {children}
                 <ConsentBanner />
                 <Toaster />

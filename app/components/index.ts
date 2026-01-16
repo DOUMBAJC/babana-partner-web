@@ -18,6 +18,7 @@ export { ConsentModal } from './ConsentModal';
 export { ConsentSettings } from './ConsentSettings';
 export { Footer } from './Footer';
 export { NotificationDropdown } from './NotificationDropdown';
+export { ConnectionAlert } from './ConnectionAlert';
 
 // Feature Components
 export { FeatureCard } from './features/FeatureCard';
