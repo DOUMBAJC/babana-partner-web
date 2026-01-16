@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, useFetcher } from "react-router";
+import { useNavigate, useSearchParams, useFetcher, useLocation } from "react-router";
 import { Card } from "~/components/ui/card";
 import {
   Table,
@@ -59,6 +59,7 @@ export function RequestsTable({ requests, pagination, userRole, userId }: Reques
   const { t } = useTranslation();
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const fetcher = useFetcher();
 
@@ -192,7 +193,9 @@ export function RequestsTable({ requests, pagination, userRole, userId }: Reques
                 <TableRow 
                   key={request.id} 
                   className="hover:bg-muted/50 transition-colors cursor-pointer border-b border-border/50"
-                  onClick={() => navigate(`/sales/activation-requests/${request.id}`)}
+                  onClick={() => navigate(`/sales/activation-requests/${request.id}`, {
+                    state: { from: `${location.pathname}${location.search}` }
+                  })}
                 >
                   <TableCell className="font-medium text-primary py-4">
                     <TooltipProvider>
@@ -263,7 +266,9 @@ export function RequestsTable({ requests, pagination, userRole, userId }: Reques
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => navigate(`/sales/activation-requests/${request.id}`)}
+                          onClick={() => navigate(`/sales/activation-requests/${request.id}`, {
+                            state: { from: `${location.pathname}${location.search}` }
+                          })}
                           className="rounded-lg"
                         >
                           <Eye className="h-4 w-4 mr-2" />

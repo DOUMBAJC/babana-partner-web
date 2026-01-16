@@ -21,9 +21,13 @@ export function ActionButtons({
   onEdit,
   onCancel,
 }: ActionButtonsProps) {
+  const canEdit = canEditRequest(request, user);
+  const canCancel = canCancelRequest(request, user);
+  const canProcess = canProcessRequest(request, user);
+  
   return (
     <div className="flex flex-wrap gap-3">
-      {canProcessRequest(request, user) && (
+      {canProcess && (
         <>
           <Button
             onClick={onAccept}
@@ -44,7 +48,7 @@ export function ActionButtons({
         </>
       )}
       
-      {canEditRequest(request, user) && (
+      {canEdit && (
         <Button
           onClick={onEdit}
           size="lg"
@@ -56,7 +60,7 @@ export function ActionButtons({
         </Button>
       )}
       
-      {canCancelRequest(request, user) && (
+      {canCancel && (
         <Button
           onClick={onCancel}
           size="lg"

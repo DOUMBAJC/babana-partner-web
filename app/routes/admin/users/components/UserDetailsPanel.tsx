@@ -369,7 +369,7 @@ export function UserDetailsPanel({
                                     <SelectTrigger>
                                       <SelectValue placeholder="Choisir un login…" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="max-h-[300px]">
                                       {/* Recherche locale (sans appel API) */}
                                       <div className="sticky top-0 z-10 -mx-2 -mt-2 mb-2 p-2 bg-popover/95 backdrop-blur-xl border-b border-border/60">
                                         <div className="relative">
@@ -532,7 +532,7 @@ export function UserDetailsPanel({
                               <SelectTrigger>
                                 <SelectValue placeholder={t.adminUsers.roles.choosePlaceholder} />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[300px]">
                                 {/* Recherche locale (sans appel API) */}
                                 <div className="sticky top-0 z-10 -mx-2 -mt-2 mb-2 p-2 bg-popover/95 backdrop-blur-xl border-b border-border/60">
                                   <div className="relative">

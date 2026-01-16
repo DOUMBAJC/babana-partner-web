@@ -2,6 +2,19 @@ import { data } from "react-router";
 import { createAuthenticatedApi, getCurrentUser } from '~/services/api.server';
 import { AUTHORIZED_ROLES } from "./constants";
 import type { Route } from "./+types/route";
+import type { ActivationRequest } from "~/types";
+
+/**
+ * Normalise les données d'une requête d'activation depuis l'API
+ * Convertit les champs snake_case en camelCase pour la compatibilité
+ */
+function normalizeActivationRequest(rawRequest: any): ActivationRequest {
+  return {
+    ...rawRequest,
+    baId: rawRequest.baId || rawRequest.ba_id || rawRequest.ba?.id,
+    customerId: rawRequest.customerId || rawRequest.customer_id || rawRequest.customer?.id,
+  };
+}
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   try {
@@ -28,7 +41,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           include: 'ba,customer,processor,history',
         },
       });
-      activationRequest = response.data?.data || response.data;
+      const rawRequest = response.data?.data || response.data;
+      activationRequest = normalizeActivationRequest(rawRequest);
     } catch (error: any) {
       // Si l'erreur est 404 ou accès refusé, on retourne un accès refusé
       if (error?.response?.status === 404 || error?.response?.status === 403) {
@@ -44,7 +58,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
 
     // Vérifier si l'utilisateur est le propriétaire de la requête
-    const isOwner = activationRequest.baId === user.id;
+    const isOwner = String(activationRequest.baId) === String(user.id);
     
     // Vérifier si l'utilisateur a un rôle autorisé
     const hasAuthorizedRole = user.roles?.some((role) => AUTHORIZED_ROLES.includes(role));
@@ -77,7 +91,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         });
         
         // Si le backend retourne l'objet complet, on l'utilise directement
-        const updatedRequest = processResponse.data?.data || processResponse.data;
+        const rawUpdatedRequest = processResponse.data?.data || processResponse.data;
+        const updatedRequest = normalizeActivationRequest(rawUpdatedRequest);
         
         // Vérifier si on a reçu un objet complet (avec les relations)
         // Si oui, on évite le deuxième appel GET
@@ -98,11 +113,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
           },
         });
         
+        const rawUpdatedResponse = updatedResponse.data?.data || updatedResponse.data;
+        const normalizedUpdatedRequest = normalizeActivationRequest(rawUpdatedResponse);
+        
         return data({
           user,
           hasAccess: true,
           error: null,
-          request: updatedResponse.data?.data || updatedResponse.data,
+          request: normalizedUpdatedRequest,
           statusChanged: true,
         });
       } catch (error) {

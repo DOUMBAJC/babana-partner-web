@@ -103,64 +103,62 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
+      <DialogContent className="w-[95vw] sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-[2rem] sm:rounded-3xl p-0 overflow-hidden max-h-[96vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header spectaculaire avec gradient rouge/rose */}
-        <div className="relative bg-linear-to-br from-red-600 via-rose-600 to-pink-600 p-8 pb-12">
+        <div className="relative bg-linear-to-br from-red-600 via-rose-600 to-pink-600 p-6 sm:p-8 sm:pb-12">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
           
-          <div className="relative flex items-start gap-4">
+          <div className="relative flex items-start gap-3 sm:gap-4">
             <div className="shrink-0">
               <div className="relative">
                 <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
-                <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
-                  <XCircle className="h-8 w-8 text-white" />
+                <div className="relative bg-white/20 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-white/30 shadow-xl">
+                  <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
               </div>
             </div>
             
-            <div className="flex-1 pt-2">
-              <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+            <div className="flex-1 pt-1 sm:pt-2">
+              <DialogTitle className="text-xl sm:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight leading-tight">
                 {t.activationRequests.reject.title}
               </DialogTitle>
-              <DialogDescription className="text-rose-100 text-lg font-medium">
-                {t.activationRequests.reject.request} <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
+              <DialogDescription className="text-rose-100/90 text-sm sm:text-lg font-medium leading-snug">
+                {t.activationRequests.reject.request} <span className="font-mono bg-white/10 px-1.5 py-0.5 rounded">#{formatRequestId(request.id)}</span> <span className="hidden sm:inline">•</span> <div className="sm:inline block mt-1 sm:mt-0">{request.customer?.full_name || 'Client'}</div>
               </DialogDescription>
             </div>
-
-            <AlertTriangle className="h-6 w-6 text-yellow-300 animate-pulse" />
           </div>
         </div>
 
         {/* Contenu du formulaire */}
         <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900">
-          <div className="p-8 space-y-6">
+          <div className="p-5 sm:p-8 space-y-6">
             {/* Informations de la requête - Design moderne */}
-            <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
+            <div className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-red-500 rounded-full"></div>
-                    <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                    <div className="w-1 h-3 sm:h-4 bg-red-500 rounded-full"></div>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       {t.activationRequests.table.simNumber}
                     </span>
                   </div>
-                  <p className="text-lg font-bold font-mono text-slate-900 dark:text-slate-100">{request.sim_number}</p>
+                  <p className="text-base sm:text-lg font-bold font-mono text-slate-900 dark:text-slate-100">{request.sim_number}</p>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-rose-500 rounded-full"></div>
-                    <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                    <div className="w-1 h-3 sm:h-4 bg-rose-500 rounded-full"></div>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       {t.activationRequests.table.iccid}
                     </span>
                   </div>
-                  <p className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100">{request.iccid}</p>
+                  <p className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-slate-100 break-all">{request.iccid}</p>
                 </div>
               </div>
             </div>
 
             {/* Raison du rejet - Design moderne avec erreur */}
             <div className="space-y-3">
-              <Label htmlFor="rejectionReason" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <Label htmlFor="rejectionReason" className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <div className="w-1 h-4 bg-red-500 rounded-full"></div>
                 {t.activationRequests.reject.reason} 
                 <span className="text-red-500">*</span>
@@ -178,15 +176,15 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                 }}
                 rows={3}
                 disabled={isSubmitting}
-                className={`text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
+                className={`text-sm sm:text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
                   error 
                     ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/20' 
                     : 'border-slate-200 dark:border-slate-700 focus:border-red-500 focus:ring-4 focus:ring-red-500/20'
                 }`}
               />
               {(error || errors.rejectionReason) && (
-                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg">
-                  <AlertTriangle className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
                   {errors.rejectionReason || error}
                 </div>
               )}
@@ -194,7 +192,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
 
             {/* Notes administrateur - Design moderne */}
             <div className="space-y-3">
-              <Label htmlFor="adminNotes" className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <Label htmlFor="adminNotes" className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <div className="w-1 h-4 bg-pink-500 rounded-full"></div>
                 {t.activationRequests.reject.notes}
               </Label>
@@ -208,17 +206,17 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                     setErrors((prev) => ({ ...prev, adminNotes: '' }));
                   }
                 }}
-                rows={3}
+                rows={2}
                 disabled={isSubmitting}
-                className={`text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
+                className={`text-sm sm:text-base bg-slate-50 dark:bg-slate-800 border-2 rounded-xl transition-all duration-200 resize-none ${
                   errors.adminNotes 
                     ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/20' 
                     : 'border-slate-200 dark:border-slate-700 focus:border-pink-500 focus:ring-4 focus:ring-pink-500/20'
                 }`}
               />
               {errors.adminNotes && (
-                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm font-medium bg-red-50 dark:bg-red-950/30 px-4 py-2 rounded-lg">
-                  <AlertTriangle className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
                   {errors.adminNotes}
                 </div>
               )}
@@ -226,7 +224,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
           </div>
 
           {/* Footer avec design moderne */}
-          <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 px-5 sm:px-8 py-4 sm:py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
             <Button
               type="button"
               variant="outline"
@@ -236,14 +234,14 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                 setErrors({});
               }}
               disabled={isSubmitting}
-              className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+              className="h-11 sm:h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
             >
               {t.activationRequests.reject.cancel}
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="h-12 px-8 bg-linear-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="h-11 sm:h-12 px-8 bg-linear-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:via-rose-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform sm:hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isSubmitting && <Loader2 className="h-5 w-5 mr-2 animate-spin" />}
               {isSubmitting ? (

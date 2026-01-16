@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useActionData, useRevalidator } from "react-router";
+import { useNavigate, useActionData, useRevalidator, useLocation } from "react-router";
 import { useTranslation, usePageTitle, useLanguage } from '~/hooks';
 import { Layout } from '~/components';
 import { Toaster } from '~/components/ui/toaster';
@@ -26,6 +26,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
   const { t } = useTranslation();
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const actionData = useActionData<typeof action>();
   const revalidator = useRevalidator();
 
@@ -97,6 +98,24 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
     }
   }, [isAuthenticated, hasAccess, navigate]);
 
+  // Fonction pour gérer le retour à la liste en conservant les paramètres
+  const handleBack = () => {
+    // Vérifier si on peut revenir en arrière dans l'historique
+    // Si l'état de navigation contient une référence à la page précédente, on l'utilise
+    const state = location.state as { from?: string } | null;
+    
+    if (state?.from) {
+      // Si on a une référence explicite à la page précédente, l'utiliser
+      navigate(state.from);
+    } else if (window.history.length > 1) {
+      // Sinon, essayer de revenir en arrière dans l'historique
+      navigate(-1);
+    } else {
+      // Fallback vers la route de base si pas d'historique
+      navigate('/sales/activation-requests');
+    }
+  };
+
   if (!isAuthenticated) {
     return <LoadingView />;
   }
@@ -128,7 +147,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
           onReject={() => setShowRejectDialog(true)}
           onEdit={() => setShowEditDialog(true)}
           onCancel={() => setShowCancelDialog(true)}
-          onBack={() => navigate('/sales/activation-requests')}
+          onBack={handleBack}
         />
 
         {/* Grille de cartes d'information */}
