@@ -356,6 +356,8 @@ export interface Translations {
     retry: string;
     retrySub: string;
     checking: string;
+    restored: string;
+    restoredSub: string;
   };
   // Pages Metadata
   pages: {
@@ -1520,6 +1522,8 @@ export const translations: Record<Language, Translations> = {
       retry: "Réessayer",
       retrySub: "Veuillez réessayer dans quelques instants",
       checking: "Vérification en cours...",
+      restored: "Connexion rétablie",
+      restoredSub: "Votre connexion internet est de retour",
     },
     pages: {
       home: {
@@ -2717,6 +2721,8 @@ export const translations: Record<Language, Translations> = {
       retry: "Retry",
       retrySub: "Please try again in a few moments",
       checking: "Checking...",
+      restored: "Connection restored",
+      restoredSub: "Your internet connection is back",
     },
     pages: {
       home: {
