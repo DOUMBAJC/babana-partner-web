@@ -15,10 +15,9 @@ export async function action({ request }: ActionFunctionArgs) {
     const body = await request.json();
     
     // Le serveur attend current_password, new_password et password_confirmation
-    // Transformer password en new_password pour correspondre au format attendu
     const backendBody = {
       current_password: body.current_password,
-      new_password: body.password, // Transformer password en new_password
+      new_password: body.new_password,
       password_confirmation: body.password_confirmation,
     };
     

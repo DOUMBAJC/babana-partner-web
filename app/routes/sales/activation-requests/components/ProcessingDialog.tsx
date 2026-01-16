@@ -14,6 +14,7 @@ import { Label } from '~/components/ui/label';
 import { Loader2, Clock } from 'lucide-react';
 import type { ActivationRequest } from '~/types';
 import { useTranslation } from '~/hooks';
+import { formatRequestId } from '../$id/utils/formatters';
 
 interface ProcessingDialogProps {
   open: boolean;
@@ -57,7 +58,7 @@ export function ProcessingDialog({ open, onOpenChange, request, action }: Proces
                 Marquer en cours de traitement
               </DialogTitle>
               <DialogDescription className="text-base mt-1">
-                Requête #{request.id}
+                Requête <span className="font-mono">#{formatRequestId(request.id)}</span>
               </DialogDescription>
             </div>
           </div>

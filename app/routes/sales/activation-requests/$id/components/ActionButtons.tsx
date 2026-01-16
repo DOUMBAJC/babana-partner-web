@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button";
-import { CheckCircle, XCircle, Edit } from "lucide-react";
+import { CheckCircle, XCircle, Edit, Ban } from "lucide-react";
 import type { ActivationRequest } from "~/types";
 import { canProcessRequest, canEditRequest, canCancelRequest } from "../utils/permissions";
 import type { User } from "../utils/permissions";
@@ -60,11 +60,10 @@ export function ActionButtons({
         <Button
           onClick={onCancel}
           size="lg"
-          variant="outline"
-          className="border-2 border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 font-bold shadow-md hover:shadow-lg transition-all"
+          className="bg-linear-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
         >
-          <XCircle className="h-5 w-5 mr-2" />
-          Annuler
+          <Ban className="h-5 w-5 mr-2" />
+          Annuler la requête
         </Button>
       )}
     </div>

@@ -45,6 +45,8 @@ import { useTranslation, useLanguage } from "~/hooks";
 import { AcceptDialog } from "./AcceptDialog";
 import { RejectDialog } from "./RejectDialog";
 import { CancelDialog } from "./CancelDialog";
+import { formatRequestId } from "../$id/utils/formatters";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 
 interface RequestsTableProps {
   requests: ActivationRequest[];
@@ -193,9 +195,18 @@ export function RequestsTable({ requests, pagination, userRole, userId }: Reques
                   onClick={() => navigate(`/sales/activation-requests/${request.id}`)}
                 >
                   <TableCell className="font-medium text-primary py-4">
-                    <span className="inline-flex items-center gap-1">
-                      #{request.id}
-                    </span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1 font-mono text-sm bg-primary/10 px-2 py-1 rounded-md cursor-help hover:bg-primary/20 transition-colors">
+                            #{formatRequestId(request.id)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-mono text-xs">ID complet: {request.id}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">

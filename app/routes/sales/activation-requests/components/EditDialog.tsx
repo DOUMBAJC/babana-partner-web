@@ -14,6 +14,7 @@ import { Textarea } from '~/components/ui/textarea';
 import { Loader2, Edit, Sparkles, AlertTriangle } from 'lucide-react';
 import type { ActivationRequest } from '~/types';
 import { useTranslation } from '~/hooks';
+import { formatRequestId } from '../$id/utils/formatters';
 
 interface EditDialogProps {
   open: boolean;
@@ -159,7 +160,7 @@ export function EditDialog({ open, onOpenChange, request, action }: EditDialogPr
                 {t.activationRequests.edit?.title || 'Modifier la requête'}
               </DialogTitle>
               <DialogDescription className="text-blue-100 text-lg font-medium">
-                Requête #{request.id} • {request.customer?.full_name || 'Client'}
+                Requête <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
               </DialogDescription>
             </div>
 

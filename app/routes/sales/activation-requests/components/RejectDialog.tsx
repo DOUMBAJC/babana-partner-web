@@ -14,6 +14,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { XCircle, Loader2, AlertTriangle } from "lucide-react";
 import { useTranslation } from "~/hooks";
 import type { ActivationRequest } from "~/types";
+import { formatRequestId } from "../$id/utils/formatters";
 
 interface RejectDialogProps {
   open: boolean;
@@ -122,7 +123,7 @@ export function RejectDialog({ open, onOpenChange, request, action }: RejectDial
                 {t.activationRequests.reject.title}
               </DialogTitle>
               <DialogDescription className="text-rose-100 text-lg font-medium">
-                {t.activationRequests.reject.request} #{request.id} • {request.customer?.full_name || 'Client'}
+                {t.activationRequests.reject.request} <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
               </DialogDescription>
             </div>
 

@@ -14,6 +14,7 @@ import { Label } from '~/components/ui/label';
 import { Loader2, XCircle, AlertTriangle, Sparkles } from 'lucide-react';
 import type { ActivationRequest } from '~/types';
 import { useTranslation } from '~/hooks';
+import { formatRequestId } from '../$id/utils/formatters';
 
 interface CancelDialogProps {
   open: boolean;
@@ -109,7 +110,7 @@ export function CancelDialog({ open, onOpenChange, request, action }: CancelDial
                 {t.activationRequests.cancel?.title || 'Annuler la requête'}
               </DialogTitle>
               <DialogDescription className="text-orange-100 text-lg font-medium">
-                Requête #{request.id} • {request.customer?.full_name || 'Client'}
+                Requête <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
               </DialogDescription>
             </div>
 

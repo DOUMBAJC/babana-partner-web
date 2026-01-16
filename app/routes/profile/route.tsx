@@ -42,7 +42,6 @@ import {
   Mail,
   Phone,
   Calendar,
-  ChevronRight,
   Globe,
   Palette,
   Timer,
@@ -69,6 +68,12 @@ export default function ProfilePage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<{
+    general?: string;
+    current_password?: string;
+    new_password?: string;
+    password_confirmation?: string;
+  }>({});
   
   // Form states
   const [profileData, setProfileData] = useState({
@@ -214,13 +219,21 @@ export default function ProfilePage() {
 
   // Sauvegarder le mot de passe
   const handleSavePassword = async () => {
+    // Réinitialiser les erreurs
+    setPasswordErrors({});
+
+    // Validation côté client
     if (!currentPasswordRef.current?.value || !newPasswordRef.current?.value) {
-      toast.error(language === 'fr' ? 'Veuillez remplir tous les champs' : 'Please fill all fields');
+      const errorMsg = language === 'fr' ? 'Veuillez remplir tous les champs' : 'Please fill all fields';
+      setPasswordErrors({ general: errorMsg });
+      toast.error(errorMsg);
       return;
     }
 
     if (newPasswordRef.current.value !== confirmPasswordRef.current?.value) {
-      toast.error(language === 'fr' ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match');
+      const errorMsg = language === 'fr' ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match';
+      setPasswordErrors({ password_confirmation: errorMsg });
+      toast.error(errorMsg);
       return;
     }
 
@@ -236,43 +249,78 @@ export default function ProfilePage() {
         new_password: newPassword,
         password_confirmation: confirmPassword,
       });
+      
       toast.success(language === 'fr' ? 'Mot de passe modifié avec succès' : 'Password changed successfully');
-      // Réinitialiser les champs
+      
+      // Réinitialiser les champs et les erreurs
+      setPasswordErrors({});
       if (currentPasswordRef.current) currentPasswordRef.current.value = "";
       if (newPasswordRef.current) newPasswordRef.current.value = "";
       if (confirmPasswordRef.current) confirmPasswordRef.current.value = "";
     } catch (error: any) {
       console.error("Error changing password:", error);
       
-      // Extraire le message d'erreur de différentes façons possibles
-      let errorMessage = error?.message;
+      // Extraire les erreurs de validation Laravel
+      const errors: {
+        general?: string;
+        current_password?: string;
+        new_password?: string;
+        password_confirmation?: string;
+      } = {};
       
       // Si l'erreur a une réponse avec des données
       if (error?.response?.data) {
         const data = error.response.data;
-        // Vérifier les différents formats d'erreur Laravel
-        if (data.error && typeof data.error === 'string') {
-          errorMessage = data.error;
-        } else if (data.message && typeof data.message === 'string') {
-          errorMessage = data.message;
-        } else if (data.errors && typeof data.errors === 'object') {
-          // Erreurs de validation Laravel
-          const firstErrorKey = Object.keys(data.errors)[0];
-          const firstError = data.errors[firstErrorKey];
-          if (Array.isArray(firstError) && firstError.length > 0) {
-            errorMessage = firstError[0];
-          } else if (typeof firstError === 'string') {
-            errorMessage = firstError;
+        
+        // Gérer les erreurs de validation Laravel (format: { errors: { field: ["message"] } })
+        if (data.errors && typeof data.errors === 'object') {
+          Object.keys(data.errors).forEach((key) => {
+            const fieldErrors = data.errors[key];
+            if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+              // Mapper les noms de champs du serveur vers les noms locaux
+              if (key === 'current_password' || key === 'new_password' || key === 'password_confirmation' || key === 'new_password_confirmation') {
+                const fieldName = key === 'new_password_confirmation' ? 'password_confirmation' : key;
+                errors[fieldName as keyof typeof errors] = fieldErrors[0];
+              } else {
+                // Pour les autres champs, mettre dans general
+                if (!errors.general) {
+                  errors.general = fieldErrors[0];
+                }
+              }
+            } else if (typeof fieldErrors === 'string') {
+              const fieldName = key === 'new_password_confirmation' ? 'password_confirmation' : key;
+              if (fieldName === 'current_password' || fieldName === 'new_password' || fieldName === 'password_confirmation') {
+                errors[fieldName as keyof typeof errors] = fieldErrors;
+              } else {
+                if (!errors.general) {
+                  errors.general = fieldErrors;
+                }
+              }
+            }
+          });
+        }
+        
+        // Si pas d'erreurs de validation mais un message d'erreur général
+        if (Object.keys(errors).length === 0) {
+          if (data.error && typeof data.error === 'string') {
+            errors.general = data.error;
+          } else if (data.message && typeof data.message === 'string') {
+            errors.general = data.message;
           }
         }
       }
       
-      // Message par défaut si aucun message n'a été trouvé
-      if (!errorMessage) {
-        errorMessage = language === 'fr' ? 'Erreur lors du changement de mot de passe' : 'Error changing password';
+      // Si aucune erreur structurée n'a été trouvée, utiliser le message d'erreur
+      if (Object.keys(errors).length === 0) {
+        errors.general = error?.message || (language === 'fr' ? 'Erreur lors du changement de mot de passe' : 'Error changing password');
       }
       
-      toast.error(errorMessage);
+      setPasswordErrors(errors);
+      
+      // Afficher aussi un toast avec l'erreur principale
+      const mainError = errors.general || errors.current_password || errors.new_password || errors.password_confirmation || 
+        (language === 'fr' ? 'Erreur lors du changement de mot de passe' : 'Error changing password');
+      toast.error(mainError);
     } finally {
       setIsSaving(false);
     }
@@ -871,6 +919,14 @@ export default function ProfilePage() {
                         <h3 className="font-bold text-zinc-900 dark:text-zinc-100">{t.profile.security.changePassword}</h3>
                       </div>
                       
+                      {/* Message d'erreur général */}
+                      {passwordErrors.general && (
+                        <div className="flex items-start gap-2 p-4 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50">
+                          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                          <p className="text-sm text-red-700 dark:text-red-400">{passwordErrors.general}</p>
+                        </div>
+                      )}
+                      
                       <div className="grid grid-cols-1 gap-6">
                         <div className="space-y-2">
                           <Label htmlFor="currentPassword">{t.profile.security.currentPassword}</Label>
@@ -880,7 +936,16 @@ export default function ProfilePage() {
                               ref={currentPasswordRef}
                               type={showCurrentPassword ? "text" : "password"}
                               placeholder="••••••••"
-                              className="pr-10"
+                              className={cn(
+                                "pr-10",
+                                passwordErrors.current_password && "border-red-500 focus-visible:ring-red-500"
+                              )}
+                              onChange={() => {
+                                // Effacer l'erreur quand l'utilisateur commence à taper
+                                if (passwordErrors.current_password) {
+                                  setPasswordErrors(prev => ({ ...prev, current_password: undefined }));
+                                }
+                              }}
                             />
                             <Button
                               type="button"
@@ -892,6 +957,12 @@ export default function ProfilePage() {
                               {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </Button>
                           </div>
+                          {passwordErrors.current_password && (
+                            <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                              <AlertCircle className="w-4 h-4" />
+                              {passwordErrors.current_password}
+                            </p>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -903,7 +974,16 @@ export default function ProfilePage() {
                                 ref={newPasswordRef}
                                 type={showNewPassword ? "text" : "password"}
                                 placeholder="••••••••"
-                                className="pr-10"
+                                className={cn(
+                                  "pr-10",
+                                  passwordErrors.new_password && "border-red-500 focus-visible:ring-red-500"
+                                )}
+                                onChange={() => {
+                                  // Effacer l'erreur quand l'utilisateur commence à taper
+                                  if (passwordErrors.new_password) {
+                                    setPasswordErrors(prev => ({ ...prev, new_password: undefined }));
+                                  }
+                                }}
                               />
                               <Button
                                 type="button"
@@ -915,6 +995,12 @@ export default function ProfilePage() {
                                 {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                               </Button>
                             </div>
+                            {passwordErrors.new_password && (
+                              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
+                                {passwordErrors.new_password}
+                              </p>
+                            )}
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="confirmPassword">{t.profile.security.confirmPassword}</Label>
@@ -923,7 +1009,22 @@ export default function ProfilePage() {
                               ref={confirmPasswordRef}
                               type="password"
                               placeholder="••••••••"
+                              className={cn(
+                                passwordErrors.password_confirmation && "border-red-500 focus-visible:ring-red-500"
+                              )}
+                              onChange={() => {
+                                // Effacer l'erreur quand l'utilisateur commence à taper
+                                if (passwordErrors.password_confirmation) {
+                                  setPasswordErrors(prev => ({ ...prev, password_confirmation: undefined }));
+                                }
+                              }}
                             />
+                            {passwordErrors.password_confirmation && (
+                              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
+                                {passwordErrors.password_confirmation}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>

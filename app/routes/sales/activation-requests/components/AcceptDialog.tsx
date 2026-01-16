@@ -14,6 +14,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { CheckCircle, Loader2, Sparkles, AlertTriangle } from "lucide-react";
 import { useTranslation } from "~/hooks";
 import type { ActivationRequest } from "~/types";
+import { formatRequestId } from "../$id/utils/formatters";
 
 interface AcceptDialogProps {
   open: boolean;
@@ -106,7 +107,7 @@ export function AcceptDialog({ open, onOpenChange, request, action }: AcceptDial
                 {t.activationRequests.accept.title}
               </DialogTitle>
               <DialogDescription className="text-emerald-100 text-lg font-medium">
-                {t.activationRequests.accept.request} #{request.id} • {request.customer?.full_name || 'Client'}
+                {t.activationRequests.accept.request} <span className="font-mono">#{formatRequestId(request.id)}</span> • {request.customer?.full_name || 'Client'}
               </DialogDescription>
             </div>
 

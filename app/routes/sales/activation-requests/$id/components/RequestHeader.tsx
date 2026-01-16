@@ -1,9 +1,10 @@
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { ArrowLeft, Shield, Sparkles, Calendar, CheckCircle } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { ActionButtons } from "./ActionButtons";
-import { formatDate } from "../utils/formatters";
+import { formatDate, formatRequestId } from "../utils/formatters";
 import type { ActivationRequest } from "~/types";
 import type { Translations } from "~/lib/i18n/translations";
 import type { User } from "../utils/permissions";
@@ -50,7 +51,19 @@ export function RequestHeader({
             </div>
             <div>
               <h1 className="text-4xl font-black bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
-                {translations.details.title} #{request.id}
+                {translations.details.title}{' '}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="font-mono text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded-md cursor-help hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
+                        #{formatRequestId(request.id)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-mono text-xs">ID complet: {request.id}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Sparkles className="h-7 w-7 text-amber-500 animate-pulse" />
               </h1>
               <div className="flex items-center gap-3 mt-2">
