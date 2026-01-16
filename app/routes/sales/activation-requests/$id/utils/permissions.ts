@@ -15,9 +15,9 @@ export function canEditRequest(
   const userRole = user.roles?.[0];
   const isOwner = request.baId === user.id;
   
-  // BA, DSM, POS peuvent éditer leurs propres requêtes si elles sont pending ou rejected
-  if (['ba', 'dsm', 'pos'].includes(userRole || '')) {
-    return (request.status === 'pending' || request.status === 'rejected') && isOwner;
+  // Le propriétaire peut éditer sa requête si elle est pending ou rejected
+  if (isOwner && (request.status === 'pending' || request.status === 'rejected')) {
+    return true;
   }
   
   // Admin et super_admin peuvent toujours éditer
