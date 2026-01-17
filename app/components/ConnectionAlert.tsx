@@ -16,23 +16,36 @@ export function ConnectionAlert() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const previousErrorState = useRef(hasNetworkError);
+  const successDismissedRef = useRef(false);
+  const autoHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Nettoyer le timer si présent
+  const clearAutoHideTimer = () => {
+    if (autoHideTimerRef.current) {
+      clearTimeout(autoHideTimerRef.current);
+      autoHideTimerRef.current = null;
+    }
+  };
 
   // Détecter le retour de connexion (passage de hasNetworkError: true à false)
   useEffect(() => {
     // Si on passe d'une erreur à pas d'erreur, c'est un succès
-    if (previousErrorState.current && !hasNetworkError && isOnline) {
+    if (previousErrorState.current && !hasNetworkError && isOnline && !successDismissedRef.current) {
       setIsSuccess(true);
       setIsVisible(true);
       setIsAnimating(true);
+      successDismissedRef.current = false; // Réinitialiser pour permettre l'affichage
+      
+      // Nettoyer tout timer précédent
+      clearAutoHideTimer();
       
       // Masquer automatiquement après 4 secondes
-      const timer = setTimeout(() => {
+      autoHideTimerRef.current = setTimeout(() => {
         setIsVisible(false);
         setIsAnimating(false);
         setIsSuccess(false);
+        successDismissedRef.current = false;
       }, 4000);
-      
-      return () => clearTimeout(timer);
     }
     
     // Si on a une erreur, c'est une alerte d'erreur
@@ -40,8 +53,11 @@ export function ConnectionAlert() {
       setIsSuccess(false);
       setIsVisible(true);
       setIsAnimating(true);
-    } else if (!hasNetworkError && !isSuccess) {
+      successDismissedRef.current = false; // Réinitialiser quand une nouvelle erreur arrive
+      clearAutoHideTimer();
+    } else if (!hasNetworkError && !isSuccess && !successDismissedRef.current) {
       // Si pas d'erreur et pas de succès en cours, masquer
+      clearAutoHideTimer();
       const timer = setTimeout(() => {
         setIsVisible(false);
         setIsAnimating(false);
@@ -50,6 +66,11 @@ export function ConnectionAlert() {
     }
     
     previousErrorState.current = hasNetworkError;
+    
+    // Nettoyer le timer au démontage
+    return () => {
+      clearAutoHideTimer();
+    };
   }, [hasNetworkError, isOnline, isSuccess]);
 
   // Ne rien afficher si pas d'erreur et pas de succès
@@ -63,7 +84,16 @@ export function ConnectionAlert() {
   };
 
   const handleDismiss = () => {
+    // Nettoyer le timer automatique
+    clearAutoHideTimer();
+    
+    // Si c'est une alerte de succès, marquer comme fermée manuellement
+    if (isSuccess) {
+      successDismissedRef.current = true;
+    }
+    
     setIsVisible(false);
+    setIsAnimating(false);
     setIsSuccess(false);
   };
 
