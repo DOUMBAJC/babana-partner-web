@@ -532,7 +532,6 @@ Améliorations de l'expérience utilisateur.
 
 #### Fonctionnalités proposées
 - ⌨️ Raccourcis clavier
-- 📱 Mode hors ligne (PWA)
 - 🎨 Thèmes personnalisables
 - ♿ Accessibilité améliorée (WCAG)
 - 🌐 Internationalisation complète
@@ -542,7 +541,6 @@ Améliorations de l'expérience utilisateur.
 
 #### Technologies suggérées
 - React Hotkeys pour les raccourcis
-- PWA avec Workbox
 - React A11y pour l'accessibilité
 - React Native pour l'app mobile
 
