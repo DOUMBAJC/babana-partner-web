@@ -19,6 +19,9 @@ export default [
   route("admin/reports", "routes/admin/reports/route.tsx"),
   route("admin/camtel-logins", "routes/admin/camtel-logins/route.tsx"),
   route("admin/settings", "routes/admin/settings/route.tsx"),
+  // Support Admin
+  route("admin/support", "routes/admin/support/route.tsx"),
+  route("admin/support/:id", "routes/admin/support/$id/route.tsx"),
   route("roles-matrix", "routes/roles-matrix/route.tsx"),
   route("profile", "routes/profile/route.tsx"),
   route("credits", "routes/credits/route.tsx"),
@@ -36,6 +39,15 @@ export default [
   // Notifications
   route("notifications", "routes/notifications/route.tsx"),
   route("notifications/preferences", "routes/notifications/preferences/route.tsx"),
+  
+  // Support - Routes publiques et utilisateur
+  route("support", "routes/support/route.tsx"),
+  route("support/tickets", "routes/support/tickets/route.tsx"),
+  route("support/tickets/:id", "routes/support/tickets/$id/route.tsx"),
+
+  // Tutoriels
+  route("tutorials", "routes/tutorials/route.tsx"),
+  route("tutorials/:id", "routes/tutorials/$id/route.tsx"),
 
   // Resource routes (SSR proxies)
   route("api/notifications", "routes/api/notifications.tsx"),
@@ -64,6 +76,12 @@ export default [
   route("api/reports/export", "routes/api/reports.export.tsx"),
   route("api/reports/export-secret", "routes/api/reports.export-secret.tsx"),
   
-  // Route 404 - doit être la dernière pour capturer toutes les routes non définies
+  // Support API routes (SSR proxies)
+  route("api/support", "routes/api/support.tsx"),
+  route("api/support/tickets", "routes/api/support.tickets.tsx"),
+  route("api/support/tickets/statistics", "routes/api/support.tickets.statistics.tsx"),
+  route("api/support/tickets/:id", "routes/api/support.tickets.$id.tsx"),
+  route("api/support/tickets/:id/reply", "routes/api/support.tickets.reply.$id.tsx"),
+  
   route("*", "routes/$.tsx"),
 ] satisfies RouteConfig;

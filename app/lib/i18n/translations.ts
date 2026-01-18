@@ -433,6 +433,136 @@ export interface Translations {
         description: string;
       };
     };
+    support: {
+      title: string;
+      description: string;
+      badge: string;
+      form: {
+        title: string;
+        subtitle: string;
+        name: string;
+        namePlaceholder: string;
+        email: string;
+        emailPlaceholder: string;
+        subject: string;
+        subjectPlaceholder: string;
+        priority: string;
+        priorities: {
+          low: string;
+          normal: string;
+          high: string;
+          urgent: string;
+        };
+        message: string;
+        messagePlaceholder: string;
+        submit: string;
+        sending: string;
+        success: {
+          title: string;
+          message: string;
+        };
+        errors: {
+          requiredFields: string;
+          invalidEmail: string;
+          invalidPriority: string;
+          submitFailed: string;
+        };
+      };
+      contact: {
+        title: string;
+        emailLabel: string;
+        email: string;
+        phoneLabel: string;
+        phone: string;
+        hoursLabel: string;
+        hours: string;
+      };
+      response: {
+        title: string;
+        urgent: string;
+        high: string;
+        normal: string;
+        low: string;
+      };
+      faq: {
+        title: string;
+        description: string;
+        button: string;
+      };
+      security: {
+        title: string;
+        description: string;
+      };
+      stats: {
+        availability: string;
+        averageResponse: string;
+        satisfaction: string;
+      };
+      errors: {
+        fetchFailed: string;
+        updateFailed: string;
+        replyFailed: string;
+        statsFailed: string;
+      };
+      messages: {
+        updated: string;
+        replied: string;
+      };
+    };
+    tutorials: {
+      title: string;
+      description: string;
+      center: string;
+      subtitle: string;
+      searchPlaceholder: string;
+      all: string;
+      categories: {
+        gettingStarted: string;
+        customers: string;
+        sales: string;
+        admin: string;
+        advanced: string;
+      };
+      difficulty: {
+        beginner: string;
+        intermediate: string;
+        advanced: string;
+      };
+      meta: {
+        steps: string;
+        duration: string;
+        prerequisites: string;
+      };
+      actions: {
+        start: string;
+        back: string;
+        viewAll: string;
+        previous: string;
+        next: string;
+      };
+      empty: {
+        title: string;
+        message: string;
+      };
+      detail: {
+        stepsTitle: string;
+        practicalTips: string;
+      };
+      items: {
+        [key: string]: {
+          title: string;
+          description: string;
+          steps: {
+            [key: number]: {
+              title: string;
+              description: string;
+              tips: string[];
+            };
+          };
+          prerequisites?: string[];
+        };
+      };
+    };
   };
   // Profile Page
   profile: {
@@ -1597,6 +1727,507 @@ export const translations: Record<Language, Translations> = {
           title: "Requêtes d'Activation - BABANA Partner",
           description: "Gérez et traitez les requêtes d'activation de cartes SIM",
         },
+      },
+      support: {
+        title: "Support & Assistance",
+        description: "Notre équipe est là pour vous aider. Contactez-nous et nous vous répondrons dans les plus brefs délais.",
+        badge: "Support Premium",
+        form: {
+          title: "Envoyez-nous un message",
+          subtitle: "Remplissez le formulaire ci-dessous et notre équipe vous répondra rapidement",
+          name: "Nom complet",
+          namePlaceholder: "Votre nom complet",
+          email: "Adresse email",
+          emailPlaceholder: "votre@email.com",
+          subject: "Sujet",
+          subjectPlaceholder: "De quoi s'agit-il ?",
+          priority: "Priorité",
+          priorities: {
+            low: "Basse",
+            normal: "Normale",
+            high: "Haute",
+            urgent: "Urgente",
+          },
+          message: "Message",
+          messagePlaceholder: "Décrivez votre problème ou votre question en détail...",
+          submit: "Envoyer le message",
+          sending: "Envoi en cours...",
+          success: {
+            title: "Message envoyé avec succès !",
+            message: "Nous avons bien reçu votre message. Notre équipe vous répondra dans les plus brefs délais.",
+          },
+          errors: {
+            requiredFields: "Tous les champs sont requis",
+            invalidEmail: "Email invalide",
+            invalidPriority: "Priorité invalide",
+            submitFailed: "Erreur lors de l'envoi du message",
+          },
+        },
+        contact: {
+          title: "Contactez-nous",
+          emailLabel: "Email",
+          email: "calvinopro007@gmail.com",
+          phoneLabel: "Téléphone",
+          phone: "+237 622 037 000",
+          hoursLabel: "Heures d'ouverture",
+          hours: "Lun - Ven: 8h00 - 18h00",
+        },
+        response: {
+          title: "Temps de réponse",
+          urgent: "Urgent",
+          high: "Haute",
+          normal: "Normale",
+          low: "Basse",
+        },
+        faq: {
+          title: "Questions fréquentes",
+          description: "Consultez notre FAQ pour trouver des réponses rapides aux questions courantes.",
+          button: "Voir la FAQ",
+        },
+        security: {
+          title: "Confidentialité garantie",
+          description: "Toutes vos informations sont sécurisées et confidentielles. Nous respectons votre vie privée.",
+        },
+        stats: {
+          availability: "Disponibilité",
+          averageResponse: "Temps de réponse moyen",
+          satisfaction: "Taux de satisfaction",
+        },
+        errors: {
+          fetchFailed: "Erreur lors de la récupération des données",
+          updateFailed: "Erreur lors de la mise à jour du ticket",
+          replyFailed: "Erreur lors de l'envoi de la réponse",
+          statsFailed: "Erreur lors de la récupération des statistiques",
+        },
+        messages: {
+          updated: "Ticket mis à jour avec succès",
+          replied: "Réponse envoyée avec succès",
+        },
+      },
+      tutorials: {
+        title: "Tutoriels - BABANA",
+        description: "Apprenez à utiliser la plateforme BABANA avec nos guides étape par étape",
+        center: "Centre de Tutoriels",
+        subtitle: "Apprenez à maîtriser la plateforme avec nos guides étape par étape",
+        searchPlaceholder: "Rechercher un tutoriel...",
+        all: "Tous",
+        categories: {
+          gettingStarted: "Démarrage",
+          customers: "Clients",
+          sales: "Ventes",
+          admin: "Administration",
+          advanced: "Avancé",
+        },
+        difficulty: {
+          beginner: "Débutant",
+          intermediate: "Intermédiaire",
+          advanced: "Avancé",
+        },
+        meta: {
+          steps: "étapes",
+          duration: "Durée",
+          prerequisites: "Prérequis",
+        },
+        actions: {
+          start: "Commencer",
+          back: "Retour aux tutoriels",
+          viewAll: "Voir tous les tutoriels",
+          previous: "Tutoriel précédent",
+          next: "Tutoriel suivant",
+        },
+        empty: {
+          title: "Aucun tutoriel trouvé",
+          message: "Essayez de modifier vos critères de recherche",
+        },
+        detail: {
+          stepsTitle: "Étapes à suivre",
+          practicalTips: "Conseils pratiques",
+        },
+        items: {
+          "getting-started": {
+            title: "Bien démarrer avec la plateforme",
+            description: "Découvrez les bases de la plateforme et apprenez à naviguer efficacement",
+            steps: {
+              1: {
+                title: "Créer votre compte",
+                description: "Inscrivez-vous sur la plateforme en remplissant le formulaire d'inscription avec vos informations personnelles.",
+                tips: [
+                  "Assurez-vous d'utiliser une adresse email valide",
+                  "Choisissez un mot de passe sécurisé",
+                  "Vérifiez votre email après l'inscription"
+                ]
+              },
+              2: {
+                title: "Comprendre le tableau de bord",
+                description: "Explorez les différentes sections du tableau de bord et familiarisez-vous avec l'interface.",
+                tips: [
+                  "Le menu de navigation se trouve en haut de la page",
+                  "Les fonctionnalités disponibles dépendent de vos permissions",
+                  "Utilisez la barre de recherche pour trouver rapidement ce que vous cherchez"
+                ]
+              },
+              3: {
+                title: "Configurer votre profil",
+                description: "Complétez votre profil avec vos informations et préférences pour une meilleure expérience.",
+                tips: [
+                  "Ajoutez une photo de profil pour personnaliser votre compte",
+                  "Configurez vos notifications selon vos préférences",
+                  "Vérifiez régulièrement vos paramètres de sécurité"
+                ]
+              }
+            }
+          },
+          "create-customer": {
+            title: "Créer un nouveau client",
+            description: "Enregistrez un nouveau client dans la plateforme (sans upload de documents ni utilisation de crédits)",
+            steps: {
+              1: {
+                title: "Accéder au formulaire de création",
+                description: "Cliquez sur \"Nouveau client\" dans le menu ou sur la carte correspondante du tableau de bord.",
+                tips: [
+                  "Cette méthode ne nécessite pas de crédits",
+                  "Aucun document n'est requis pour cette création simple",
+                  "Pour une création complète avec documents, utilisez \"Identifier un client\""
+                ]
+              },
+              2: {
+                title: "Remplir les informations du client",
+                description: "Complétez tous les champs obligatoires avec les informations du client : nom, prénom, numéro de pièce, type de pièce, téléphone, adresse, etc.",
+                tips: [
+                  "Les champs marqués d'un astérisque (*) sont obligatoires",
+                  "Vérifiez l'exactitude des informations avant de soumettre",
+                  "Le numéro de téléphone doit être au format valide"
+                ]
+              },
+              3: {
+                title: "Vérifier et valider",
+                description: "Revoyez toutes les informations saisies et cliquez sur \"Créer\" pour enregistrer le client.",
+                tips: [
+                  "Prenez le temps de vérifier toutes les informations",
+                  "Note : La modification d'un client n'est possible que par les administrateurs",
+                  "Une fois créé, vous pourrez créer des demandes d'activation pour ce client"
+                ]
+              }
+            }
+          },
+          "search-customer": {
+            title: "Rechercher un client",
+            description: "Recherchez un client par son numéro de pièce d'identité et son type de pièce",
+            steps: {
+              1: {
+                title: "Accéder à la recherche",
+                description: "Cliquez sur \"Recherche Client\" dans le menu ou sur la carte correspondante du tableau de bord.",
+                tips: [
+                  "La recherche se fait uniquement par pièce d'identité",
+                  "Assurez-vous d'avoir le numéro et le type de pièce du client"
+                ]
+              },
+              2: {
+                title: "Saisir les informations de la pièce",
+                description: "Sélectionnez le type de pièce d'identité (CNI, Passeport, etc.) et entrez le numéro de la pièce du client.",
+                tips: [
+                  "Le type de pièce est obligatoire",
+                  "Vérifiez que le numéro de pièce est correct avant de rechercher",
+                  "Le format du numéro dépend du type de pièce sélectionné"
+                ]
+              },
+              3: {
+                title: "Consulter le résultat et continuer",
+                description: "Si le client est trouvé, vous verrez ses informations. Vous pouvez ensuite continuer avec une demande d'activation de SIM si le client n'a pas atteint son quota maximum de 3 SIM.",
+                tips: [
+                  "Un client peut avoir un maximum de 3 SIM",
+                  "Si le quota est atteint, vous ne pourrez pas créer de nouvelle demande d'activation",
+                  "Si le client n'est pas trouvé, vous pouvez le créer via \"Identifier un client\""
+                ]
+              }
+            }
+          },
+          "identify-customer": {
+            title: "Identifier un client",
+            description: "Créez un nouveau client avec upload de documents (pièces d'identité, portrait, plan de localisation) en utilisant vos crédits",
+            prerequisites: ["Avoir des crédits disponibles"],
+            steps: {
+              1: {
+                title: "Vérifier vos crédits",
+                description: "Assurez-vous d'avoir au moins 1 crédit disponible dans votre portefeuille. Chaque identification consomme 1 crédit.",
+                tips: [
+                  "Vérifiez votre solde dans la section \"Crédits\"",
+                  "Rechargez votre compte si nécessaire",
+                  "L'identification ne peut pas être effectuée sans crédits"
+                ]
+              },
+              2: {
+                title: "Remplir les informations du client",
+                description: "Complétez le formulaire avec les informations du client : nom, prénom, numéro de pièce d'identité, type de pièce, téléphone, adresse, etc.",
+                tips: [
+                  "Tous les champs marqués d'un astérisque (*) sont obligatoires",
+                  "Vérifiez l'exactitude du numéro de pièce selon le type sélectionné",
+                  "L'email est optionnel mais recommandé"
+                ]
+              },
+              3: {
+                title: "Uploader les documents requis",
+                description: "Téléchargez les 4 documents obligatoires : recto de la pièce d'identité, verso de la pièce d'identité, photo portrait du client, et plan de localisation.",
+                tips: [
+                  "Les fichiers doivent être au format image (JPG, PNG)",
+                  "Assurez-vous que les documents sont lisibles et de bonne qualité",
+                  "Le plan de localisation doit montrer l'emplacement précis du client"
+                ]
+              },
+              4: {
+                title: "Valider et confirmer",
+                description: "Revoyez toutes les informations et documents, puis cliquez sur \"Identifier\" pour créer le client. Le crédit sera débité automatiquement.",
+                tips: [
+                  "Vérifiez que tous les documents sont bien uploadés",
+                  "Une fois validé, le client sera créé et vous pourrez créer une demande d'activation",
+                  "Vous recevrez une confirmation de la création du client"
+                ]
+              }
+            }
+          },
+          "sim-activation": {
+            title: "Gérer les activations de SIM",
+            description: "Gérez vos requêtes d'activation de SIM : modifiez, rejetez ou annulez les demandes selon les besoins",
+            steps: {
+              1: {
+                title: "Accéder à vos requêtes d'activation",
+                description: "Ouvrez la section \"Activation SIM\" ou \"Requêtes\" pour voir toutes vos demandes d'activation de SIM.",
+                tips: [
+                  "Seuls les BA (Brand Ambassadors) et utilisateurs avec ce rôle peuvent gérer leurs requêtes",
+                  "Vous verrez uniquement les requêtes que vous avez créées"
+                ]
+              },
+              2: {
+                title: "Consulter les détails d'une requête",
+                description: "Cliquez sur une requête pour voir tous ses détails : informations du client, numéro de SIM, statut, date de création, etc.",
+                tips: [
+                  "Les requêtes peuvent avoir différents statuts : en attente, approuvée, rejetée, annulée",
+                  "Vérifiez les informations avant de prendre une action"
+                ]
+              },
+              3: {
+                title: "Modifier une requête",
+                description: "Si vous devez corriger des informations, utilisez l'option \"Modifier\" pour mettre à jour les détails de la requête.",
+                tips: [
+                  "Vous pouvez modifier une requête tant qu'elle n'est pas encore traitée",
+                  "Vérifiez l'exactitude des nouvelles informations avant de sauvegarder"
+                ]
+              },
+              4: {
+                title: "Rejeter ou annuler une requête",
+                description: "Si le client et vous n'êtes plus d'accord sur la vente ou pour toute autre raison, vous pouvez rejeter ou annuler la requête.",
+                tips: [
+                  "L'annulation peut être nécessaire si le client change d'avis",
+                  "La rejet peut être utilisé si les informations sont incorrectes",
+                  "Ces actions libèrent le quota du client pour de nouvelles demandes"
+                ]
+              }
+            }
+          },
+          "manage-activations": {
+            title: "Traiter les demandes d'activation",
+            description: "Découvrez comment traiter et approuver les demandes d'activation en attente",
+            prerequisites: ["Permission de traitement des demandes"],
+            steps: {
+              1: {
+                title: "Accéder aux demandes en attente",
+                description: "Ouvrez la liste des demandes d'activation et filtrez pour voir celles en attente.",
+                tips: [
+                  "Utilisez les filtres pour trouver rapidement les demandes à traiter",
+                  "Les demandes sont triées par date de création"
+                ]
+              },
+              2: {
+                title: "Examiner les détails de la demande",
+                description: "Cliquez sur une demande pour voir tous ses détails et vérifier les informations.",
+                tips: [
+                  "Vérifiez toutes les informations avant d'approuver",
+                  "Contactez le client si des informations sont manquantes ou incorrectes"
+                ]
+              },
+              3: {
+                title: "Approuver ou rejeter la demande",
+                description: "Après vérification, approuvez la demande si tout est correct, ou rejetez-la avec un commentaire si nécessaire.",
+                tips: [
+                  "Ajoutez un commentaire si vous rejetez une demande",
+                  "Les demandes approuvées sont automatiquement traitées"
+                ]
+              }
+            }
+          },
+          "manage-credits": {
+            title: "Gérer vos crédits",
+            description: "Apprenez à recharger votre compte et à suivre vos dépenses de crédits",
+            steps: {
+              1: {
+                title: "Accéder à votre portefeuille",
+                description: "Ouvrez la section \"Crédits\" depuis le menu pour voir votre solde actuel.",
+                tips: [
+                  "Votre solde s'affiche en temps réel",
+                  "Vous pouvez voir l'historique de vos transactions"
+                ]
+              },
+              2: {
+                title: "Recharger votre compte",
+                description: "Cliquez sur \"Recharger\" et suivez les instructions pour ajouter des crédits à votre compte.",
+                tips: [
+                  "Plusieurs méthodes de paiement sont disponibles",
+                  "La recharge est instantanée après validation du paiement"
+                ]
+              },
+              3: {
+                title: "Consulter l'historique",
+                description: "Parcourez votre historique de transactions pour suivre vos dépenses et recharges.",
+                tips: [
+                  "Vous pouvez filtrer par type de transaction",
+                  "Exportez vos relevés si nécessaire"
+                ]
+              }
+            }
+          },
+          "support-tickets": {
+            title: "Créer un ticket de support",
+            description: "Apprenez à créer et suivre vos tickets de support pour obtenir de l'aide",
+            steps: {
+              1: {
+                title: "Accéder au support",
+                description: "Cliquez sur \"Support\" dans le menu pour accéder à la section d'aide.",
+                tips: [
+                  "Vous pouvez également accéder au support depuis le tableau de bord",
+                  "Consultez d'abord la FAQ pour des réponses rapides"
+                ]
+              },
+              2: {
+                title: "Créer un nouveau ticket",
+                description: "Cliquez sur \"Nouveau ticket\" et remplissez le formulaire avec votre question ou problème.",
+                tips: [
+                  "Soyez précis dans votre description",
+                  "Ajoutez des captures d'écran si nécessaire",
+                  "Sélectionnez la catégorie appropriée"
+                ]
+              },
+              3: {
+                title: "Suivre votre ticket",
+                description: "Consultez la liste de vos tickets pour voir les réponses et mettre à jour votre demande si besoin.",
+                tips: [
+                  "Vous recevrez une notification lorsqu'une réponse est ajoutée",
+                  "Vous pouvez répondre aux messages pour continuer la conversation"
+                ]
+              }
+            }
+          },
+          "admin-settings": {
+            title: "Paramètres administrateur",
+            description: "Guide complet pour gérer les paramètres système en tant qu'administrateur",
+            prerequisites: ["Accès administrateur"],
+            steps: {
+              1: {
+                title: "Accéder aux paramètres",
+                description: "Ouvrez la section \"Administration\" puis \"Paramètres\" pour accéder aux configurations système.",
+                tips: [
+                  "Seuls les administrateurs peuvent accéder à cette section",
+                  "Faites attention aux modifications que vous effectuez"
+                ]
+              },
+              2: {
+                title: "Configurer les paramètres généraux",
+                description: "Modifiez les paramètres généraux de la plateforme selon vos besoins.",
+                tips: [
+                  "Sauvegardez régulièrement vos modifications",
+                  "Testez les changements avant de les appliquer en production"
+                ]
+              },
+              3: {
+                title: "Gérer les utilisateurs et permissions",
+                description: "Configurez les rôles et permissions des utilisateurs de la plateforme.",
+                tips: [
+                  "Vérifiez les permissions avant de les attribuer",
+                  "Documentez les changements de permissions importants"
+                ]
+              }
+            }
+          },
+          "reports-analytics": {
+            title: "Générer des rapports",
+            description: "Apprenez à créer et exporter des rapports pour analyser vos données",
+            steps: {
+              1: {
+                title: "Accéder aux rapports",
+                description: "Ouvrez la section \"Rapports\" depuis le menu administrateur.",
+                tips: [
+                  "Les rapports peuvent prendre du temps à générer",
+                  "Vous pouvez filtrer les données selon vos besoins"
+                ]
+              },
+              2: {
+                title: "Sélectionner le type de rapport",
+                description: "Choisissez le type de rapport que vous souhaitez générer (ventes, clients, activations, etc.).",
+                tips: [
+                  "Chaque type de rapport affiche des données différentes",
+                  "Vous pouvez personnaliser les colonnes affichées"
+                ]
+              },
+              3: {
+                title: "Exporter le rapport",
+                description: "Une fois le rapport généré, exportez-le au format souhaité (PDF, Excel, CSV).",
+                tips: [
+                  "Les rapports exportés contiennent toutes les données filtrées",
+                  "Vous pouvez programmer des rapports automatiques"
+                ]
+              }
+            }
+          },
+          "manage-account": {
+            title: "Gérer votre compte",
+            description: "Apprenez à gérer vos informations personnelles, sécurité, sessions et préférences de compte",
+            steps: {
+              1: {
+                title: "Accéder à votre profil",
+                description: "Cliquez sur votre nom dans le menu en haut à droite, puis sélectionnez \"Mon Profil\" pour accéder à la gestion de votre compte.",
+                tips: [
+                  "Vous pouvez également accéder au profil via l'icône utilisateur",
+                  "Toutes les sections de gestion sont accessibles depuis cette page"
+                ]
+              },
+              2: {
+                title: "Modifier vos informations générales",
+                description: "Dans l'onglet \"Général\", modifiez vos informations personnelles : nom, prénom, email, téléphone, photo de profil, etc.",
+                tips: [
+                  "Votre photo de profil permet de personnaliser votre compte",
+                  "Assurez-vous que votre email est valide pour recevoir les notifications",
+                  "Sauvegardez vos modifications après chaque changement"
+                ]
+              },
+              3: {
+                title: "Gérer votre sécurité",
+                description: "Dans l'onglet \"Sécurité\", modifiez votre mot de passe, activez l'authentification à deux facteurs si disponible, et consultez vos sessions actives.",
+                tips: [
+                  "Choisissez un mot de passe fort et unique",
+                  "Vous pouvez révoquer les sessions actives sur d'autres appareils",
+                  "Changez régulièrement votre mot de passe pour plus de sécurité"
+                ]
+              },
+              4: {
+                title: "Configurer vos préférences",
+                description: "Dans l'onglet \"Préférences\", configurez votre langue préférée, votre thème (clair/sombre), et vos paramètres de notifications.",
+                tips: [
+                  "La langue choisie s'applique à toute l'interface",
+                  "Le thème sombre réduit la fatigue oculaire",
+                  "Configurez les notifications selon vos besoins"
+                ]
+              },
+              5: {
+                title: "Gérer vos sessions",
+                description: "Consultez toutes vos sessions actives, voyez où et quand vous êtes connecté, et révoquez les sessions suspectes ou non désirées.",
+                tips: [
+                  "Vérifiez régulièrement vos sessions actives",
+                  "Révoquez immédiatement toute session suspecte",
+                  "Déconnectez-vous toujours sur les appareils partagés"
+                ]
+              }
+            }
+          }
+        }
       },
     },
     roles: {
@@ -2796,6 +3427,507 @@ export const translations: Record<Language, Translations> = {
           title: "Activation Requests - BABANA Partner",
           description: "Manage and process SIM card activation requests",
         },
+      },
+      support: {
+        title: "Support & Assistance",
+        description: "Our team is here to help. Contact us and we'll get back to you as soon as possible.",
+        badge: "Premium Support",
+        form: {
+          title: "Send us a message",
+          subtitle: "Fill out the form below and our team will respond quickly",
+          name: "Full name",
+          namePlaceholder: "Your full name",
+          email: "Email address",
+          emailPlaceholder: "your@email.com",
+          subject: "Subject",
+          subjectPlaceholder: "What is this about?",
+          priority: "Priority",
+          priorities: {
+            low: "Low",
+            normal: "Normal",
+            high: "High",
+            urgent: "Urgent",
+          },
+          message: "Message",
+          messagePlaceholder: "Describe your problem or question in detail...",
+          submit: "Send message",
+          sending: "Sending...",
+          success: {
+            title: "Message sent successfully!",
+            message: "We have received your message. Our team will get back to you as soon as possible.",
+          },
+          errors: {
+            requiredFields: "All fields are required",
+            invalidEmail: "Invalid email",
+            invalidPriority: "Invalid priority",
+            submitFailed: "Error sending message",
+          },
+        },
+        contact: {
+          title: "Contact us",
+          emailLabel: "Email",
+          email: "calvinopro007@gmail.com",
+          phoneLabel: "Phone",
+          phone: "+237 622 037 000",
+          hoursLabel: "Business hours",
+          hours: "Mon - Fri: 8:00 AM - 6:00 PM",
+        },
+        response: {
+          title: "Response time",
+          urgent: "Urgent",
+          high: "High",
+          normal: "Normal",
+          low: "Low",
+        },
+        faq: {
+          title: "Frequently asked questions",
+          description: "Check our FAQ for quick answers to common questions.",
+          button: "View FAQ",
+        },
+        security: {
+          title: "Privacy guaranteed",
+          description: "All your information is secure and confidential. We respect your privacy.",
+        },
+        stats: {
+          availability: "Availability",
+          averageResponse: "Average response time",
+          satisfaction: "Satisfaction rate",
+        },
+        errors: {
+          fetchFailed: "Error fetching data",
+          updateFailed: "Error updating ticket",
+          replyFailed: "Error sending reply",
+          statsFailed: "Error fetching statistics",
+        },
+        messages: {
+          updated: "Ticket updated successfully",
+          replied: "Reply sent successfully",
+        },
+      },
+      tutorials: {
+        title: "Tutorials - BABANA",
+        description: "Learn how to use the BABANA platform with our step-by-step guides",
+        center: "Tutorial Center",
+        subtitle: "Learn to master the platform with our step-by-step guides",
+        searchPlaceholder: "Search for a tutorial...",
+        all: "All",
+        categories: {
+          gettingStarted: "Getting Started",
+          customers: "Customers",
+          sales: "Sales",
+          admin: "Administration",
+          advanced: "Advanced",
+        },
+        difficulty: {
+          beginner: "Beginner",
+          intermediate: "Intermediate",
+          advanced: "Advanced",
+        },
+        meta: {
+          steps: "steps",
+          duration: "Duration",
+          prerequisites: "Prerequisites",
+        },
+        actions: {
+          start: "Start",
+          back: "Back to tutorials",
+          viewAll: "View all tutorials",
+          previous: "Previous tutorial",
+          next: "Next tutorial",
+        },
+        empty: {
+          title: "No tutorials found",
+          message: "Try adjusting your search criteria",
+        },
+        detail: {
+          stepsTitle: "Steps to follow",
+          practicalTips: "Practical tips",
+        },
+        items: {
+          "getting-started": {
+            title: "Get started with the platform",
+            description: "Discover the basics of the platform and learn to navigate efficiently",
+            steps: {
+              1: {
+                title: "Create your account",
+                description: "Sign up on the platform by filling out the registration form with your personal information.",
+                tips: [
+                  "Make sure to use a valid email address",
+                  "Choose a secure password",
+                  "Verify your email after registration"
+                ]
+              },
+              2: {
+                title: "Understand the dashboard",
+                description: "Explore the different sections of the dashboard and familiarize yourself with the interface.",
+                tips: [
+                  "The navigation menu is located at the top of the page",
+                  "Available features depend on your permissions",
+                  "Use the search bar to quickly find what you're looking for"
+                ]
+              },
+              3: {
+                title: "Configure your profile",
+                description: "Complete your profile with your information and preferences for a better experience.",
+                tips: [
+                  "Add a profile photo to personalize your account",
+                  "Configure your notifications according to your preferences",
+                  "Regularly check your security settings"
+                ]
+              }
+            }
+          },
+          "create-customer": {
+            title: "Create a new customer",
+            description: "Register a new customer in the platform (without document upload or credit usage)",
+            steps: {
+              1: {
+                title: "Access the creation form",
+                description: "Click on \"New Customer\" in the menu or on the corresponding card on the dashboard.",
+                tips: [
+                  "This method does not require credits",
+                  "No documents are required for this simple creation",
+                  "For a complete creation with documents, use \"Identify a customer\""
+                ]
+              },
+              2: {
+                title: "Fill in customer information",
+                description: "Complete all required fields with customer information: name, first name, ID number, ID type, phone, address, etc.",
+                tips: [
+                  "Fields marked with an asterisk (*) are required",
+                  "Verify the accuracy of information before submitting",
+                  "Phone number must be in valid format"
+                ]
+              },
+              3: {
+                title: "Verify and validate",
+                description: "Review all entered information and click \"Create\" to register the customer.",
+                tips: [
+                  "Take time to verify all information",
+                  "Note: Customer modification is only possible by administrators",
+                  "Once created, you can create activation requests for this customer"
+                ]
+              }
+            }
+          },
+          "search-customer": {
+            title: "Search for a customer",
+            description: "Search for a customer by their ID number and ID type",
+            steps: {
+              1: {
+                title: "Access the search",
+                description: "Click on \"Search Customer\" in the menu or on the corresponding card on the dashboard.",
+                tips: [
+                  "Search is done only by ID card",
+                  "Make sure you have the customer's ID number and type"
+                ]
+              },
+              2: {
+                title: "Enter ID information",
+                description: "Select the ID type (CNI, Passport, etc.) and enter the customer's ID number.",
+                tips: [
+                  "ID type is required",
+                  "Verify that the ID number is correct before searching",
+                  "The number format depends on the selected ID type"
+                ]
+              },
+              3: {
+                title: "View result and continue",
+                description: "If the customer is found, you will see their information. You can then continue with a SIM activation request if the customer has not reached their maximum quota of 3 SIMs.",
+                tips: [
+                  "A customer can have a maximum of 3 SIMs",
+                  "If the quota is reached, you will not be able to create a new activation request",
+                  "If the customer is not found, you can create them via \"Identify a customer\""
+                ]
+              }
+            }
+          },
+          "identify-customer": {
+            title: "Identify a customer",
+            description: "Create a new customer with document upload (ID cards, portrait, location plan) using your credits",
+            prerequisites: ["Have available credits"],
+            steps: {
+              1: {
+                title: "Check your credits",
+                description: "Make sure you have at least 1 credit available in your wallet. Each identification consumes 1 credit.",
+                tips: [
+                  "Check your balance in the \"Credits\" section",
+                  "Top up your account if necessary",
+                  "Identification cannot be performed without credits"
+                ]
+              },
+              2: {
+                title: "Fill in customer information",
+                description: "Complete the form with customer information: name, first name, ID number, ID type, phone, address, etc.",
+                tips: [
+                  "All fields marked with an asterisk (*) are required",
+                  "Verify the accuracy of the ID number according to the selected type",
+                  "Email is optional but recommended"
+                ]
+              },
+              3: {
+                title: "Upload required documents",
+                description: "Upload the 4 required documents: front of ID card, back of ID card, customer portrait photo, and location plan.",
+                tips: [
+                  "Files must be in image format (JPG, PNG)",
+                  "Make sure documents are readable and of good quality",
+                  "The location plan must show the customer's precise location"
+                ]
+              },
+              4: {
+                title: "Validate and confirm",
+                description: "Review all information and documents, then click \"Identify\" to create the customer. The credit will be automatically deducted.",
+                tips: [
+                  "Verify that all documents are properly uploaded",
+                  "Once validated, the customer will be created and you can create an activation request",
+                  "You will receive a confirmation of customer creation"
+                ]
+              }
+            }
+          },
+          "sim-activation": {
+            title: "Manage SIM activations",
+            description: "Manage your SIM activation requests: modify, reject or cancel requests as needed",
+            steps: {
+              1: {
+                title: "Access your activation requests",
+                description: "Open the \"SIM Activation\" or \"Requests\" section to see all your SIM activation requests.",
+                tips: [
+                  "Only BAs (Brand Ambassadors) and users with this role can manage their requests",
+                  "You will only see requests you have created"
+                ]
+              },
+              2: {
+                title: "View request details",
+                description: "Click on a request to see all its details: customer information, SIM number, status, creation date, etc.",
+                tips: [
+                  "Requests can have different statuses: pending, approved, rejected, cancelled",
+                  "Check information before taking action"
+                ]
+              },
+              3: {
+                title: "Modify a request",
+                description: "If you need to correct information, use the \"Modify\" option to update request details.",
+                tips: [
+                  "You can modify a request as long as it has not been processed yet",
+                  "Verify the accuracy of new information before saving"
+                ]
+              },
+              4: {
+                title: "Reject or cancel a request",
+                description: "If you and the customer are no longer in agreement about the sale or for any other reason, you can reject or cancel the request.",
+                tips: [
+                  "Cancellation may be necessary if the customer changes their mind",
+                  "Rejection can be used if information is incorrect",
+                  "These actions free up the customer's quota for new requests"
+                ]
+              }
+            }
+          },
+          "manage-activations": {
+            title: "Process activation requests",
+            description: "Learn how to process and approve pending activation requests",
+            prerequisites: ["Permission to process requests"],
+            steps: {
+              1: {
+                title: "Access pending requests",
+                description: "Open the list of activation requests and filter to see pending ones.",
+                tips: [
+                  "Use filters to quickly find requests to process",
+                  "Requests are sorted by creation date"
+                ]
+              },
+              2: {
+                title: "Examine request details",
+                description: "Click on a request to see all its details and verify information.",
+                tips: [
+                  "Verify all information before approving",
+                  "Contact the customer if information is missing or incorrect"
+                ]
+              },
+              3: {
+                title: "Approve or reject the request",
+                description: "After verification, approve the request if everything is correct, or reject it with a comment if necessary.",
+                tips: [
+                  "Add a comment if you reject a request",
+                  "Approved requests are automatically processed"
+                ]
+              }
+            }
+          },
+          "manage-credits": {
+            title: "Manage your credits",
+            description: "Learn to top up your account and track your credit expenses",
+            steps: {
+              1: {
+                title: "Access your wallet",
+                description: "Open the \"Credits\" section from the menu to see your current balance.",
+                tips: [
+                  "Your balance is displayed in real time",
+                  "You can view your transaction history"
+                ]
+              },
+              2: {
+                title: "Top up your account",
+                description: "Click on \"Top Up\" and follow the instructions to add credits to your account.",
+                tips: [
+                  "Multiple payment methods are available",
+                  "Top-up is instant after payment validation"
+                ]
+              },
+              3: {
+                title: "View history",
+                description: "Browse your transaction history to track your expenses and top-ups.",
+                tips: [
+                  "You can filter by transaction type",
+                  "Export your statements if needed"
+                ]
+              }
+            }
+          },
+          "support-tickets": {
+            title: "Create a support ticket",
+            description: "Learn to create and track your support tickets to get help",
+            steps: {
+              1: {
+                title: "Access support",
+                description: "Click on \"Support\" in the menu to access the help section.",
+                tips: [
+                  "You can also access support from the dashboard",
+                  "Check the FAQ first for quick answers"
+                ]
+              },
+              2: {
+                title: "Create a new ticket",
+                description: "Click on \"New ticket\" and fill out the form with your question or problem.",
+                tips: [
+                  "Be specific in your description",
+                  "Add screenshots if necessary",
+                  "Select the appropriate category"
+                ]
+              },
+              3: {
+                title: "Track your ticket",
+                description: "View your ticket list to see responses and update your request if needed.",
+                tips: [
+                  "You will receive a notification when a response is added",
+                  "You can reply to messages to continue the conversation"
+                ]
+              }
+            }
+          },
+          "admin-settings": {
+            title: "Administrator settings",
+            description: "Complete guide to managing system settings as an administrator",
+            prerequisites: ["Administrator access"],
+            steps: {
+              1: {
+                title: "Access settings",
+                description: "Open the \"Administration\" section then \"Settings\" to access system configurations.",
+                tips: [
+                  "Only administrators can access this section",
+                  "Be careful with modifications you make"
+                ]
+              },
+              2: {
+                title: "Configure general settings",
+                description: "Modify general platform settings according to your needs.",
+                tips: [
+                  "Save your modifications regularly",
+                  "Test changes before applying them in production"
+                ]
+              },
+              3: {
+                title: "Manage users and permissions",
+                description: "Configure roles and permissions of platform users.",
+                tips: [
+                  "Verify permissions before assigning them",
+                  "Document important permission changes"
+                ]
+              }
+            }
+          },
+          "reports-analytics": {
+            title: "Generate reports",
+            description: "Learn to create and export reports to analyze your data",
+            steps: {
+              1: {
+                title: "Access reports",
+                description: "Open the \"Reports\" section from the administrator menu.",
+                tips: [
+                  "Reports may take time to generate",
+                  "You can filter data according to your needs"
+                ]
+              },
+              2: {
+                title: "Select report type",
+                description: "Choose the type of report you want to generate (sales, customers, activations, etc.).",
+                tips: [
+                  "Each report type displays different data",
+                  "You can customize displayed columns"
+                ]
+              },
+              3: {
+                title: "Export the report",
+                description: "Once the report is generated, export it in the desired format (PDF, Excel, CSV).",
+                tips: [
+                  "Exported reports contain all filtered data",
+                  "You can schedule automatic reports"
+                ]
+              }
+            }
+          },
+          "manage-account": {
+            title: "Manage your account",
+            description: "Learn to manage your personal information, security, sessions and account preferences",
+            steps: {
+              1: {
+                title: "Access your profile",
+                description: "Click on your name in the top right menu, then select \"My Profile\" to access your account management.",
+                tips: [
+                  "You can also access the profile via the user icon",
+                  "All management sections are accessible from this page"
+                ]
+              },
+              2: {
+                title: "Modify your general information",
+                description: "In the \"General\" tab, modify your personal information: name, first name, email, phone, profile photo, etc.",
+                tips: [
+                  "Your profile photo allows you to personalize your account",
+                  "Make sure your email is valid to receive notifications",
+                  "Save your changes after each modification"
+                ]
+              },
+              3: {
+                title: "Manage your security",
+                description: "In the \"Security\" tab, modify your password, enable two-factor authentication if available, and view your active sessions.",
+                tips: [
+                  "Choose a strong and unique password",
+                  "You can revoke active sessions on other devices",
+                  "Change your password regularly for more security"
+                ]
+              },
+              4: {
+                title: "Configure your preferences",
+                description: "In the \"Preferences\" tab, configure your preferred language, theme (light/dark), and notification settings.",
+                tips: [
+                  "The chosen language applies to the entire interface",
+                  "Dark theme reduces eye strain",
+                  "Configure notifications according to your needs"
+                ]
+              },
+              5: {
+                title: "Manage your sessions",
+                description: "View all your active sessions, see where and when you are logged in, and revoke suspicious or unwanted sessions.",
+                tips: [
+                  "Regularly check your active sessions",
+                  "Immediately revoke any suspicious session",
+                  "Always log out on shared devices"
+                ]
+              }
+            }
+          }
+        }
       },
     },
     roles: {

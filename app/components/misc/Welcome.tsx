@@ -1,7 +1,7 @@
 import { Logo } from '~/components/Logo';
 import { Button } from '~/components/ui/button';
 import { FeatureCard } from '~/components/features/FeatureCard';
-import { useTranslation, useAuth } from '~/hooks';
+import { useTranslation, useAuth, usePermissions } from '~/hooks';
 import { Link } from 'react-router';
 import { 
   Zap,
@@ -13,13 +13,16 @@ import {
   Sparkles,
   Search,
   CheckCircle2,
-  X
+  X,
+  GraduationCap,
+  LifeBuoy
 } from 'lucide-react';
 import logoUrl from '~/assets/logo.png';
 import { hasPermission, isAdmin } from '~/lib/permissions';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { cn } from '~/lib/utils';
 import type { Permission } from '~/types/auth.types';
+import { getAccessibleTutorials } from '~/routes/tutorials/data';
 
 interface WelcomeProps {
   welcomeMessage?: string | null;
@@ -28,8 +31,19 @@ interface WelcomeProps {
 export function Welcome({ welcomeMessage }: WelcomeProps) {
   const { t, language } = useTranslation();
   const { user, isAuthenticated } = useAuth();
+  const { can, isAdmin: userIsAdmin } = usePermissions();
   const [showWelcome, setShowWelcome] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Vérifier si l'utilisateur a accès à au moins un tutoriel
+  const hasAccessToTutorials = useMemo(() => {
+    const accessibleTutorials = getAccessibleTutorials(
+      user,
+      (permission) => can(permission),
+      () => userIsAdmin()
+    );
+    return accessibleTutorials.length > 0;
+  }, [user, can, userIsAdmin]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -102,10 +116,48 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         color: "bg-cyan-600",
         permission: 'admin-access' as Permission,
       },
-    ];
+      {
+        title: language === 'fr' ? 'Tutoriels' : 'Tutorials',
+        description: t.pages.tutorials.subtitle,
+        icon: GraduationCap,
+        href: "/tutorials",
+        color: "bg-gradient-to-br from-purple-500 to-pink-500",
+        permission: undefined as Permission | undefined,
+      },
+      {
+        title: t.pages.support.title,
+        description: t.pages.support.description,
+        icon: LifeBuoy,
+        href: "/support",
+        color: "bg-gradient-to-br from-blue-500 to-cyan-500",
+        permission: undefined as Permission | undefined,
+      },
+    ].filter(action => {
+      // Filtrer le tutoriel si l'utilisateur n'a pas accès
+      if (action.href === "/tutorials") {
+        return hasAccessToTutorials;
+      }
+      return true;
+    });
 
     // Retourner toutes les actions avec l'info d'accès
     return allActions.map(action => {
+      // Les tutoriels sont accessibles selon les permissions
+      if (action.href === "/tutorials") {
+        return {
+          ...action,
+          hasAccess: hasAccessToTutorials,
+        };
+      }
+
+      // Le support est accessible à tous les utilisateurs authentifiés
+      if (action.href === "/support") {
+        return {
+          ...action,
+          hasAccess: safeIsAuthenticated,
+        };
+      }
+
       const hasBasePermission = safeIsAuthenticated && user && action.permission ? (
         hasPermission(user, action.permission) ||
         (action.permission === 'admin-access' && isAdmin(user))
@@ -233,8 +285,8 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         </div>
       </section>
 
-      {/* Dashboard Actions Grid (Only if Authenticated) */}
-      {safeIsAuthenticated && dashboardActions.length > 0 && (
+      {/* Dashboard Actions Grid */}
+      {dashboardActions.length > 0 && (
         <section className="container mx-auto px-4 mt-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="flex items-center gap-3 mb-6">
             <div className="h-8 w-1.5 bg-babana-cyan rounded-full" />

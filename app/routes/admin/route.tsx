@@ -24,6 +24,7 @@ import {
   Crown,
   AlertCircle,
   Key,
+  MessageSquare,
 } from 'lucide-react';
 import type { Permission } from '~/types/auth.types';
 
@@ -113,6 +114,15 @@ function AdminContent() {
       action: 'Gérer les logins',
       color: 'bg-cyan-600',
       href: '/admin/camtel-logins',
+    },
+    {
+      title: 'Gestion du Support',
+      description: 'Gérer et répondre aux tickets de support',
+      icon: MessageSquare,
+      permission: 'admin-access' as Permission,
+      action: 'Gérer le support',
+      color: 'bg-babana-cyan',
+      href: '/admin/support',
     },
   ];
 
