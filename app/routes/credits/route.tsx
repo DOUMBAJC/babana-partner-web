@@ -25,10 +25,10 @@ import {
 import { redirect } from 'react-router';
 
 const RECHARGE_PACKAGES = [
-  { amount: 20, price: '2,000', popular: false, bonus: 0 },
-  { amount: 50, price: '5,000', popular: false, bonus: 5 },
-  { amount: 100, price: '10,000', popular: true, bonus: 20 },
-  { amount: 200, price: '20,000', popular: false, bonus: 100 },
+  { amount: 20, price: '1,000', popular: false, bonus: 0 },
+  { amount: 50, price: '2,500', popular: false, bonus: 5 },
+  { amount: 100, price: '5,000', popular: true, bonus: 20 },
+  { amount: 200, price: '10,000', popular: false, bonus: 100 },
 ];
 
 const MOCK_TRANSACTIONS = [
