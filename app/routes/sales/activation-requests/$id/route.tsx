@@ -137,7 +137,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-7xl">
         <RequestHeader
           request={request}
           user={user}
@@ -151,7 +151,7 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
         />
 
         {/* Grille de cartes d'information */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <CustomerInfoCard request={request} />
           <SimInfoCard request={request} />
           <BaInfoCard request={request} />

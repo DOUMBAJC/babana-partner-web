@@ -136,22 +136,22 @@ export function CopyableValue({
   icon,
 }: CopyableValueProps) {
   return (
-    <div className={cn('space-y-2', className)}>
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-primary">{icon}</span>}
-        <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+    <div className={cn('space-y-1.5 sm:space-y-2', className)}>
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        {icon && <span className="text-primary shrink-0">{icon}</span>}
+        <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1 wrap-break-word">
           {label}
-          <Sparkles className="h-3 w-3 text-amber-500" />
+          <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-500 shrink-0" />
         </p>
       </div>
-      <div className="flex items-center justify-between gap-3 group">
+      <div className="flex items-start sm:items-center justify-between gap-2 sm:gap-3 group">
         <div className="flex-1 min-w-0">
           <p
             className={cn(
-              'break-all transition-all duration-200',
-              mono && 'font-mono text-sm',
-              highlight && 'text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
-              !highlight && 'text-base font-semibold text-foreground',
+              'break-words sm:break-all transition-all duration-200',
+              mono && 'font-mono text-xs sm:text-sm',
+              highlight && 'text-base sm:text-lg md:text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
+              !highlight && 'text-sm sm:text-base font-semibold text-foreground',
               'group-hover:text-primary'
             )}
           >
@@ -164,6 +164,7 @@ export function CopyableValue({
               value={value}
               label={copyLabel || `Copier ${label}`}
               className="shadow-md"
+              size="sm"
             />
           </div>
         )}
@@ -183,37 +184,37 @@ interface InfoCardProps {
 export function InfoCard({ icon, title, children, className, gradient = "from-blue-500 to-purple-600" }: InfoCardProps) {
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-2xl",
+      "relative overflow-hidden rounded-xl sm:rounded-2xl",
       "bg-card border-2 border-border/50",
       "shadow-xl hover:shadow-2xl transition-all duration-300",
-      "hover:scale-[1.02] hover:-translate-y-1",
+      "hover:scale-[1.01] sm:hover:scale-[1.02] hover:-translate-y-0.5 sm:hover:-translate-y-1",
       className
     )}>
       {/* Gradient decoratif */}
       <div className={cn(
-        "absolute top-0 left-0 right-0 h-1.5",
+        "absolute top-0 left-0 right-0 h-1 sm:h-1.5",
         `bg-linear-to-r ${gradient}`
       )} />
       
       {/* Header */}
-      <div className="p-6 pb-4">
-        <div className="flex items-center gap-4">
+      <div className="p-4 sm:p-6 pb-3 sm:pb-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className={cn(
-            "h-14 w-14 rounded-xl flex items-center justify-center",
+            "h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0",
             "bg-linear-to-br shadow-lg transform hover:rotate-6 transition-transform",
             gradient
           )}>
-            <span className="text-white text-2xl">{icon}</span>
+            <span className="text-white text-lg sm:text-xl md:text-2xl">{icon}</span>
           </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-foreground">{title}</h3>
-            <div className={cn("h-1 w-12 rounded-full mt-1.5 bg-linear-to-r", gradient)} />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground break-words">{title}</h3>
+            <div className={cn("h-0.5 sm:h-1 w-8 sm:w-12 rounded-full mt-1 sm:mt-1.5 bg-linear-to-r", gradient)} />
           </div>
         </div>
       </div>
       
       {/* Content */}
-      <div className="px-6 pb-6 space-y-4">
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4">
         {children}
       </div>
     </div>

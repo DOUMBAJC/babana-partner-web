@@ -23,39 +23,39 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
         highlight
         icon={<User className="h-4 w-4" />}
       />
-      <Separator className="my-3" />
+      <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.phone}
         value={request.customer?.phone || '-'}
         mono
         icon={<Phone className="h-4 w-4" />}
       />
-      <Separator className="my-3" />
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-primary">
-            <CreditCard className="h-4 w-4" />
+      <Separator className="my-2 sm:my-3" />
+      <div className="space-y-1.5 sm:space-y-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="text-primary shrink-0">
+            <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </span>
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1 wrap-break-word">
             {t.activationRequests.details.cardTypePiece}
           </p>
         </div>
-        <div className="flex items-center justify-between gap-3 group">
+        <div className="flex items-start sm:items-center justify-between gap-2 sm:gap-3 group">
           <div className="flex-1 min-w-0">
-            <p className="text-base font-semibold text-foreground group-hover:text-primary break-all transition-all duration-200">
+            <p className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary wrap-break-word sm:break-all transition-all duration-200">
               {request.customer?.id_card_type?.name || '-'}
             </p>
           </div>
         </div>
       </div>
-      <Separator className="my-3" />
+      <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.cardNumber}
         value={request.customer?.id_card_number || '-'}
         mono
         icon={<Shield className="h-4 w-4" />}
       />
-      <Separator className="my-3" />
+      <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.address}
         value={request.customer?.address || '-'}

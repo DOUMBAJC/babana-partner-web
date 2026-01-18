@@ -742,52 +742,53 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
     <Layout>
       <Toaster />
       <ProtectedRoute permission="view-users">
-        <div className="container mx-auto space-y-6 py-8 px-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-2">
+        <div className="container mx-auto space-y-4 sm:space-y-6 py-4 sm:py-6 md:py-8 px-3 sm:px-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-2 flex-1 min-w-0">
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbLink href="/admin">{t.adminUsers.breadcrumb.admin}</BreadcrumbLink>
+                    <BreadcrumbLink href="/admin" className="text-xs sm:text-sm">{t.adminUsers.breadcrumb.admin}</BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>{t.adminUsers.breadcrumb.users}</BreadcrumbPage>
+                    <BreadcrumbPage className="text-xs sm:text-sm">{t.adminUsers.breadcrumb.users}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
 
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-babana-cyan/30 to-babana-navy/30 blur-xl" />
-                  <div className="relative rounded-2xl border border-babana-cyan/20 bg-card p-3 shadow-sm">
-                    <Shield className="h-7 w-7 text-babana-cyan" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="relative shrink-0">
+                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-linear-to-br from-babana-cyan/30 to-babana-navy/30 blur-xl" />
+                  <div className="relative rounded-xl sm:rounded-2xl border border-babana-cyan/20 bg-card p-2 sm:p-3 shadow-sm">
+                    <Shield className="h-5 w-5 sm:h-7 sm:w-7 text-babana-cyan" />
                   </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground wrap-break-word">
                     {t.adminUsers.header.title}
                   </h1>
-                  <p className="text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground wrap-break-word">
                     {t.adminUsers.header.subtitle}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => navigate("/admin")}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t.actions.back}
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" onClick={() => navigate("/admin")} size="sm" className="text-xs sm:text-sm sm:size-default">
+                <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                <span className="hidden sm:inline">{t.actions.back}</span>
               </Button>
               <Button
                 variant="default"
-                className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy active:scale-[0.98] transition-transform"
+                className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy active:scale-[0.98] transition-transform text-xs sm:text-sm sm:size-default"
                 onClick={() => revalidator.revalidate()}
                 disabled={isRefreshing}
+                size="sm"
               >
-                <RefreshCcw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-                {isRefreshing ? t.common.loading : t.actions.refresh}
+                <RefreshCcw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline">{isRefreshing ? t.common.loading : t.actions.refresh}</span>
               </Button>
             </div>
           </div>
@@ -805,7 +806,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
           )}
 
           {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
             <StatCard title={t.adminUsers.stats.total} value={stats.total} icon={Users} tone="cyan" />
             <StatCard title={t.adminUsers.stats.active} value={stats.active} icon={UserCheck} tone="green" />
             <StatCard title={t.adminUsers.stats.pending} value={stats.pending} icon={Clock} tone="amber" />
@@ -823,26 +824,26 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                   onValueChange={(v) => setParam("tab", v as TabValue)}
                 >
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <TabsList className="w-fit">
-                      <TabsTrigger value="all" className="gap-2">
-                        {t.adminUsers.tabs.all}
-                        <Badge variant="outline" className="ml-1">
+                    <TabsList className="w-full sm:w-fit">
+                      <TabsTrigger value="all" className="gap-1 sm:gap-2 text-xs sm:text-sm flex-1 sm:flex-initial">
+                        <span className="truncate">{t.adminUsers.tabs.all}</span>
+                        <Badge variant="outline" className="ml-1 text-xs">
                           {loaderData.users.length}
                         </Badge>
                       </TabsTrigger>
-                      <TabsTrigger value="pending" className="gap-2">
-                        {t.adminUsers.tabs.pending}
-                        <Badge variant="outline" className="ml-1">
+                      <TabsTrigger value="pending" className="gap-1 sm:gap-2 text-xs sm:text-sm flex-1 sm:flex-initial">
+                        <span className="truncate">{t.adminUsers.tabs.pending}</span>
+                        <Badge variant="outline" className="ml-1 text-xs">
                           {loaderData.pendingUsers.length}
                         </Badge>
                       </TabsTrigger>
                     </TabsList>
 
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-full md:w-[360px]">
-                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                      <div className="relative w-full sm:w-[280px] md:w-[360px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                         <Input
-                          className="pl-9"
+                          className="pl-8 sm:pl-9 text-sm h-9 sm:h-10"
                           placeholder={t.adminUsers.search.placeholder}
                           value={qInput}
                           onChange={(e) => setQInput(e.target.value)}
@@ -853,7 +854,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                         value={loaderData.status}
                         onValueChange={(v) => setParam("status", v)}
                       >
-                        <SelectTrigger className="w-[220px]">
+                        <SelectTrigger className="w-full sm:w-[180px] md:w-[220px] text-sm h-9 sm:h-10">
                           <SelectValue placeholder={t.adminUsers.filters.status} />
                         </SelectTrigger>
                         <SelectContent>
@@ -869,7 +870,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                       </Select>
 
                       <Select value={loaderData.role} onValueChange={(v) => setParam("role", v)}>
-                        <SelectTrigger className="w-[170px]">
+                        <SelectTrigger className="w-full sm:w-[150px] md:w-[170px] text-sm h-9 sm:h-10">
                           <SelectValue placeholder={t.adminUsers.filters.role} />
                         </SelectTrigger>
                         <SelectContent>
@@ -955,7 +956,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
             <DialogContent className="sm:max-w-[650px] bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 overflow-hidden">
               {/* Header spectaculaire (style AcceptDialog) */}
               <div
-                className={`relative bg-linear-to-br p-8 pb-12 ${
+                className={`relative bg-linear-to-br p-4 sm:p-6 md:p-8 pb-8 sm:pb-10 md:pb-12 ${
                   confirm.actionType === "activate" || confirm.actionType === "reactivate"
                     ? "from-green-600 via-emerald-600 to-teal-600"
                     : confirm.actionType === "suspend"
@@ -967,26 +968,26 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
               >
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20" />
 
-                <div className="relative flex items-start gap-4">
+                <div className="relative flex items-start gap-2 sm:gap-4">
                   <div className="shrink-0">
                     <div className="relative">
                       <div className="absolute inset-0 bg-white/30 blur-xl rounded-full" />
-                      <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                      <div className="relative bg-white/20 backdrop-blur-sm p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 border-white/30 shadow-xl">
                         {confirm.actionType === "activate" ? (
-                          <PlayCircle className="h-8 w-8 text-white" />
+                          <PlayCircle className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
                         ) : confirm.actionType === "reactivate" ? (
-                          <UserCheck className="h-8 w-8 text-white" />
+                          <UserCheck className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
                         ) : confirm.actionType === "suspend" ? (
-                          <PauseCircle className="h-8 w-8 text-white" />
+                          <PauseCircle className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
                         ) : (
-                          <UserX className="h-8 w-8 text-white" />
+                          <UserX className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex-1 pt-2">
-                    <div className="text-3xl font-black text-white mb-2 tracking-tight">
+                  <div className="flex-1 min-w-0 pt-1 sm:pt-2">
+                    <div className="text-lg sm:text-2xl md:text-3xl font-black text-white mb-1 sm:mb-2 tracking-tight wrap-break-word">
                       {confirm.actionType === "activate"
                         ? t.adminUsers.confirm.activateTitle
                         : confirm.actionType === "suspend"
@@ -995,22 +996,23 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                             ? t.adminUsers.confirm.reactivateTitle
                             : t.adminUsers.confirm.rejectTitle}
                     </div>
-                    <div className="text-emerald-100 text-lg font-medium">
+                    <div className="text-emerald-100 text-sm sm:text-base md:text-lg font-medium wrap-break-word">
                       {confirm.user ? (
                         <>
-                          {t.adminUsers.confirm.actionOn} <span className="font-semibold">{confirm.user.name}</span> •{" "}
-                          {confirm.user.email}
+                          {t.adminUsers.confirm.actionOn} <span className="font-semibold">{confirm.user.name}</span>{" "}
+                          <span className="hidden sm:inline">•</span>{" "}
+                          <span className="block sm:inline">{confirm.user.email}</span>
                         </>
                       ) : null}
                     </div>
                   </div>
 
-                  <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-yellow-300 animate-pulse shrink-0" />
                 </div>
               </div>
 
               {/* Contenu */}
-              <div className="p-8 space-y-6">
+              <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
                 {confirm.actionType === "reject" ? (
                   <div className="space-y-3">
                     <div className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
@@ -1047,19 +1049,19 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
               </div>
 
               {/* Footer (style AcceptDialog) */}
-              <div className="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-4 px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setConfirm({ open: false, actionType: null, user: null })}
-                  className="h-12 px-6 rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200"
+                  className="h-10 sm:h-12 px-4 sm:px-6 rounded-lg sm:rounded-xl border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition-all duration-200 text-sm sm:text-base order-2 sm:order-1"
                 >
                   {t.actions.cancel}
                 </Button>
                 <Button
                   type="button"
                   onClick={submitAction}
-                  className={`h-12 px-8 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                  className={`h-10 sm:h-12 px-6 sm:px-8 text-white font-bold rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base order-1 sm:order-2 ${
                     confirm.actionType === "activate" || confirm.actionType === "reactivate"
                       ? "bg-linear-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700"
                       : confirm.actionType === "suspend"
@@ -1067,7 +1069,7 @@ export default function AdminUsersPage({ loaderData, actionData }: Route.Compone
                         : "bg-linear-to-r from-rose-600 via-red-600 to-slate-700 hover:from-rose-700 hover:via-red-700 hover:to-slate-800"
                   }`}
                 >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                   {t.actions.confirm}
                 </Button>
               </div>
@@ -1103,14 +1105,14 @@ function StatCard({
 
   return (
     <Card className={`border ${toneStyles} bg-linear-to-br`}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">{title}</div>
-            <div className="text-2xl font-bold">{value}</div>
+      <CardContent className="p-2.5 sm:p-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">{title}</div>
+            <div className="text-lg sm:text-xl md:text-2xl font-bold">{value}</div>
           </div>
-          <div className="rounded-xl border bg-background/60 p-2.5">
-            <Icon className="h-5 w-5 text-foreground/80" />
+          <div className="rounded-lg sm:rounded-xl border bg-background/60 p-1.5 sm:p-2.5 shrink-0">
+            <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-foreground/80" />
           </div>
         </div>
       </CardContent>
@@ -1133,16 +1135,16 @@ function UsersTable({
   const navigation = useNavigation();
   const isDetailsLoading = navigation.state === "loading";
   return (
-    <div className="mt-4">
-      <div className="rounded-xl border bg-card/50 overflow-hidden">
+    <div className="mt-3 sm:mt-4">
+      <div className="rounded-lg sm:rounded-xl border bg-card/50 overflow-hidden overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.adminUsers.table.user}</TableHead>
-              <TableHead>{t.adminUsers.table.status}</TableHead>
-              <TableHead>{t.adminUsers.table.roles}</TableHead>
-              <TableHead>{t.adminUsers.table.created}</TableHead>
-              <TableHead className="text-right">{t.adminUsers.table.actions}</TableHead>
+              <TableHead className="text-xs sm:text-sm">{t.adminUsers.table.user}</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden sm:table-cell">{t.adminUsers.table.status}</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden md:table-cell">{t.adminUsers.table.roles}</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden lg:table-cell">{t.adminUsers.table.created}</TableHead>
+              <TableHead className="text-right text-xs sm:text-sm">{t.adminUsers.table.actions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1156,23 +1158,38 @@ function UsersTable({
                   className={`cursor-pointer transition-colors hover:bg-muted/30 ${isRowLoading ? "animate-pulse" : ""}`}
                   onClick={() => onOpenUser(u.id)}
                 >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 ring-2 ring-babana-cyan/15">
-                        <AvatarFallback className="bg-babana-cyan/10 text-babana-navy dark:text-babana-cyan">
+                  <TableCell className="py-2 sm:py-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Avatar className="h-8 w-8 sm:h-9 sm:w-9 ring-2 ring-babana-cyan/15 shrink-0">
+                        <AvatarFallback className="bg-babana-cyan/10 text-babana-navy dark:text-babana-cyan text-xs sm:text-sm">
                           {u.name ? getInitials(u.name) : "U"}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="min-w-0">
-                        <div className="font-medium leading-tight truncate">{u.name}</div>
-                        <div className="text-sm text-muted-foreground truncate">{u.email}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium leading-tight truncate text-xs sm:text-sm">{u.name}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground truncate">{u.email}</div>
+                        <div className="sm:hidden mt-1">
+                          <StatusBadge status={u.account_status} />
+                        </div>
+                        <div className="sm:hidden mt-1 flex flex-wrap gap-1">
+                          {(u.roles || []).slice(0, 2).map((r) => (
+                            <Badge key={r} variant="outline" className="text-[10px] px-1 py-0">
+                              {t.roles?.[r]?.name || roleNameBySlug[r] || r}
+                            </Badge>
+                          ))}
+                          {(u.roles || []).length > 2 ? (
+                            <Badge variant="outline" className="text-[10px] px-1 py-0">
+                              +{(u.roles || []).length - 2}
+                            </Badge>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell py-2 sm:py-3">
                     <StatusBadge status={u.account_status} />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell py-2 sm:py-3">
                     <div className="flex flex-wrap gap-1.5">
                       {(u.roles || []).slice(0, 2).map((r) => (
                         <Badge key={r} variant="outline" className="text-xs">
@@ -1186,25 +1203,25 @@ function UsersTable({
                       ) : null}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="hidden lg:table-cell text-xs sm:text-sm text-muted-foreground py-2 sm:py-3">
                     {formatDate(u.created_at, language)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right py-2 sm:py-3">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="gap-2"
+                            className="gap-1 sm:gap-2 text-xs sm:text-sm h-7 sm:h-8 px-2 sm:px-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               onOpenUser(u.id);
                             }}
                           >
-                            <Eye className="h-4 w-4" />
-                            {t.adminUsers.table.view}
-                            {isRowLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline">{t.adminUsers.table.view}</span>
+                            {isRowLoading ? <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" /> : null}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>{t.adminUsers.table.openTooltip}</TooltipContent>
@@ -1217,10 +1234,10 @@ function UsersTable({
 
             {!users.length ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-10 text-center">
-                  <div className="mx-auto max-w-md space-y-2">
-                    <div className="text-base font-semibold">{t.adminUsers.table.emptyTitle}</div>
-                    <div className="text-sm text-muted-foreground">{t.adminUsers.table.emptyMessage}</div>
+                <TableCell colSpan={5} className="py-8 sm:py-10 text-center">
+                  <div className="mx-auto max-w-md space-y-2 px-4">
+                    <div className="text-sm sm:text-base font-semibold">{t.adminUsers.table.emptyTitle}</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">{t.adminUsers.table.emptyMessage}</div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -1289,25 +1306,25 @@ function PaginationControls({
   const pageNumbers = getPageNumbers();
   
   return (
-    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+    <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-2">
       {/* Info sur les résultats */}
-      <div className="text-sm text-muted-foreground">
+      <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
         Affichage <span className="font-medium">{startItem}</span> à{" "}
         <span className="font-medium">{endItem}</span> sur{" "}
         <span className="font-medium">{total}</span> résultats
       </div>
       
       {/* Contrôles de pagination */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
         {/* Première page */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="h-9 w-9 p-0"
+          className="h-8 w-8 sm:h-9 sm:w-9 p-0"
         >
-          <ChevronsLeft className="h-4 w-4" />
+          <ChevronsLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
         
         {/* Page précédente */}
@@ -1316,17 +1333,17 @@ function PaginationControls({
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="h-9 w-9 p-0"
+          className="h-8 w-8 sm:h-9 sm:w-9 p-0"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
         
         {/* Numéros de page */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1">
           {pageNumbers.map((page, idx) => {
             if (page === "...") {
               return (
-                <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                <span key={`ellipsis-${idx}`} className="px-1 sm:px-2 text-xs sm:text-sm text-muted-foreground">
                   ...
                 </span>
               );
@@ -1341,7 +1358,7 @@ function PaginationControls({
                 variant={isActive ? "default" : "outline"}
                 size="sm"
                 onClick={() => onPageChange(pageNum)}
-                className={`h-9 w-9 p-0 ${
+                className={`h-8 w-8 sm:h-9 sm:w-9 p-0 text-xs sm:text-sm ${
                   isActive 
                     ? "bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy" 
                     : ""
@@ -1359,9 +1376,9 @@ function PaginationControls({
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="h-9 w-9 p-0"
+          className="h-8 w-8 sm:h-9 sm:w-9 p-0"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
         
         {/* Dernière page */}
@@ -1370,9 +1387,9 @@ function PaginationControls({
           size="sm"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="h-9 w-9 p-0"
+          className="h-8 w-8 sm:h-9 sm:w-9 p-0"
         >
-          <ChevronsRight className="h-4 w-4" />
+          <ChevronsRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
       </div>
     </div>

@@ -15,6 +15,7 @@ import { Search, X, Filter, Loader2 } from "lucide-react";
 import { DatePicker } from "~/components/ui/date-picker";
 import { fr, enUS } from "date-fns/locale";
 import { useLanguage, useTranslation } from "~/hooks";
+import { ExportButtons } from "./ExportButtons";
 
 export function FiltersSection() {
   const { t } = useTranslation();
@@ -186,35 +187,41 @@ export function FiltersSection() {
       </div>
 
       {/* Boutons d'action */}
-      <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-border/40">
-        {hasActiveFilters && (
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/40">
+        <div className="flex items-center gap-2">
+          <ExportButtons />
+        </div>
+        
+        <div className="flex items-center gap-3">
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              onClick={handleClearFilters}
+              className="gap-2"
+              disabled={isLoading}
+            >
+              <X className="h-4 w-4" />
+              {t.activationRequests.filters.clear}
+            </Button>
+          )}
           <Button
-            variant="outline"
-            onClick={handleClearFilters}
-            className="gap-2"
+            onClick={handleApplyFilters}
+            className="gap-2 min-w-[120px]"
             disabled={isLoading}
           >
-            <X className="h-4 w-4" />
-            {t.activationRequests.filters.clear}
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Recherche...
+              </>
+            ) : (
+              <>
+                <Search className="h-4 w-4" />
+                {t.activationRequests.filters.apply}
+              </>
+            )}
           </Button>
-        )}
-        <Button
-          onClick={handleApplyFilters}
-          className="gap-2 min-w-[120px]"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Recherche...
-            </>
-          ) : (
-            <>
-              <Search className="h-4 w-4" />
-              {t.activationRequests.filters.apply}
-            </>
-          )}
-        </Button>
+        </div>
       </div>
     </Card>
   );

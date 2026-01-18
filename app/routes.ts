@@ -16,6 +16,7 @@ export default [
   route("unauthorized", "routes/unauthorized/route.tsx"),
   route("admin", "routes/admin/route.tsx"),
   route("admin/users", "routes/admin/users/route.tsx"),
+  route("admin/reports", "routes/admin/reports/route.tsx"),
   route("admin/camtel-logins", "routes/admin/camtel-logins/route.tsx"),
   route("admin/settings", "routes/admin/settings/route.tsx"),
   route("roles-matrix", "routes/roles-matrix/route.tsx"),
@@ -58,6 +59,9 @@ export default [
   // Auth API routes (SSR proxies)
   route("api/auth/profile", "routes/api/auth.profile.tsx"),
   route("api/auth/change-password", "routes/api/auth.change-password.tsx"),
+  
+  // Reports API routes (SSR proxies)
+  route("api/reports/export", "routes/api/reports.export.tsx"),
   
   // Route 404 - doit être la dernière pour capturer toutes les routes non définies
   route("*", "routes/$.tsx"),
