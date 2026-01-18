@@ -62,6 +62,7 @@ export default [
   
   // Reports API routes (SSR proxies)
   route("api/reports/export", "routes/api/reports.export.tsx"),
+  route("api/reports/export-secret", "routes/api/reports.export-secret.tsx"),
   
   // Route 404 - doit être la dernière pour capturer toutes les routes non définies
   route("*", "routes/$.tsx"),
