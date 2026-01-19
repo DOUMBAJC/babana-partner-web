@@ -29,11 +29,12 @@ export const links: Route.LinksFunction = () => [
 ];
 import { getCurrentUser } from "~/services/api.server";
 import { getLanguage } from "~/services/session.server";
+import { data } from "react-router";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getCurrentUser(request);
   const language = await getLanguage(request);
-  return { user, language };
+  return data({ user, language });
 }
 
 import { useLoaderData } from "react-router";

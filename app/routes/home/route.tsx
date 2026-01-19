@@ -12,21 +12,28 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const welcomeMessage = session.get("welcome");
-  
-  if (welcomeMessage) {
-    return data(
-      { welcomeMessage },
-      {
-        headers: {
-          "Set-Cookie": await commitSession(session),
-        },
-      }
-    );
+  try {
+    const session = await getSession(request.headers.get("Cookie"));
+    const welcomeMessage = session.get("welcome");
+    
+    // Si un message de bienvenue existe, le retourner et commiter la session
+    if (welcomeMessage) {
+      return data(
+        { welcomeMessage },
+        {
+          headers: {
+            "Set-Cookie": await commitSession(session),
+          },
+        }
+      );
+    }
+    
+    // Sinon, retourner null sans modifier la session
+    return data({ welcomeMessage: null });
+  } catch (error) {
+    console.error("Erreur dans le loader de la page d'accueil:", error);
+    return data({ welcomeMessage: null });
   }
-  
-  return { welcomeMessage: null };
 }
 
 export default function Home() {
