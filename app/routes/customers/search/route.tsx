@@ -219,8 +219,8 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   
-  // État de chargement pendant la recherche
-  const isSearching = navigation.state === 'submitting' || navigation.state === 'loading';
+  // Masquer le loader dès que actionData est disponible (réponse reçue)
+  const isSearching = (navigation.state === 'submitting' || navigation.state === 'loading') && !actionData;
   
   const { user, idCardTypes, hasAccess, error: loaderError } = loaderData;
   const isAuthenticated = !!user;
