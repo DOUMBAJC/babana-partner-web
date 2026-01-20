@@ -124,6 +124,15 @@ function AdminContent() {
       color: 'bg-babana-cyan',
       href: '/admin/support',
     },
+    {
+      title: 'Vérification des Logs',
+      description: 'Consultez et analysez les logs système en temps réel',
+      icon: FileText,
+      permission: 'admin-access' as Permission,
+      action: 'Voir les logs',
+      color: 'bg-purple-600',
+      href: '/admin/logs',
+    },
   ];
 
   return (

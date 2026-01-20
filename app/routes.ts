@@ -19,6 +19,7 @@ export default [
   route("admin/reports", "routes/admin/reports/route.tsx"),
   route("admin/camtel-logins", "routes/admin/camtel-logins/route.tsx"),
   route("admin/settings", "routes/admin/settings/route.tsx"),
+  route("admin/logs", "routes/admin/logs/route.tsx"),
   // Support Admin
   route("admin/support", "routes/admin/support/route.tsx"),
   route("admin/support/:id", "routes/admin/support/$id/route.tsx"),
@@ -75,6 +76,12 @@ export default [
   // Reports API routes (SSR proxies)
   route("api/reports/export", "routes/api/reports.export.tsx"),
   route("api/reports/export-secret", "routes/api/reports.export-secret.tsx"),
+  
+  // Logs API routes (SSR proxies)
+  route("api/logs", "routes/api/logs.tsx"),
+  route("api/logs/stats", "routes/api/logs.stats.tsx"),
+  route("api/logs/export", "routes/api/logs.export.tsx"),
+  route("api/logs/:id", "routes/api/logs.$id.tsx"),
   
   // Support API routes (SSR proxies)
   route("api/support", "routes/api/support.tsx"),

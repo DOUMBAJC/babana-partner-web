@@ -1,22 +1,35 @@
 import type { Route } from "./+types/route";
 import { Layout, Welcome } from "~/components";
 import { useTranslation, usePageTitle } from "~/hooks";
-import { getSession, commitSession } from "~/services/session.server";
 import { data, useLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "BABANA - Plateforme Partenaire" },
-    { name: "description", content: "Plateforme partenaire BABANA ETS DAIROU pour une gestion moderne et efficace" },
+    {
+      name: "description",
+      content:
+        "Plateforme partenaire BABANA ETS DAIROU pour une gestion moderne et efficace",
+    },
   ];
 }
 
+/**
+ * Loader de la page d'accueil
+ * - Lit le message de bienvenue flash dans la session
+ * - Le renvoie une seule fois puis le supprime (flash)
+ * - En cas de problème, retourne simplement null sans casser la page
+ */
 export async function loader({ request }: Route.LoaderArgs) {
   try {
+    // Import dynamique pour garder ce code 100% côté serveur
+    const { getSession, commitSession } = await import(
+      "~/services/session.server"
+    );
+
     const session = await getSession(request.headers.get("Cookie"));
     const welcomeMessage = session.get("welcome");
-    
-    // Si un message de bienvenue existe, le retourner et commiter la session
+
     if (welcomeMessage) {
       return data(
         { welcomeMessage },
@@ -27,8 +40,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         }
       );
     }
-    
-    // Sinon, retourner null sans modifier la session
+
     return data({ welcomeMessage: null });
   } catch (error) {
     console.error("Erreur dans le loader de la page d'accueil:", error);
