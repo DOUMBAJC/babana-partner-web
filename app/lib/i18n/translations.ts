@@ -778,6 +778,9 @@ export interface Translations {
       idCardNumber: string;
       idCardNumberRequired: string;
       idCardNumberPlaceholder: string;
+      simNumber: string;
+      simNumberPlaceholder: string;
+      simNumberDescription: string;
       name: string;
       namePlaceholder: string;
       phone: string;
@@ -822,6 +825,8 @@ export interface Translations {
       fillAllFields: string;
       attention: string;
       invalidFormat: string;
+      invalidSimNumber: string;
+      atLeastOneField: string;
     };
   };
   // Customer Create
@@ -2321,6 +2326,9 @@ export const translations: Record<Language, Translations> = {
         idCardNumber: "Numéro de carte d'identité",
         idCardNumberRequired: "Numéro de carte d'identité *",
         idCardNumberPlaceholder: "Ex: 123456789",
+        simNumber: "Numéro SIM (Optionnel)",
+        simNumberPlaceholder: "Ex: 621234567",
+        simNumberDescription: "Rechercher par numéro SIM des requêtes précédentes",
         name: "Nom Complet",
         namePlaceholder: "Nom du client",
         phone: "Téléphone",
@@ -2362,9 +2370,11 @@ export const translations: Record<Language, Translations> = {
         limitReachedWarning: "Ce client a atteint la limite maximale d'activations",
       },
       errors: {
-        fillAllFields: "Veuillez remplir tous les champs",
+        fillAllFields: "Veuillez remplir au moins un critère de recherche",
         attention: "Attention",
         invalidFormat: "Format de numéro de carte invalide",
+        invalidSimNumber: "Format invalide. Le numéro SIM doit commencer par 62 et contenir 9 chiffres (ex: 621234567)",
+        atLeastOneField: "Veuillez remplir au moins le numéro SIM ou les informations de carte d'identité",
       },
     },
     customerCreate: {
@@ -4146,6 +4156,9 @@ export const translations: Record<Language, Translations> = {
         idCardNumber: "ID Card Number",
         idCardNumberRequired: "ID Card Number *",
         idCardNumberPlaceholder: "Ex: 123456789",
+        simNumber: "SIM Number (Optional)",
+        simNumberPlaceholder: "Ex: 621234567",
+        simNumberDescription: "Search by SIM number from previous requests",
         name: "Full Name",
         namePlaceholder: "Customer Name",
         phone: "Phone",
@@ -4187,9 +4200,11 @@ export const translations: Record<Language, Translations> = {
         limitReachedWarning: "This customer has reached the maximum activation limit",
       },
       errors: {
-        fillAllFields: "Please fill in all fields",
+        fillAllFields: "Please fill in at least one search criterion",
         attention: "Warning",
         invalidFormat: "Invalid card number format",
+        invalidSimNumber: "Invalid format. SIM number must start with 62 and contain 9 digits (e.g. 621234567)",
+        atLeastOneField: "Please fill in at least the SIM number or ID card information",
       },
     },
     customerCreate: {

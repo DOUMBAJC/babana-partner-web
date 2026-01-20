@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, data, useActionData } from 'react-router';
+import { useNavigate, data, useActionData, useNavigation } from 'react-router';
 import { 
   AlertCircle,
   Sparkles,
@@ -24,10 +24,12 @@ import { Toaster } from '~/components/ui/toaster';
 // Import des composants et configurations modulaires
 import { AUTHORIZED_ROLES, type SearchQuery, type ActivationStatus } from './config';
 import { useIdCardValidation } from './hooks/useIdCardValidation';
+import { useSimNumberValidation } from './hooks/useSimNumberValidation';
 import {
   CustomerFoundCard,
   CustomerNotFoundCard,
-  SearchForm
+  SearchForm,
+  SearchLoader
 } from './components';
 
 // --- LOADER ---
@@ -90,23 +92,46 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const idCardTypeId = formData.get('id_card_type_id') as string;
   const idCardNumber = formData.get('id_card_number') as string;
+  const simNumber = (formData.get('sim_number') as string) || '';
 
-  if (!idCardTypeId || !idCardNumber) {
+  // Validation : au moins un critère doit être fourni
+  const hasSimNumber = simNumber && simNumber.trim().length > 0;
+  const hasIdCard = idCardTypeId && idCardNumber && idCardNumber.trim().length > 0;
+
+  if (!hasSimNumber && !hasIdCard) {
     return data({
       success: false,
-      error: t.customerSearch.errors.fillAllFields,
+      error: t.customerSearch.errors.atLeastOneField,
+      searchStatus: 'idle'
+    }, { status: 400 });
+  }
+
+  // Validation du format sim_number si fourni
+  if (hasSimNumber && !/^62\d{7}$/.test(simNumber)) {
+    return data({
+      success: false,
+      error: t.customerSearch.errors.invalidSimNumber,
       searchStatus: 'idle'
     }, { status: 400 });
   }
 
   try {
     const api = await createAuthenticatedApi(request);
-    
-    const response = await api.post('/customers/searchByIdCard', {
-      id_card_type_id: idCardTypeId,
-      id_card_number: idCardNumber
-    });
 
+    // Construire le payload dynamiquement en fonction des champs fournis
+    const payload: Record<string, string> = {};
+    if (idCardTypeId) {
+      payload.id_card_type_id = idCardTypeId;
+    }
+    if (idCardNumber) {
+      payload.id_card_number = idCardNumber;
+    }
+    if (hasSimNumber) {
+      payload.sim_number = simNumber;
+    }
+
+    // Une seule méthode POST côté backend : on ajoute simplement sim_number
+    const response = await api.post('/customers/searchByIdCard', payload);
     const responseData = response.data;
     
     if (responseData.found && responseData.data) {
@@ -117,16 +142,20 @@ export async function action({ request }: Route.ActionArgs) {
         activationStatus: responseData.activation_status || null,
         error: null
       });
-    } else {
-      return data({
-        success: false,
-        searchStatus: 'not_found',
-        customer: null,
-        activationStatus: null,
-        error: responseData.message || t.customerSearch.results.notFound,
-        searchQuery: { id_card_type_id: idCardTypeId, id_card_number: idCardNumber }
-      });
     }
+    
+    return data({
+      success: false,
+      searchStatus: 'not_found',
+      customer: null,
+      activationStatus: null,
+      error: responseData.message || t.customerSearch.results.notFound,
+      searchQuery: { 
+        id_card_type_id: idCardTypeId || '', 
+        id_card_number: idCardNumber || '',
+        sim_number: simNumber || ''
+      }
+    });
   } catch (error: any) {
     console.error('Erreur lors de la recherche:', error);
     
@@ -187,14 +216,19 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
   usePageTitle(t.pages.customers.search.title);
   
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
+  
+  // État de chargement pendant la recherche
+  const isSearching = navigation.state === 'submitting' || navigation.state === 'loading';
   
   const { user, idCardTypes, hasAccess, error: loaderError } = loaderData;
   const isAuthenticated = !!user;
   
   const [searchQuery, setSearchQuery] = useState<SearchQuery>({
     id_card_type_id: (actionData as any)?.searchQuery?.id_card_type_id || '',
-    id_card_number: (actionData as any)?.searchQuery?.id_card_number || ''
+    id_card_number: (actionData as any)?.searchQuery?.id_card_number || '',
+    sim_number: (actionData as any)?.searchQuery?.sim_number || ''
   });
 
   const searchStatus = (actionData as any)?.searchStatus || 'idle';
@@ -211,6 +245,12 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
     validateIdCardNumber, 
     setValidationError 
   } = useIdCardValidation(selectedCardType, t.customerSearch.errors.invalidFormat);
+
+  const {
+    validationError: simNumberValidationError,
+    validateSimNumber,
+    setValidationError: setSimNumberValidationError
+  } = useSimNumberValidation(t.customerSearch.errors.invalidSimNumber);
 
   const handleIdCardNumberChange = (value: string) => {
     setSearchQuery({...searchQuery, id_card_number: value});
@@ -272,9 +312,20 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
     }
   }, [actionData, t]);
 
+  const handleSimNumberChange = (value: string) => {
+    setSearchQuery({...searchQuery, sim_number: value});
+    
+    if (value.length > 0) {
+      validateSimNumber(value);
+    } else {
+      setSimNumberValidationError('');
+    }
+  };
+
   const handleReset = () => {
-    setSearchQuery({ id_card_type_id: '', id_card_number: '' });
+    setSearchQuery({ id_card_type_id: '', id_card_number: '', sim_number: '' });
     setValidationError('');
+    setSimNumberValidationError('');
     // Naviguer vers la même route pour réinitialiser sans rechargement brutal
     navigate('/customers/search', { replace: true });
   };
@@ -309,6 +360,10 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
   return (
     <Layout>
       <Toaster />
+      
+      {/* Loader pendant la recherche */}
+      {isSearching && <SearchLoader />}
+      
       <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -325,10 +380,17 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {t.customerSearch.subtitleIdCard}
             </p>
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary backdrop-blur-sm">
+            <p className="text-base text-muted-foreground/80 max-w-xl mx-auto mt-2">
+              Recherchez également par numéro SIM des requêtes précédentes
+            </p>
+            <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
+              <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary backdrop-blur-sm transition-all duration-300 hover:bg-primary/10 hover:scale-105">
                 <ShieldCheck className="w-3.5 h-3.5 mr-2" />
                 {t.customerSearch.securePortal}
+              </Badge>
+              <Badge variant="outline" className="px-4 py-1.5 rounded-full border-green-500/20 bg-green-500/5 text-green-600 dark:text-green-400 backdrop-blur-sm transition-all duration-300 hover:bg-green-500/10 hover:scale-105">
+                <Sparkles className="w-3.5 h-3.5 mr-2" />
+                Recherche flexible
               </Badge>
             </div>
           </div>
@@ -343,9 +405,14 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
                     <Sparkles className="h-6 w-6" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-foreground">{t.customerSearch.searchCriteria}</h2>
+                    <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                      {t.customerSearch.searchCriteria}
+                      <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                        Flexible
+                      </span>
+                    </h2>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {t.customerSearch.searchCriteriaDescription}
+                      Utilisez le numéro SIM ou les informations de carte d'identité
                     </p>
                   </div>
                 </div>
@@ -416,16 +483,29 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
               )}
 
               {/* Formulaire de recherche */}
-              <SearchForm
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                idCardTypes={idCardTypes}
-                validationError={validationError}
-                onIdCardNumberChange={handleIdCardNumberChange}
-                onIdCardTypeChange={handleIdCardTypeChange}
-                isLocked={isLocked}
-                selectedCardType={selectedCardType}
-              />
+              <div className="relative">
+                {isSearching && (
+                  <div className="absolute inset-0 bg-background/40 backdrop-blur-sm rounded-xl z-10 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs text-muted-foreground">Recherche en cours...</span>
+                    </div>
+                  </div>
+                )}
+                <SearchForm
+                  searchQuery={searchQuery}
+                  onSearchQueryChange={setSearchQuery}
+                  idCardTypes={idCardTypes}
+                  validationError={validationError}
+                  simNumberValidationError={simNumberValidationError}
+                  onIdCardNumberChange={handleIdCardNumberChange}
+                  onIdCardTypeChange={handleIdCardTypeChange}
+                  onSimNumberChange={handleSimNumberChange}
+                  isLocked={isLocked}
+                  selectedCardType={selectedCardType}
+                  isSearching={isSearching}
+                />
+              </div>
 
               {/* Actions : Client non trouvé */}
               {searchStatus === 'not_found' && (

@@ -31,5 +31,9 @@ export interface ActivationStatus {
 export interface SearchQuery {
   id_card_type_id: string;
   id_card_number: string;
+  sim_number?: string;
 }
+
+// Pattern de validation pour le numéro SIM
+export const SIM_NUMBER_PATTERN = /^62\d{7}$/;
 
