@@ -95,7 +95,7 @@ export function UserMenu() {
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold leading-tight text-slate-900 dark:text-slate-100 truncate">{user.name}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
-              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 truncate">{user.roles.join(", ")}</p>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 truncate">{Array.isArray(user.roles) ? user.roles.join(", ") : ""}</p>
             </div>
           </div>
         </DropdownMenuLabel>

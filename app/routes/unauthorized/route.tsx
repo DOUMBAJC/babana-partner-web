@@ -79,7 +79,7 @@ export default function UnauthorizedPage() {
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground mb-1">Rôle(s) actuel(s)</p>
                     <div className="flex flex-wrap gap-1.5">
-                      {user.roles.map((role, index) => (
+                      {Array.isArray(user.roles) && user.roles.map((role, index) => (
                         <span 
                           key={index}
                           className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"

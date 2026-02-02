@@ -2,10 +2,12 @@ import type { Route } from "./+types/route";
 import { Layout } from "~/components";
 import { useTranslation, usePageTitle, useAuth, usePermissions } from "~/hooks";
 import { Link, useParams } from "react-router";
-import { getTutorialById, getAccessibleTutorials, translateTutorial, translateTutorials } from "../data";
+import { getTutorialById, getAccessibleTutorials, translateTutorial, translateTutorials, type TutorialVideoLinks } from "../data";
+import { enrichTutorialWithVideoUrls } from "../video-utils";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { VideoPlayer } from "~/components";
 import { 
   ArrowLeft, 
   Clock, 
@@ -29,11 +31,28 @@ export function meta({ params }: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
-  return {};
+export async function loader({ request, params }: Route.LoaderArgs) {
+  // Récupérer les liens des vidéos depuis l'API pour ce tutoriel spécifique
+  let videoLinks: Record<string, any> = {};
+  
+  try {
+    const baseUrl = new URL(request.url).origin;
+    const tutorialId = params.id;
+    const response = await fetch(`${baseUrl}/api/tutorials/videos?tutorialId=${tutorialId}`);
+    if (response.ok) {
+      const data = await response.json();
+      videoLinks = data.videos || {};
+    }
+  } catch (error) {
+    console.warn("[Tutorial Detail] Failed to fetch video links, using fallback:", error);
+  }
+
+  return {
+    videoLinks,
+  };
 }
 
-export default function TutorialDetailPage() {
+export default function TutorialDetailPage({ loaderData }: Route.ComponentProps) {
   const { id } = useParams();
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -55,7 +74,12 @@ export default function TutorialDetailPage() {
   }
 
   // Traduire le tutoriel
-  const translatedTutorial = translateTutorial(tutorial, t.pages.tutorials);
+  const translatedTutorialRaw = translateTutorial(tutorial, t.pages.tutorials);
+  
+  // Enrichir avec les URLs des vidéos depuis le serveur
+  const videoLinks = (loaderData?.videoLinks || {}) as TutorialVideoLinks;
+  const translatedTutorial = enrichTutorialWithVideoUrls(translatedTutorialRaw, videoLinks);
+  
   const accessibleTutorials = translateTutorials(accessibleTutorialsRaw, t.pages.tutorials);
 
   if (!hasAccess) {
@@ -191,6 +215,30 @@ export default function TutorialDetailPage() {
           </div>
         </section>
 
+        {/* Video Section */}
+        {translatedTutorial.video && (
+          <section className="container mx-auto px-4 mt-12">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-8 w-1.5 bg-babana-cyan rounded-full" />
+                <h2 className="text-2xl font-bold text-foreground">
+                  Vidéo du tutoriel
+                </h2>
+              </div>
+              <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <VideoPlayer
+                  src={translatedTutorial.video}
+                  className="w-full h-auto rounded-2xl shadow-2xl"
+                  controls={true}
+                  muted={false}
+                  loop={false}
+                  autoPlay={false}
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Steps Section */}
         <section className="container mx-auto px-4 mt-12">
           <div className="max-w-4xl mx-auto">
@@ -233,6 +281,20 @@ export default function TutorialDetailPage() {
                       <p className="text-muted-foreground leading-relaxed mb-4">
                         {step.description}
                       </p>
+
+                      {/* Video */}
+                      {step.video && (
+                        <div className="mb-6 -mx-6">
+                          <VideoPlayer
+                            src={step.video}
+                            className="w-full h-auto rounded-xl"
+                            controls={true}
+                            muted={false}
+                            loop={false}
+                            autoPlay={false}
+                          />
+                        </div>
+                      )}
 
                       {/* Tips */}
                       {step.tips && step.tips.length > 0 && (

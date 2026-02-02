@@ -2,9 +2,11 @@ import type { Route } from "./+types/route";
 import { Layout } from "~/components";
 import { useTranslation, usePageTitle, useAuth, usePermissions } from "~/hooks";
 import { Link } from "react-router";
-import { getAccessibleTutorials, translateTutorials, type Tutorial } from "./data";
+import { getAccessibleTutorials, translateTutorials, type Tutorial, type TutorialVideoLinks } from "./data";
+import { enrichTutorialsWithVideoUrls, type EnrichedTutorial } from "./video-utils";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
+import { VideoPlayer } from "~/components";
 import { 
   Clock, 
   TrendingUp, 
@@ -14,7 +16,8 @@ import {
   UserPlus,
   Zap,
   Settings,
-  BarChart3
+  BarChart3,
+  Play
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { cn } from "~/lib/utils";
@@ -41,11 +44,27 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
-  return {};
+export async function loader({ request }: Route.LoaderArgs) {
+  // Récupérer les liens des vidéos depuis l'API
+  let videoLinks: Record<string, any> = {};
+  
+  try {
+    const baseUrl = new URL(request.url).origin;
+    const response = await fetch(`${baseUrl}/api/tutorials/videos`);
+    if (response.ok) {
+      const data = await response.json();
+      videoLinks = data.videos || {};
+    }
+  } catch (error) {
+    console.warn("[Tutorials] Failed to fetch video links, using fallback:", error);
+  }
+
+  return {
+    videoLinks,
+  };
 }
 
-export default function TutorialsPage() {
+export default function TutorialsPage({ loaderData }: Route.ComponentProps) {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const { can, isAdmin } = usePermissions();
@@ -61,8 +80,12 @@ export default function TutorialsPage() {
       (permission) => can(permission),
       () => isAdmin()
     );
-    return translateTutorials(tutorials, t.pages.tutorials);
-  }, [user, can, isAdmin, t.pages.tutorials]);
+    const translated = translateTutorials(tutorials, t.pages.tutorials);
+    
+    // Enrichir avec les URLs des vidéos depuis le serveur
+    const videoLinks = (loaderData?.videoLinks || {}) as TutorialVideoLinks;
+    return enrichTutorialsWithVideoUrls(translated, videoLinks);
+  }, [user, can, isAdmin, t.pages.tutorials, loaderData?.videoLinks]);
 
   const filteredTutorials = useMemo(() => {
     return accessibleTutorials.filter(tutorial => {
@@ -242,15 +265,47 @@ export default function TutorialsPage() {
                       )} />
                       
                       <CardContent className="p-6">
-                        {/* Icon */}
-                        <div className="mb-4">
-                          <div className={cn(
-                            "w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 bg-linear-to-br",
-                            tutorial.color
-                          )}>
-                            <Icon className="w-7 h-7 text-white" />
+                        {/* Video Preview */}
+                        {tutorial.video && (
+                          <div className="mb-4 -mx-6 -mt-6 relative group/video overflow-hidden">
+                            <div className="relative aspect-video">
+                              <VideoPlayer
+                                src={tutorial.video}
+                                className="w-full h-full"
+                                controls={false}
+                                muted={true}
+                                loop={true}
+                                autoPlay={false}
+                              />
+                              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent flex items-center justify-center">
+                                <div className={cn(
+                                  "absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg bg-linear-to-br",
+                                  tutorial.color
+                                )}>
+                                  <Icon className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="flex flex-col items-center gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity">
+                                  <div className="w-16 h-16 rounded-full bg-babana-cyan/90 flex items-center justify-center shadow-2xl">
+                                    <Play className="w-8 h-8 text-white ml-1" />
+                                  </div>
+                                  <span className="text-white text-sm font-semibold">Voir la vidéo</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
+
+                        {/* Icon */}
+                        {!tutorial.video && (
+                          <div className="mb-4">
+                            <div className={cn(
+                              "w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 bg-linear-to-br",
+                              tutorial.color
+                            )}>
+                              <Icon className="w-7 h-7 text-white" />
+                            </div>
+                          </div>
+                        )}
 
                         {/* Content */}
                         <div className="space-y-3 mb-4">

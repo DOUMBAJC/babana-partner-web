@@ -131,16 +131,14 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
     // Fonction helper pour normaliser les rôles en slugs
     const normalizeRoles = (rolesInput: any): string[] => {
       if (!rolesInput) return [];
-      if (!Array.isArray(rolesInput)) return [];
       
-      return rolesInput.map((role: Role | string) => {
-        if (typeof role === 'string') {
-          return role;
-        }
-        if (typeof role === 'object' && role !== null && 'slug' in role) {
-          return role.slug;
-        }
-        return String(role);
+      const rolesArray = Array.isArray(rolesInput) ? rolesInput : [rolesInput];
+      
+      return rolesArray.map((role: any) => {
+        if (!role) return '';
+        if (typeof role === 'string') return role;
+        if (typeof role === 'object' && 'slug' in role) return role.slug;
+        return '';
       }).filter(Boolean);
     };
     
@@ -171,9 +169,13 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
         };
       }
     }
-    
-    // Mettre en cache
-    userCache.set(token, { user, timestamp: Date.now() });
+    if (user) {
+      // S'assurer que roles est toujours un tableau
+      if (!user.roles || !Array.isArray(user.roles)) {
+        user.roles = [];
+      }
+      userCache.set(token, { user, timestamp: Date.now() });
+    }
     
     return user;
   } catch (error: any) {

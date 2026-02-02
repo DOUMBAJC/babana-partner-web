@@ -156,7 +156,7 @@ function AdminContent() {
           
           {/* User Role Badge */}
           <div className="flex flex-col gap-2 items-end">
-            {user?.roles && user.roles.map((role) => (
+            {user?.roles && Array.isArray(user.roles) && user.roles.map((role) => (
               <PermissionBadge key={role} role={role} />
             ))}
           </div>

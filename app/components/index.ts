@@ -49,3 +49,4 @@ export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 export { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './ui/table';
 export { Toaster } from './ui/toaster';
+export { VideoPlayer } from './ui/video-player';

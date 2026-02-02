@@ -49,6 +49,9 @@ export default [
   // Tutoriels
   route("tutorials", "routes/tutorials/route.tsx"),
   route("tutorials/:id", "routes/tutorials/$id/route.tsx"),
+  
+  // Tutorials API routes (SSR proxies)
+  route("api/tutorials/videos", "routes/api/tutorials.videos.tsx"),
 
   // Resource routes (SSR proxies)
   route("api/notifications", "routes/api/notifications.tsx"),

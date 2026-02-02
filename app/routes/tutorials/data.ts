@@ -18,6 +18,7 @@ export interface TutorialStep {
   title: string;
   description: string;
   image?: string;
+  videoId?: string; // Identifiant de la vidéo (sera mappé à l'URL via l'API)
   code?: string;
   tips?: string[];
 }
@@ -31,11 +32,24 @@ export interface Tutorial {
   category: 'getting-started' | 'customers' | 'sales' | 'admin' | 'advanced';
   duration: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  videoId?: string; // Identifiant de la vidéo principale (sera mappé à l'URL via l'API)
   steps: TutorialStep[];
   prerequisites?: string[];
   requiredPermission?: Permission;
   requiredRole?: RoleSlug;
   public?: boolean; // Si true, accessible à tous même non connectés
+}
+
+/**
+ * Interface pour les liens vidéo récupérés depuis le serveur
+ */
+export interface TutorialVideoLinks {
+  [tutorialId: string]: {
+    main: string | null; // URL de la vidéo principale
+    steps: {
+      [stepId: string]: string | null; // URLs des vidéos par étape
+    };
+  };
 }
 
 export const tutorials: Tutorial[] = [
@@ -54,6 +68,7 @@ export const tutorials: Tutorial[] = [
         id: 1,
         title: 'Créer votre compte',
         description: 'Inscrivez-vous sur la plateforme en remplissant le formulaire d\'inscription avec vos informations personnelles.',
+        videoId: 'signup',
         tips: [
           'Assurez-vous d\'utiliser une adresse email valide',
           'Choisissez un mot de passe sécurisé',
@@ -230,6 +245,7 @@ export const tutorials: Tutorial[] = [
     category: 'sales',
     duration: '20 min',
     difficulty: 'intermediate',
+    videoId: 'vente-sim',
     requiredRole: 'ba',
     steps: [
       {
@@ -508,6 +524,7 @@ export const tutorials: Tutorial[] = [
         id: 3,
         title: 'Gérer votre sécurité',
         description: 'Dans l\'onglet "Sécurité", modifiez votre mot de passe, activez l\'authentification à deux facteurs si disponible, et consultez vos sessions actives.',
+        videoId: 'reset-password',
         tips: [
           'Choisissez un mot de passe fort et unique',
           'Vous pouvez révoquer les sessions actives sur d\'autres appareils',

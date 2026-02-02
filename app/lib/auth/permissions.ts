@@ -8,7 +8,7 @@ export const hasPermission = (
   user: User | null,
   permission: Permission
 ): boolean => {
-  if (!user || !user.roles || user.roles.length === 0) {
+  if (!user || !user.roles || !Array.isArray(user.roles) || user.roles.length === 0) {
     return false;
   }
 
@@ -52,7 +52,7 @@ export const hasAnyPermission = (
  * Vérifie si un utilisateur a un rôle spécifique
  */
 export const hasRole = (user: User | null, role: RoleSlug): boolean => {
-  if (!user || !user.roles || user.roles.length === 0) {
+  if (!user || !user.roles || !Array.isArray(user.roles) || user.roles.length === 0) {
     return false;
   }
   return user.roles.includes(role);
@@ -90,7 +90,7 @@ export const isSuperAdmin = (user: User | null): boolean => {
  * Obtenir toutes les permissions d'un utilisateur
  */
 export const getUserPermissions = (user: User | null): Permission[] => {
-  if (!user || !user.roles || user.roles.length === 0) {
+  if (!user || !user.roles || !Array.isArray(user.roles) || user.roles.length === 0) {
     return [];
   }
 
