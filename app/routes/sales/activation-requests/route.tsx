@@ -58,25 +58,35 @@ export async function loader({ request }: Route.LoaderArgs) {
     const dateTo = url.searchParams.get('dateTo') || undefined;
     const sortBy = url.searchParams.get('sortBy') || 'createdAt';
     const sortOrder = url.searchParams.get('sortOrder') || 'desc';
+    const mine = url.searchParams.get('mine') || undefined;
+    //
 
     const api = await createAuthenticatedApi(request);
+
+    // Préparer les paramètres communs pour les deux appels
+    const commonParams = {
+      status,
+      search,
+      start_date: dateFrom,
+      end_date: dateTo,
+      mine: mine === '1' ? '1' : '0',
+    };
 
     // Récupérer les requêtes d'activation ET les statistiques en parallèle
     const [requestsResponse, statsResponse] = await Promise.all([
       api.get('/activation-requests', {
         params: {
+          ...commonParams,
           page,
           perPage,
-          status,
-          search,
-          start_date: dateFrom, 
-          end_date: dateTo,
           sortBy,
           sortOrder,
           include: 'ba,customer,processor',
         },
       }),
-      api.get('/activation-requests/stats')
+      api.get('/activation-requests/stats', {
+        params: commonParams,
+      })
     ]);
 
     const rawStats = statsResponse.data?.data || statsResponse.data;

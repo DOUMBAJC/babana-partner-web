@@ -941,6 +941,7 @@ export interface Translations {
       datePlaceholder: string;
       apply: string;
       clear: string;
+      mine: string;
     };
     table: {
       id: string;
@@ -2485,6 +2486,7 @@ export const translations: Record<Language, Translations> = {
         datePlaceholder: "Sélectionner une date",
         apply: "Filtrer",
         clear: "Effacer",
+        mine: "Mes requêtes uniquement",
       },
       table: {
         id: "ID",
@@ -4315,6 +4317,7 @@ export const translations: Record<Language, Translations> = {
         datePlaceholder: "Select a date",
         apply: "Filter",
         clear: "Clear",
+        mine: "My requests only",
       },
       table: {
         id: "ID",

@@ -14,8 +14,9 @@ import {
 import { Search, X, Filter, Loader2 } from "lucide-react";
 import { DatePicker } from "~/components/ui/date-picker";
 import { fr, enUS } from "date-fns/locale";
-import { useLanguage, useTranslation } from "~/hooks";
+import { useLanguage, useTranslation, useAuth } from "~/hooks";
 import { ExportButtons } from "./ExportButtons";
+
 
 export function FiltersSection() {
   const { t } = useTranslation();
@@ -23,18 +24,21 @@ export function FiltersSection() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
+  const { user } = useAuth();
 
   // Locale + start-of-week pour éviter le décalage jours/grille
   const dateLocale = language === "fr" ? fr : enUS;
   // Plateforme: semaine démarre lundi (même en EN) pour éviter la confusion
   const weekStartsOn = 1;
-  
+
+
   // Initialiser les filtres depuis l'URL au montage
   const [localFilters, setLocalFilters] = useState(() => ({
     status: searchParams.get('status') || '',
     search: searchParams.get('search') || '',
     dateFrom: searchParams.get('dateFrom') || '',
     dateTo: searchParams.get('dateTo') || '',
+    mine: searchParams.get('mine') === '1',
   }));
 
   // Déterminer si on est en train de charger
@@ -46,8 +50,9 @@ export function FiltersSection() {
     const search = searchParams.get('search') || '';
     const dateFrom = searchParams.get('dateFrom') || '';
     const dateTo = searchParams.get('dateTo') || '';
+    const mine = searchParams.get('mine') === '1';
     
-    setLocalFilters({ status, search, dateFrom, dateTo });
+    setLocalFilters({ status, search, dateFrom, dateTo, mine });
   }, [searchParams]);
 
   const handleSearchChange = (value: string) => {
@@ -65,6 +70,10 @@ export function FiltersSection() {
   const handleDateToChange = (value: string) => {
     setLocalFilters({ ...localFilters, dateTo: value });
   };
+
+
+
+
 
   const handleApplyFilters = () => {
     const params = new URLSearchParams(searchParams);
@@ -92,6 +101,13 @@ export function FiltersSection() {
     } else {
       params.delete('dateTo');
     }
+
+    if (localFilters.mine) {
+      params.set('mine', '1');
+    } else {
+      params.delete('mine');
+    }
+
     
     params.set('page', '1'); // Reset à la première page
     
@@ -99,12 +115,13 @@ export function FiltersSection() {
   };
 
   const handleClearFilters = () => {
-    const clearedFilters = { status: '', search: '', dateFrom: '', dateTo: '' };
+    const clearedFilters = { status: '', search: '', dateFrom: '', dateTo: '', mine: false };
     setLocalFilters(clearedFilters);
     navigate('?page=1', { replace: true });
   };
 
-  const hasActiveFilters = localFilters.status || localFilters.search || localFilters.dateFrom || localFilters.dateTo;
+
+  const hasActiveFilters = localFilters.status || localFilters.search || localFilters.dateFrom || localFilters.dateTo || localFilters.mine;
 
   return (
     <Card className="p-6 mb-6 shadow-sm border-border/40 bg-linear-to-br from-background to-muted/20">
@@ -116,6 +133,7 @@ export function FiltersSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+
         {/* Recherche */}
         <div className="space-y-2 lg:col-span-2">
           <Label htmlFor="search" className="text-sm font-medium">{t.activationRequests.filters.search}</Label>
@@ -185,6 +203,7 @@ export function FiltersSection() {
           />
         </div>
       </div>
+
 
       {/* Boutons d'action */}
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/40">

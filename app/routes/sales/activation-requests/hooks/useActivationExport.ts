@@ -29,11 +29,13 @@ export function useActivationExport() {
       const dateFrom = urlParams.get("dateFrom");
       const dateTo = urlParams.get("dateTo");
       const search = urlParams.get("search");
+      const mine = urlParams.get("mine");
 
       if (status) params.status = status;
       if (dateFrom) params.start_date = dateFrom;
       if (dateTo) params.end_date = dateTo;
       if (search) params.search = search;
+      if (mine) params.mine = mine;
 
       // Appel API avec responseType custom pour gérer les fichiers binaires
       const response = await axiosInstance.get(`/activation-requests/export/${format}`, {

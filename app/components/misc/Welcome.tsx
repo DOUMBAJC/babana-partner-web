@@ -86,7 +86,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         title: t.nav.simActivation,
         description: language === 'fr' ? 'Voir les demandes d\'activation de SIM' : 'View SIM activation requests',
         icon: Zap,
-        href: "/sales/activation-requests",
+        href: "/sales/activation-requests?mine=1",
         color: "bg-amber-500",
         permission: 'create-requests' as Permission,
       },
