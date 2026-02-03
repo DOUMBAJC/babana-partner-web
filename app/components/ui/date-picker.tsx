@@ -71,12 +71,8 @@ export function DatePicker({
       </PopoverTrigger>
       <PopoverContent
         className={cn(
-          // Keep compact sizing for the custom date picker
-          // Fixed width to avoid header shrinking/compression (min 340px for 7 days)
-          "w-auto min-w-[340px] p-0",
-          // Force opaque background using CSS vars directly (fixes "transparent" popover issues)
-          "bg-[hsl(var(--popover))] text-[hsl(var(--popover-foreground))]",
-          // Platform look & feel
+          "w-auto p-0",
+          "bg-popover text-popover-foreground",
           "border-border/60 shadow-2xl rounded-xl overflow-hidden",
           "ring-1 ring-babana-cyan/10 dark:ring-babana-cyan/15"
         )}
