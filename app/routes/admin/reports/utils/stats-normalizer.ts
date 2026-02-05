@@ -60,11 +60,7 @@ export function normalizeStats(
     total: stats?.overview?.total ?? stats?.total ?? 0,
     pending: stats?.overview?.pending ?? stats?.pending ?? 0,
     processing: stats?.overview?.processing ?? stats?.processing ?? 0,
-    activated:
-      stats?.overview?.activated ??
-      stats?.overview?.approved ??
-      stats?.activated ??
-      0,
+    activated: (stats?.overview?.activated ?? 0) + (stats?.overview?.approved ?? 0),
     rejected: stats?.overview?.rejected ?? stats?.rejected ?? 0,
     cancelled: stats?.overview?.cancelled ?? stats?.cancelled ?? 0,
   };

@@ -112,10 +112,6 @@ export interface User {
   last_name?: string;
   full_name?: string;
   roles: RoleSlug[];
-  /**
-   * Rôles complets renvoyés par l'API (ex: `User::with('roles.permissions')`).
-   * Utile pour afficher name/description/permissions côté UI sans heuristiques.
-   */
   roles_details?: ApiRole[];
   permissions?: Permission[];
   avatar?: string;
@@ -125,20 +121,17 @@ export interface User {
   activated_at?: string | null;
   rejection_reason?: string | null;
 
-  // Relations (chargées via include)
   activator?: {
     id: string;
     name: string;
     email: string;
   };
   
-  // Méthodes helper (côté frontend)
   isActive?: boolean;
   isSuspended?: boolean;
   isVerified?: boolean;
   canLogin?: boolean;
   
-  // Credits for actions
   wallet?: {
     id: string,
     user_id: string,
@@ -148,10 +141,6 @@ export interface User {
   };
 }
 
-/**
- * User tel que renvoyé par l'API: `roles` peut être un tableau de slugs
- * OU un tableau d'objets Role (avec pivot).
- */
 export type ApiUser = Omit<User, 'roles'> & {
   roles: Array<RoleSlug | ApiRole>;
 };
