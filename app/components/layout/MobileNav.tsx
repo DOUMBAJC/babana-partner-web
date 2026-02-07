@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
-import { Menu, X, Sparkles, LogIn, LogOut, User as UserIcon, Shield } from "lucide-react";
+import { Menu, X, Sparkles, LogIn, LogOut, User as UserIcon, Shield, Sun, Moon, Globe, Wallet } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { useTranslation, useAuth } from "~/hooks";
+import { useTranslation, useAuth, useTheme } from "~/hooks";
 import { cn } from "~/lib/utils";
 import { isAdmin } from "~/lib/permissions";
 
@@ -26,6 +26,7 @@ export function MobileNav({ links }: MobileNavProps) {
   const location = useLocation();
   const { t, language } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -170,6 +171,126 @@ export function MobileNav({ links }: MobileNavProps) {
 
                   {/* Contenu scrollable */}
                   <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 space-y-6">
+                    {/* Section Paramètres rapides - Mobile Only */}
+                    <div className="space-y-3">
+                      <div className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 px-2">
+                        {language === "fr" ? "Paramètres" : "Settings"}
+                      </div>
+                      
+                      {/* Crédit Display */}
+                      {isAuthenticated && user && (user as any).wallet && (() => {
+                        const balance = (user as any).wallet?.balance ?? 0;
+                        
+                        // Configuration basée sur le niveau de crédit
+                        const getStatusConfig = (val: number) => {
+                          if (val < 10) {
+                            return {
+                              container: "bg-rose-50/80 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700",
+                              icon: "from-rose-500 to-red-600",
+                              text: "text-rose-600 dark:text-rose-400",
+                              label: "text-rose-500 dark:text-rose-400",
+                              animate: "animate-pulse"
+                            };
+                          }
+                          if (val < 20) {
+                            return {
+                              container: "bg-amber-50/80 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700",
+                              icon: "from-amber-500 to-orange-600",
+                              text: "text-amber-600 dark:text-amber-400",
+                              label: "text-amber-500 dark:text-amber-400",
+                              animate: ""
+                            };
+                          }
+                          return {
+                            container: "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700",
+                            icon: "from-emerald-500 to-teal-600",
+                            text: "text-emerald-600 dark:text-emerald-400",
+                            label: "text-emerald-500 dark:text-emerald-400",
+                            animate: ""
+                          };
+                        };
+                        
+                        const config = getStatusConfig(balance);
+                        
+                        return (
+                          <Link
+                            to="/credits"
+                            onClick={closeMenu}
+                            className={cn(
+                              "flex items-center justify-between px-4 py-3 rounded-2xl border transition-all duration-200 hover:scale-[1.02] active:scale-95",
+                              config.container,
+                              config.animate
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md",
+                                config.icon
+                              )}>
+                                <Wallet className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <div className={cn("text-xs font-medium", config.label)}>
+                                  {language === "fr" ? "Mes crédits" : "My credits"}
+                                </div>
+                                <div className={cn("text-xl font-black", config.text)}>
+                                  {balance.toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                            <div className={cn(
+                              "px-2 py-1 rounded-lg text-xs font-bold",
+                              balance < 10 ? "bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200" :
+                              balance < 20 ? "bg-amber-200 dark:bg-amber-800 text-amber-700 dark:text-amber-200" :
+                              "bg-emerald-200 dark:bg-emerald-800 text-emerald-700 dark:text-emerald-200"
+                            )}>
+                              {balance < 10 
+                                ? (language === "fr" ? "Faible" : "Low") 
+                                : balance < 20 
+                                  ? (language === "fr" ? "Moyen" : "Medium")
+                                  : (language === "fr" ? "Bon" : "Good")}
+                            </div>
+                          </Link>
+                        );
+                      })()}
+
+                      {/* Theme & Language toggles */}
+                      <div className="flex gap-2">
+                        {/* Theme Toggle */}
+                        <button
+                          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-card/40 border border-border/50 hover:bg-babana-cyan/10 transition-all duration-200"
+                        >
+                          {theme === "dark" ? (
+                            <Sun className="w-5 h-5 text-amber-500" />
+                          ) : (
+                            <Moon className="w-5 h-5 text-indigo-500" />
+                          )}
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {theme === "dark"
+                              ? (language === "fr" ? "Clair" : "Light")
+                              : (language === "fr" ? "Sombre" : "Dark")}
+                          </span>
+                        </button>
+
+                        {/* Language Toggle */}
+                        <button
+                          onClick={() => {
+                            const newLang = language === "fr" ? "en" : "fr";
+                            localStorage.setItem("language", newLang);
+                            window.location.reload();
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-card/40 border border-border/50 hover:bg-babana-cyan/10 transition-all duration-200"
+                        >
+                          <Globe className="w-5 h-5 text-babana-cyan" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {language === "fr" ? "English" : "Français"}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-gray-200 dark:bg-gray-800" />
                     {/* Section Compte */}
                     {isAuthenticated && user ? (
                       <div className="space-y-2">

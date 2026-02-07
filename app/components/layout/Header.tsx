@@ -81,7 +81,7 @@ export function Header() {
           : "bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border-gray-200/50 dark:border-gray-800/50"
       )}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
         <div
           className={cn(
             "flex items-center justify-between transition-all duration-300",
@@ -198,16 +198,22 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-2">
-            {/* Credit Display */}
-            <CreditDisplay />
+            {/* Credit Display - Desktop seulement */}
+            <div className="hidden md:block">
+              <CreditDisplay />
+            </div>
             
-            {/* Language Toggle */}
-            <LanguageToggle />
+            {/* Language Toggle - Desktop seulement */}
+            <div className="hidden md:block">
+              <LanguageToggle />
+            </div>
             
-            {/* Theme Toggle */}
-            <ThemeToggle />
+            {/* Theme Toggle - Desktop seulement */}
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
 
-            {/* Notifications - Seulement pour les utilisateurs connectés */}
+            {/* Notifications - Toujours visible */}
             {isAuthenticated && user && (
               <NotificationDropdown />
             )}
