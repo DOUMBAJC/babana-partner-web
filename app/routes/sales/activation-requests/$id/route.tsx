@@ -100,18 +100,12 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
 
   // Fonction pour gérer le retour à la liste en conservant les paramètres
   const handleBack = () => {
-    // Vérifier si on peut revenir en arrière dans l'historique
-    // Si l'état de navigation contient une référence à la page précédente, on l'utilise
     const state = location.state as { from?: string } | null;
-    
     if (state?.from) {
-      // Si on a une référence explicite à la page précédente, l'utiliser
       navigate(state.from);
     } else if (window.history.length > 1) {
-      // Sinon, essayer de revenir en arrière dans l'historique
       navigate(-1);
     } else {
-      // Fallback vers la route de base si pas d'historique
       navigate('/sales/activation-requests');
     }
   };
@@ -132,7 +126,6 @@ export default function ActivationRequestDetailPage({ loaderData }: Route.Compon
     <Layout>
       <Toaster />
       
-      {/* Background gradient animé */}
       <div className="fixed inset-0 -z-10 bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       </div>

@@ -14,7 +14,7 @@ export function BaInfoCard({ request }: BaInfoCardProps) {
   return (
     <InfoCard
       icon={<User className="h-6 w-6" />}
-      title={t.activationRequests.details.businessAdvisor}
+      title={t.activationRequests.details.brandAmbassador}
       gradient="from-orange-500 via-amber-500 to-yellow-500"
     >
       <CopyableValue
@@ -40,6 +40,10 @@ export function BaInfoCard({ request }: BaInfoCardProps) {
           />
         </>
       )}
+      <Separator className="my-3" />
+      {
+        request.ba?.personal_phone ? 'hallo we have personal phone' : ' no personal phone'
+      }
     </InfoCard>
   );
 }

@@ -118,32 +118,32 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 gap-0 z-[200]">
+      <DialogContent className="w-[95vw] sm:w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-2xl sm:rounded-3xl p-0 gap-0 z-[200]">
         {/* Header spectaculaire avec gradient animé */}
-        <div className="relative bg-linear-to-br from-babana-cyan via-babana-cyan/90 to-babana-navy p-8 pb-12 overflow-hidden">
+        <div className="relative bg-linear-to-br from-babana-cyan via-babana-cyan/90 to-babana-navy px-5 py-6 sm:p-8 sm:pb-12 overflow-hidden">
           {/* Pattern SVG overlay */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMTUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
           
           {/* Effets de lumière animés */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-babana-navy/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-56 h-56 sm:w-80 sm:h-80 bg-babana-navy/30 rounded-full blur-3xl"></div>
           
-          <div className="relative flex items-start gap-4">
+          <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
             <div className="shrink-0">
               <div className="relative">
                 {/* Glow effect */}
                 <div className="absolute inset-0 bg-white/30 blur-xl rounded-2xl"></div>
-                <div className="relative bg-white/20 backdrop-blur-sm p-4 rounded-2xl border-2 border-white/30 shadow-xl">
-                  <ShieldCheck className="h-8 w-8 text-white" />
+                <div className="relative bg-white/20 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border-2 border-white/30 shadow-xl">
+                  <ShieldCheck className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
               </div>
             </div>
             
-            <div className="flex-1 pt-2">
-              <DialogTitle className="text-3xl font-black text-white mb-2 tracking-tight">
+            <div className="flex-1 pt-1 sm:pt-2">
+              <DialogTitle className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
                 {content.title}
               </DialogTitle>
-              <DialogDescription className="text-cyan-100 text-lg font-medium">
+              <DialogDescription className="text-cyan-100 text-base sm:text-lg font-medium">
                 {content.description}
               </DialogDescription>
             </div>
@@ -151,12 +151,12 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
         </div>
 
         {/* Contenu principal avec fond solide */}
-        <div className="space-y-4 p-6 bg-white dark:bg-slate-900">
+        <div className="space-y-4 p-4 sm:p-6 bg-white dark:bg-slate-900">
           {/* Cookies essentiels */}
-          <div className="group relative rounded-xl border-2 border-green-500/30 bg-linear-to-br from-green-50/50 to-green-50/30 dark:from-green-950/20 dark:to-green-950/10 p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-green-500/50">
+          <div className="group relative rounded-xl border-2 border-green-500/30 bg-linear-to-br from-green-50/50 to-green-50/30 dark:from-green-950/20 dark:to-green-950/10 p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-green-500/50">
             <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="relative flex items-start justify-between gap-4">
-              <div className="flex-1">
+            <div className="relative flex flex-col sm:flex-row items-start justify-between gap-4">
+              <div className="flex-1 w-full">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2.5 rounded-lg bg-green-500/10 border border-green-500/20">
                     <Cookie className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -175,9 +175,9 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
           </div>
 
           {/* Cookies fonctionnels */}
-          <div className="group relative rounded-xl border border-border/50 bg-card p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:bg-linear-to-br hover:from-blue-50/30 hover:to-transparent dark:hover:from-blue-950/10">
+          <div className="group relative rounded-xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-500/30 hover:bg-linear-to-br hover:from-blue-50/30 hover:to-transparent dark:hover:from-blue-950/10">
             <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
                     <Settings className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -207,9 +207,9 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
           </div>
 
           {/* Géolocalisation */}
-          <div className="group relative rounded-xl border border-border/50 bg-card p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-orange-500/30 hover:bg-linear-to-br hover:from-orange-50/30 hover:to-transparent dark:hover:from-orange-950/10">
+          <div className="group relative rounded-xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-orange-500/30 hover:bg-linear-to-br hover:from-orange-50/30 hover:to-transparent dark:hover:from-orange-950/10">
             <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2.5 rounded-lg bg-orange-500/10 border border-orange-500/20 group-hover:bg-orange-500/20 transition-colors">
                     <MapPin className="h-5 w-5 text-orange-600 dark:text-orange-400" />
@@ -247,7 +247,7 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
           </div>
 
           {/* Sécurité et confidentialité */}
-          <div className="relative rounded-xl border-2 border-babana-cyan/30 bg-linear-to-br from-babana-cyan/10 via-babana-cyan/5 to-babana-navy/10 p-6 shadow-lg shadow-babana-cyan/10 overflow-hidden">
+          <div className="relative rounded-xl border-2 border-babana-cyan/30 bg-linear-to-br from-babana-cyan/10 via-babana-cyan/5 to-babana-navy/10 p-4 sm:p-6 shadow-lg shadow-babana-cyan/10 overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(95,200,233,0.1),transparent_70%)]" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-babana-cyan/5 rounded-full blur-3xl" />
             <div className="relative">
@@ -272,7 +272,7 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
         </div>
 
         {/* Actions avec séparateur et fond solide */}
-        <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-6">
+        <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 sm:p-6 sticky bottom-0 z-10">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               onClick={handleSave}

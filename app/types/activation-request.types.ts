@@ -43,6 +43,7 @@ export interface ActivationRequest {
     name: string;
     email: string;
     camtelLogin?: string;
+    personal_phone?: string;
   };
   customer?: Customer;
   processor?: {

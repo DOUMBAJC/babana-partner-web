@@ -15,7 +15,6 @@ import { useActivationForm } from '~/routes/sales/activation/hooks/useActivation
 import { AccessDenied } from '~/routes/sales/activation/components/AccessDenied';
 import { NoCustomerScreen } from '~/routes/sales/activation/components/NoCustomerScreen';
 import { SuccessScreen } from '~/routes/sales/activation/components/SuccessScreen';
-import { ErrorScreen } from '~/routes/sales/activation/components/ErrorScreen';
 import { QuotaReachedScreen } from '~/routes/sales/activation/components/QuotaReachedScreen';
 import { ActivationForm } from '~/routes/sales/activation/components/ActivationForm';
 import type { CustomerData } from '~/routes/sales/activation/types';

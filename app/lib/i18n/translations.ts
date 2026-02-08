@@ -1009,7 +1009,7 @@ export interface Translations {
       iccid: string;
       imei: string;
       camtelLogin: string;
-      businessAdvisor: string;
+      brandAmbassador: string;
       noNotesAvailable: string;
       createdOn: string;
       processedOn: string;
@@ -2567,7 +2567,7 @@ export const translations: Record<Language, Translations> = {
         iccid: "ICCID",
         imei: "IMEI",
         camtelLogin: "Login Camtel",
-        businessAdvisor: "Business Advisor",
+        brandAmbassador: "Ambassadeur",
         noNotesAvailable: "Aucune note disponible",
         createdOn: "Créée le",
         processedOn: "Traitée le",
@@ -4411,7 +4411,7 @@ export const translations: Record<Language, Translations> = {
         iccid: "ICCID",
         imei: "IMEI",
         camtelLogin: "Camtel Login",
-        businessAdvisor: "Business Advisor",
+        brandAmbassador: "Brand Ambassador",
         noNotesAvailable: "No notes available",
         createdOn: "Created on",
         processedOn: "Processed on",

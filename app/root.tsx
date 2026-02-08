@@ -92,7 +92,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               "@type": "Organization",
               name: "Babana",
               url: "https://babana-mobile.vercel.app", 
-              logo: "https://babana-mobile.vercel.app/images/logo.png"
+              logo: "https://babana-mobile.vercel.app/app/assets/logo.png"
             }),
           }}
         />
