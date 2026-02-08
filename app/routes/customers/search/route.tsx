@@ -366,35 +366,27 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
 
         <div className="max-w-4xl mx-auto">
           {/* Header simplifié */}
-          <div className="text-center mb-8 space-y-3">
+          <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">
               {t.customerSearch.title}
             </h1>
-            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-              {t.customerSearch.subtitle}
-            </p>
           </div>
           
           {/* Carte principale */}
           <Card className="border shadow-lg bg-card overflow-hidden">
             <div className="p-6 md:p-8 space-y-6">
               {/* En-tête de la carte simplifié */}
-              <div className="flex items-center justify-between pb-4 border-b border-border">
+              <div className="flex items-center justify-between pb-6 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                  <div className="p-2.5 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl text-primary shadow-sm">
                     <Search className="h-5 w-5" />
                   </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">
-                      {t.customerSearch.searchCriteria}
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {t.customerSearch.useSimOrIdCard}
-                    </p>
-                  </div>
+                  <h2 className="text-xl font-bold text-foreground">
+                    {t.customerSearch.searchCriteria}
+                  </h2>
                 </div>
                 {searchStatus === 'found' && (
-                  <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 px-3 py-1 text-sm">
+                  <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 px-3 py-1.5 text-sm font-semibold">
                     <UserIcon className="w-4 h-4 mr-2" />
                     {t.customerSearch.results.found}
                   </Badge>

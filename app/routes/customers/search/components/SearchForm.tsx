@@ -70,59 +70,52 @@ export function SearchForm({
     <Form method="post" className="space-y-6">
       <input type="hidden" name="intent" value="search" />
       
-      {/* En-tête avec instructions claires */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <h3 className="text-sm font-semibold text-foreground">
-              {t.customerSearch.chooseMethod}
-            </h3>
-          </div>
+      {/* Onglets modernes avec indication claire de la méthode active */}
+      <div className="relative bg-muted/30 rounded-xl p-1.5 border border-border">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveMethod('idcard')}
+            className={`relative flex-1 px-5 py-3.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+              activeMethod === 'idcard'
+                ? 'bg-background text-primary shadow-md border-2 border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+            }`}
+            disabled={isLocked || isSearching}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <CreditCard className={`h-5 w-5 ${activeMethod === 'idcard' ? 'text-primary' : ''}`} />
+              <span>{t.customerSearch.idCardTab}</span>
+              {hasIdCard && (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              )}
+            </div>
+            {activeMethod === 'idcard' && (
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-full" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMethod('sim')}
+            className={`relative flex-1 px-5 py-3.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+              activeMethod === 'sim'
+                ? 'bg-background text-primary shadow-md border-2 border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+            }`}
+            disabled={isLocked || isSearching}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <CardSim className={`h-5 w-5 ${activeMethod === 'sim' ? 'text-primary' : ''}`} />
+              <span>{t.customerSearch.simTab}</span>
+              {hasSimNumber && (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              )}
+            </div>
+            {activeMethod === 'sim' && (
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-full" />
+            )}
+          </button>
         </div>
-        <p className="text-xs text-muted-foreground ml-4">
-          {t.customerSearch.selectTab}
-        </p>
-      </div>
-
-      {/* Onglets pour sélectionner la méthode */}
-      <div className="flex gap-2 mb-6 border-b border-border">
-        <button
-          type="button"
-          onClick={() => setActiveMethod('idcard')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 ${
-            activeMethod === 'idcard'
-              ? 'border-primary text-primary bg-primary/5'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
-          }`}
-          disabled={isLocked || isSearching}
-        >
-          <div className="flex items-center justify-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            <span>{t.customerSearch.idCardTab}</span>
-            {hasIdCard && (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            )}
-          </div>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveMethod('sim')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 ${
-            activeMethod === 'sim'
-              ? 'border-primary text-primary bg-primary/5'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
-          }`}
-          disabled={isLocked || isSearching}
-        >
-          <div className="flex items-center justify-center gap-2">
-            <CardSim className="h-4 w-4" />
-            <span>{t.customerSearch.simTab}</span>
-            {hasSimNumber && (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            )}
-          </div>
-        </button>
       </div>
 
       {/* Contenu de l'onglet actif */}
@@ -130,21 +123,6 @@ export function SearchForm({
         {activeMethod === 'idcard' ? (
           /* Section Carte d'Identité */
           <div className="space-y-6">
-            {/* Instructions claires */}
-            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                    {t.customerSearch.searchByIdCard}
-                  </p>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">
-                    {t.customerSearch.searchByIdCardDescription}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Champs de formulaire */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Type de carte */}
@@ -216,32 +194,10 @@ export function SearchForm({
               </div>
             </div>
 
-            {/* Indicateur de progression */}
-            {hasIdCard && (
-              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="font-medium">{t.customerSearch.allFieldsFilled}</span>
-              </div>
-            )}
           </div>
         ) : (
           /* Section Numéro SIM */
           <div className="space-y-6">
-            {/* Instructions claires */}
-            <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-green-900 dark:text-green-100">
-                    {t.customerSearch.searchBySim}
-                  </p>
-                  <p className="text-xs text-green-700 dark:text-green-300">
-                    {t.customerSearch.fields.simNumberDescription}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Champ SIM Number */}
             <div className="space-y-2">
               <Label 
@@ -285,62 +241,46 @@ export function SearchForm({
               )}
             </div>
 
-            {/* Indicateur de progression */}
-            {hasSimNumber && searchQuery.sim_number?.length === 9 && !simNumberValidationError && (
-              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="font-medium">{t.customerSearch.simValid}</span>
-              </div>
-            )}
           </div>
         )}
       </div>
 
-      {/* Message d'aide si aucun critère n'est rempli */}
-      {!canSearch && (
-        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                {t.customerSearch.importantInfo}
-              </p>
-              <p className="text-xs text-amber-700 dark:text-amber-300">
-                {t.customerSearch.errors.atLeastOneField}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Bouton de recherche */}
-      <div className="flex justify-end pt-4 border-t border-border">
-        <Button 
-          type="submit" 
-          disabled={hasErrors || !canSearch || isSearching}
-          className="group relative w-full sm:w-auto px-8 h-12 text-base font-semibold rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
-          style={{
-            background: 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 50%, #2A8FB8 100%)',
-          }}
-        >
-          <div className="relative z-10 flex items-center justify-center gap-2 text-white">
-            {isSearching ? (
-              <>
-                <div className="relative w-5 h-5">
-                  <div className="absolute inset-0 border-2 border-white/30 rounded-full animate-spin" />
-                  <div className="absolute inset-0 border-2 border-transparent border-t-white rounded-full animate-spin" style={{ animationDuration: '0.6s' }} />
-                </div>
-                <span>{t.customerSearch.searching}</span>
-              </>
-            ) : (
-              <>
-                <Search className="w-5 h-5" />
-                <span>{t.customerSearch.searchButton}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
+      <div className="flex flex-col gap-3 pt-6 border-t border-border">
+        {!canSearch && (
+          <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+            <Info className="h-4 w-4 shrink-0" />
+            <span>{t.customerSearch.errors.atLeastOneField}</span>
           </div>
-        </Button>
+        )}
+        <div className="flex justify-end">
+          <Button 
+            type="submit" 
+            disabled={hasErrors || !canSearch || isSearching}
+            className="group relative w-full sm:w-auto px-8 h-12 text-base font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 50%, #2A8FB8 100%)',
+            }}
+          >
+            <div className="relative z-10 flex items-center justify-center gap-2 text-white">
+              {isSearching ? (
+                <>
+                  <div className="relative w-5 h-5">
+                    <div className="absolute inset-0 border-2 border-white/30 rounded-full animate-spin" />
+                    <div className="absolute inset-0 border-2 border-transparent border-t-white rounded-full animate-spin" style={{ animationDuration: '0.6s' }} />
+                  </div>
+                  <span>{t.customerSearch.searching}</span>
+                </>
+              ) : (
+                <>
+                  <Search className="w-5 h-5" />
+                  <span>{t.customerSearch.searchButton}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </div>
+          </Button>
+        </div>
       </div>
     </Form>
   );
