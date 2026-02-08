@@ -5,11 +5,17 @@ import { data, useLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "BABANA - Plateforme Partenaire" },
+    { title: "BABANA - Plateforme Partenaire Officielle" },
     {
       name: "description",
       content:
-        "Plateforme partenaire BABANA ETS DAIROU pour une gestion moderne et efficace",
+        "Accédez à la plateforme partenaire BABANA pour gérer vos activités, suivre vos performances et développer votre business avec ETS DAIROU.",
+    },
+    { property: "og:title", content: "BABANA - Plateforme Partenaire Officielle" },
+    {
+      property: "og:description",
+      content:
+        "Gérez vos activités et suivez vos performances sur la plateforme partenaire BABANA.",
     },
   ];
 }

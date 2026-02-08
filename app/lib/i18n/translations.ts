@@ -345,6 +345,20 @@ export interface Translations {
       contact: string;
     };
   };
+  // Server Error Page
+  serverError: {
+    title: string;
+    description: string;
+    details: string;
+    buttons: {
+      reload: string;
+      home: string;
+    };
+    dev: {
+      showStack: string;
+      hideStack: string;
+    };
+  };
   // Connection Alert
   connection: {
     title: string;
@@ -1646,6 +1660,19 @@ export const translations: Record<Language, Translations> = {
         checkUrl: "Vérifiez l'URL pour détecter les erreurs de frappe",
         useNavigation: "Utilisez la navigation pour trouver ce que vous cherchez",
         contact: "Contactez-nous si vous pensez qu'il s'agit d'une erreur",
+      },
+    },
+    serverError: {
+      title: "Une erreur est survenue",
+      description: "Nous avons rencontré une erreur inattendue. Notre équipe a été notifiée.",
+      details: "Détails de l'erreur",
+      buttons: {
+        reload: "Recharger la page",
+        home: "Retour à l'accueil",
+      },
+      dev: {
+        showStack: "Afficher la stack trace",
+        hideStack: "Masquer la stack trace",
       },
     },
     connection: {
@@ -3352,6 +3379,19 @@ export const translations: Record<Language, Translations> = {
         checkUrl: "Check the URL for typos",
         useNavigation: "Use the navigation to find what you're looking for",
         contact: "Contact us if you think this is an error",
+      },
+    },
+    serverError: {
+      title: "Something went wrong",
+      description: "We encountered an unexpected error. Our team has been notified.",
+      details: "Error Details",
+      buttons: {
+        reload: "Reload Page",
+        home: "Return Home",
+      },
+      dev: {
+        showStack: "Show Stack Trace",
+        hideStack: "Hide Stack Trace",
       },
     },
     connection: {

@@ -8,12 +8,26 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { NotFound } from "~/components/errors/NotFound";
+import { ServerError } from "~/components/errors/ServerError";
 import { ThemeProvider, LanguageProvider, AuthProvider, ConsentProvider } from "~/hooks";
 import { LanguageSync } from "~/components/LanguageSync";
 import { ConsentBanner } from "~/components/ConsentBanner";
 import { ConnectionAlert } from "~/components/ConnectionAlert";
 import { Toaster } from "~/components";
 import "./app.css";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { charset: "utf-8" },
+    { viewport: "width=device-width, initial-scale=1" },
+    { title: "Babana Partner" },
+    { name: "description", content: "Plateforme partenaire BABANA ETS DAIROU" },
+    { property: "og:site_name", content: "Babana Partner" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ];
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -54,8 +68,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={language} suppressHydrationWarning>
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
         <script
@@ -70,6 +82,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 }
               } catch (e) {}
             `,
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Babana",
+              url: "https://babana-mobile.vercel.app", 
+              logo: "https://babana-mobile.vercel.app/images/logo.png"
+            }),
           }}
         />
       </head>
@@ -99,30 +123,31 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
+  let isNotFound = false;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+    isNotFound = error.status === 404;
   }
 
+  // Si c'est une 404, on rend le composant NotFound
+  // Si c'est une 404, on suppose que c'est géré à l'intérieur du layout si possible,
+  // ou on rend une structure complète si ça pète au niveau root.
+  // Pour plus de sûreté, on va rendre une structure HTML complète pour l'ErrorBoundary root.
+
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <html lang="fr" className="h-full">
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body className="h-full bg-background font-sans antialiased">
+        {isNotFound ? (
+          <NotFound />
+        ) : (
+          <ServerError error={error} isDev={import.meta.env.DEV} />
+        )}
+        <Scripts />
+      </body>
+    </html>
   );
 }

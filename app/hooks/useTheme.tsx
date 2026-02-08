@@ -14,15 +14,9 @@ type ThemeProviderState = {
   actualTheme: "light" | "dark";
 };
 
-const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
-  undefined
-);
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  storageKey = "babana-ui-theme",
-}: ThemeProviderProps) {
+export function ThemeProvider({children, defaultTheme = "system", storageKey = "babana-ui-theme"}: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") {
       return defaultTheme;

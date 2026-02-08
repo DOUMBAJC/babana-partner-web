@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router";
-import { Home, Users, ClipboardList, User as UserIcon, Menu, Plus, Search, Bell, Settings, LogIn } from "lucide-react";
+import { Home, Users, ClipboardList, User as UserIcon, Plus, Search, Settings, LogIn } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useTranslation, useAuth } from "~/hooks";
 import { hasPermission, isAdmin } from "~/lib/permissions";

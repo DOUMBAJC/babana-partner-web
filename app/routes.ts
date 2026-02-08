@@ -4,6 +4,10 @@ export default [
   // Index
   index("routes/home/route.tsx"),
   
+  // SEO Routes
+  route("robots.txt", "routes/robots.txt.tsx"),
+  route("sitemap.xml", "routes/sitemap.xml.tsx"),
+  
   // Routes d'authentification
   route("login", "routes/auth/login.tsx"),
   route("logout", "routes/auth/logout.tsx"),

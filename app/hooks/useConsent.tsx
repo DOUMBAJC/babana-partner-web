@@ -25,6 +25,9 @@ interface ConsentContextType {
   resetConsent: () => void;
   showBanner: boolean;
   hideBanner: () => void;
+  isModalOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
 }
 
 const ConsentContext = createContext<ConsentContextType | undefined>(undefined);
@@ -140,6 +143,12 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
   const hideBanner = () => {
     setShowBanner(false);
   };
+  
+  // Gestion de la modale globale
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <ConsentContext.Provider
@@ -152,6 +161,9 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
         resetConsent,
         showBanner,
         hideBanner,
+        isModalOpen,
+        openModal,
+        closeModal,
       }}
     >
       {children}
@@ -184,6 +196,9 @@ export function useConsentSafe() {
       resetConsent: () => {},
       showBanner: false,
       hideBanner: () => {},
+      isModalOpen: false,
+      openModal: () => {},
+      closeModal: () => {},
     };
   }
   return context;

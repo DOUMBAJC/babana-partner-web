@@ -6,9 +6,8 @@ import { ConsentModal } from './ConsentModal';
 import { Button } from '~/components/ui/button';
 
 export function ConsentBanner() {
-  const { showBanner, acceptAll, rejectNonEssential, hideBanner } = useConsent();
+  const { showBanner, acceptAll, rejectNonEssential, hideBanner, isModalOpen, openModal, closeModal } = useConsent();
   const { language } = useLanguage();
-  const [showModal, setShowModal] = useState(false);
 
   const t = {
     fr: {
@@ -31,7 +30,12 @@ export function ConsentBanner() {
 
   const content = language === 'fr' ? t.fr : t.en;
 
-  if (!showBanner) return null;
+  // Rendu de la modale globale (toujours possible même si le banner est caché)
+  const renderModal = () => (
+    isModalOpen && <ConsentModal onClose={closeModal} />
+  );
+
+  if (!showBanner) return renderModal();
 
   return (
     <>
@@ -109,7 +113,7 @@ export function ConsentBanner() {
                   </Button>
                   
                   <Button
-                    onClick={() => setShowModal(true)}
+                    onClick={openModal}
                     variant="ghost"
                     className="h-11 text-muted-foreground hover:text-foreground font-medium"
                   >
@@ -120,7 +124,7 @@ export function ConsentBanner() {
 
                 {/* Lien politique de confidentialité */}
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={openModal}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 text-center"
                 >
                   {content.learnMore}
@@ -130,9 +134,9 @@ export function ConsentBanner() {
           </div>
         </div>
       </div>
-
-      {/* Modal de personnalisation */}
-      {showModal && <ConsentModal onClose={() => setShowModal(false)} />}
+      
+      {/* Rendu modale */}
+      {renderModal()}
     </>
   );
 }

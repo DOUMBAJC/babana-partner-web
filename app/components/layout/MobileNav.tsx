@@ -7,6 +7,7 @@ import { Separator } from "~/components/ui/separator";
 import { useTranslation, useAuth, useTheme } from "~/hooks";
 import { cn } from "~/lib/utils";
 import { isAdmin } from "~/lib/permissions";
+import { ConsentSettings } from "~/components/ConsentSettings";
 
 interface NavLink {
   href: string;
@@ -24,7 +25,7 @@ export function MobileNav({ links }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const location = useLocation();
-  const { t, language } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
@@ -105,7 +106,7 @@ export function MobileNav({ links }: MobileNavProps) {
             <>
               {/* Backdrop */}
               <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-90 transition-all duration-300 animate-in fade-in"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] transition-all duration-300 animate-in fade-in"
                 onClick={closeMenu}
                 aria-hidden="true"
               />
@@ -115,7 +116,7 @@ export function MobileNav({ links }: MobileNavProps) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={language === "fr" ? "Menu de navigation" : "Navigation menu"}
-                className="fixed inset-y-0 right-0 w-full max-w-[420px] h-dvh z-100 animate-in slide-in-from-right duration-300"
+                className="fixed inset-y-0 right-0 w-full max-w-[420px] h-dvh z-[100] animate-in slide-in-from-right duration-300"
               >
                 <div className="h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-l border-babana-cyan/25 shadow-2xl shadow-babana-cyan/15 flex flex-col overflow-hidden">
                   {/* Header premium (fixe) */}
@@ -276,9 +277,7 @@ export function MobileNav({ links }: MobileNavProps) {
                         {/* Language Toggle */}
                         <button
                           onClick={() => {
-                            const newLang = language === "fr" ? "en" : "fr";
-                            localStorage.setItem("language", newLang);
-                            window.location.reload();
+                            setLanguage(language === "fr" ? "en" : "fr");
                           }}
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-card/40 border border-border/50 hover:bg-babana-cyan/10 transition-all duration-200"
                         >
@@ -414,8 +413,13 @@ export function MobileNav({ links }: MobileNavProps) {
                   </div>
 
                   {/* Footer */}
-                  <div className="flex-none pb-6 pt-2">
-                    <p className="text-xs text-center text-muted-foreground">© 2025 BABANA Partner</p>
+                  <div className="flex-none pb-6 pt-2 flex flex-col items-center gap-2">
+                    <ConsentSettings 
+                      variant="link" 
+                      className="text-xs opacity-70 hover:opacity-100" 
+                      onOpen={closeMenu}
+                    />
+                    <p className="text-xs text-center text-muted-foreground">© 2025 - {new Date().getFullYear()} BABANA Partner</p>
                   </div>
                 </div>
               </nav>

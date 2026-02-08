@@ -118,7 +118,7 @@ export function ConsentModal({ onClose }: ConsentModalProps) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 gap-0">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-0 shadow-2xl rounded-3xl p-0 gap-0 z-[200]">
         {/* Header spectaculaire avec gradient animé */}
         <div className="relative bg-linear-to-br from-babana-cyan via-babana-cyan/90 to-babana-navy p-8 pb-12 overflow-hidden">
           {/* Pattern SVG overlay */}
