@@ -778,12 +778,32 @@ export interface Translations {
     title: string;
     subtitle: string;
     subtitleIdCard: string;
+    searchSubtitle: string;
     securePortal: string;
     searchCriteria: string;
     searchCriteriaDescription: string;
     fillFields: string;
     advancedSearch: string;
     standardSearch: string;
+    flexibleSearch: string;
+    flexible: string;
+    useSimOrIdCard: string;
+    validFormat: string;
+    or: string;
+    tip: string;
+    importantInfo: string;
+    chooseMethod: string;
+    selectTab: string;
+    searchByIdCard: string;
+    searchByIdCardDescription: string;
+    searchBySim: string;
+    allFieldsFilled: string;
+    simValid: string;
+    idCardTab: string;
+    simTab: string;
+    pleaseWait: string;
+    secureConnection: string;
+    notAvailable: string;
     fields: {
       idCard: string;
       idCardPlaceholder: string;
@@ -826,6 +846,7 @@ export interface Translations {
       idCardType: string;
       idCardNumber: string;
       address: string;
+      notAvailable: string;
     };
     activationStatus: {
       title: string;
@@ -841,6 +862,10 @@ export interface Translations {
       invalidFormat: string;
       invalidSimNumber: string;
       atLeastOneField: string;
+      mustBeAuthenticated: string;
+      noPermissions: string;
+      validationErrors: string;
+      searchError: string;
     };
   };
   // Customer Create
@@ -2340,12 +2365,32 @@ export const translations: Record<Language, Translations> = {
       title: "Recherche Client",
       subtitle: "Accédez rapidement aux informations clients pour faciliter vos opérations.",
       subtitleIdCard: "Recherchez un client par son numéro de carte d'identité",
+      searchSubtitle: "Recherchez également par numéro SIM des requêtes précédentes",
       securePortal: "Portail Partenaire Sécurisé",
       searchCriteria: "Critères de Recherche",
       searchCriteriaDescription: "Saisissez les informations de la carte d'identité",
       fillFields: "Utilisez les filtres ci-dessous pour trouver un client.",
       advancedSearch: "Recherche Avancée",
       standardSearch: "Recherche Standard",
+      flexibleSearch: "Recherche flexible",
+      flexible: "Flexible",
+      useSimOrIdCard: "Utilisez le numéro SIM ou les informations de carte d'identité",
+      validFormat: "Format valide",
+      or: "OU",
+      tip: "💡 Astuce",
+      importantInfo: "💡 Information importante",
+      chooseMethod: "Choisissez votre méthode de recherche",
+      selectTab: "Sélectionnez l'onglet correspondant à l'information dont vous disposez",
+      searchByIdCard: "Recherche par Carte d'Identité",
+      searchByIdCardDescription: "Remplissez les deux champs ci-dessous pour rechercher un client par sa carte d'identité.",
+      searchBySim: "Recherche par Numéro SIM",
+      allFieldsFilled: "Tous les champs requis sont remplis. Vous pouvez lancer la recherche.",
+      simValid: "Numéro SIM valide. Vous pouvez lancer la recherche.",
+      idCardTab: "Carte d'Identité",
+      simTab: "Numéro SIM",
+      pleaseWait: "Veuillez patienter pendant que nous recherchons...",
+      secureConnection: "Connexion sécurisée",
+      notAvailable: "N/A",
       fields: {
         idCard: "Numéro CNI / Identifiant",
         idCardPlaceholder: "Ex: AA233445566",
@@ -2388,6 +2433,7 @@ export const translations: Record<Language, Translations> = {
         idCardType: "Type de carte",
         idCardNumber: "Numéro de carte",
         address: "Adresse",
+        notAvailable: "N/A",
       },
       activationStatus: {
         title: "Statut d'activation",
@@ -2403,6 +2449,10 @@ export const translations: Record<Language, Translations> = {
         invalidFormat: "Format de numéro de carte invalide",
         invalidSimNumber: "Format invalide. Le numéro SIM doit commencer par 62 et contenir 9 chiffres (ex: 621234567)",
         atLeastOneField: "Veuillez remplir au moins le numéro SIM ou les informations de carte d'identité",
+        mustBeAuthenticated: "Vous devez être authentifié",
+        noPermissions: "Vous n'avez pas les permissions nécessaires",
+        validationErrors: "Erreurs de validation",
+        searchError: "Une erreur est survenue lors de la recherche",
       },
     },
     customerCreate: {
@@ -4184,12 +4234,32 @@ export const translations: Record<Language, Translations> = {
       title: "Customer Search",
       subtitle: "Quickly access customer information to facilitate your operations.",
       subtitleIdCard: "Search for a customer by their ID card number",
+      searchSubtitle: "You can also search by SIM number from previous requests",
       securePortal: "Secure Partner Portal",
       searchCriteria: "Search Criteria",
       searchCriteriaDescription: "Enter the ID card information",
       fillFields: "Use the filters below to find a customer.",
       advancedSearch: "Advanced Search",
       standardSearch: "Standard Search",
+      flexibleSearch: "Flexible Search",
+      flexible: "Flexible",
+      useSimOrIdCard: "Use SIM number or ID card information",
+      validFormat: "Valid Format",
+      or: "OR",
+      tip: "💡 Tip",
+      importantInfo: "💡 Important Information",
+      chooseMethod: "Choose your search method",
+      selectTab: "Select the tab corresponding to the information you have",
+      searchByIdCard: "Search by ID Card",
+      searchByIdCardDescription: "Fill in both fields below to search for a customer by their ID card.",
+      searchBySim: "Search by SIM Number",
+      allFieldsFilled: "All required fields are filled. You can start the search.",
+      simValid: "Valid SIM number. You can start the search.",
+      idCardTab: "ID Card",
+      simTab: "SIM Number",
+      pleaseWait: "Please wait while we search...",
+      secureConnection: "Secure Connection",
+      notAvailable: "N/A",
       fields: {
         idCard: "ID Card Number / Identifier",
         idCardPlaceholder: "Ex: 112233445566",
@@ -4232,6 +4302,7 @@ export const translations: Record<Language, Translations> = {
         idCardType: "Card Type",
         idCardNumber: "Card Number",
         address: "Address",
+        notAvailable: "N/A",
       },
       activationStatus: {
         title: "Activation Status",
@@ -4247,6 +4318,10 @@ export const translations: Record<Language, Translations> = {
         invalidFormat: "Invalid card number format",
         invalidSimNumber: "Invalid format. SIM number must start with 62 and contain 9 digits (e.g. 621234567)",
         atLeastOneField: "Please fill in at least the SIM number or ID card information",
+        mustBeAuthenticated: "You must be authenticated",
+        noPermissions: "You do not have the necessary permissions",
+        validationErrors: "Validation errors",
+        searchError: "An error occurred during the search",
       },
     },
     customerCreate: {

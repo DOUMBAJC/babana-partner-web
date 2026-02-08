@@ -42,7 +42,7 @@ export function CustomerFoundCard({
                 <span className="font-medium">{t.customerSearch.customerInfo.phone}:</span> {customer.phone}
               </p>
               <p className="text-sm text-foreground">
-                <span className="font-medium">{t.customerSearch.customerInfo.idCardType}:</span> {customer.id_card_type?.name || 'N/A'}
+                <span className="font-medium">{t.customerSearch.customerInfo.idCardType}:</span> {customer.id_card_type?.name || t.customerSearch.customerInfo.notAvailable}
               </p>
               <p className="text-sm text-foreground">
                 <span className="font-medium">{t.customerSearch.customerInfo.idCardNumber}:</span> {customer.id_card_number}

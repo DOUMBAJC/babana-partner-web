@@ -57,7 +57,7 @@ export function SearchLoader({ message }: SearchLoaderProps) {
                 {displayMessage}
               </h3>
               <p className="text-sm text-muted-foreground">
-                Veuillez patienter pendant que nous recherchons...
+                {t.customerSearch.pleaseWait}
               </p>
             </div>
 
@@ -72,11 +72,11 @@ export function SearchLoader({ message }: SearchLoaderProps) {
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span>Connexion sécurisée</span>
+            <span>{t.customerSearch.secureConnection}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
-            <span>Recherche en cours</span>
+            <span>{t.customerSearch.searching}</span>
           </div>
         </div>
       </div>

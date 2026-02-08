@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, data, useActionData, useNavigation } from 'react-router';
 import { 
   AlertCircle,
-  Sparkles,
-  ShieldCheck,
   User as UserIcon,
-  Badge as BadgeIcon
+  Search
 } from 'lucide-react';
 import {
   Card,
@@ -169,7 +167,7 @@ export async function action({ request }: Route.ActionArgs) {
         searchStatus: 'idle',
         customer: null,
         activationStatus: null,
-        error: 'Vous devez être authentifié',
+        error: t.customerSearch.errors.mustBeAuthenticated,
         errorType: 'authentication'
       }, { status: 401 });
     }
@@ -181,7 +179,7 @@ export async function action({ request }: Route.ActionArgs) {
         searchStatus: 'idle',
         customer: null,
         activationStatus: null,
-        error: 'Vous n\'avez pas les permissions nécessaires',
+        error: t.customerSearch.errors.noPermissions,
         errorType: 'authorization'
       }, { status: 403 });
     }
@@ -193,7 +191,7 @@ export async function action({ request }: Route.ActionArgs) {
         searchStatus: 'idle',
         customer: null,
         activationStatus: null,
-        error: 'Erreurs de validation',
+        error: t.customerSearch.errors.validationErrors,
         validationErrors: errorData?.errors || null,
         errorType: 'validation'
       }, { status: 422 });
@@ -204,7 +202,7 @@ export async function action({ request }: Route.ActionArgs) {
       searchStatus: 'idle',
       customer: null,
       activationStatus: null,
-      error: error?.message || errorData?.message || 'Une erreur est survenue lors de la recherche',
+      error: error?.message || errorData?.message || t.customerSearch.errors.searchError,
       errorType: 'general'
     }, { status: 500 });
   }
@@ -304,7 +302,7 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
         if (errorType === 'authentication' || errorType === 'authorization') {
           toast.error(actionData.error);
         } else if (errorType === 'validation') {
-          toast.error('Erreurs de validation');
+          toast.error(t.customerSearch.errors.validationErrors);
         } else {
           toast.error(actionData.error);
         }
@@ -364,55 +362,34 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
       {/* Loader pendant la recherche */}
       {isSearching && <SearchLoader />}
       
-      <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse-slow" />
-          <div className="absolute top-[40%] -left-[10%] w-[40%] h-[40%] bg-secondary/20 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse-slow delay-1000" />
-        </div>
+      <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          {/* Header */}
-          <div className="text-center mb-12 space-y-4">
-            <h1 className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary to-primary/60 drop-shadow-sm">
+        <div className="max-w-4xl mx-auto">
+          {/* Header simplifié */}
+          <div className="text-center mb-8 space-y-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">
               {t.customerSearch.title}
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t.customerSearch.subtitleIdCard}
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+              {t.customerSearch.subtitle}
             </p>
-            <p className="text-base text-muted-foreground/80 max-w-xl mx-auto mt-2">
-              Recherchez également par numéro SIM des requêtes précédentes
-            </p>
-            <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
-              <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary backdrop-blur-sm transition-all duration-300 hover:bg-primary/10 hover:scale-105">
-                <ShieldCheck className="w-3.5 h-3.5 mr-2" />
-                {t.customerSearch.securePortal}
-              </Badge>
-              <Badge variant="outline" className="px-4 py-1.5 rounded-full border-green-500/20 bg-green-500/5 text-green-600 dark:text-green-400 backdrop-blur-sm transition-all duration-300 hover:bg-green-500/10 hover:scale-105">
-                <Sparkles className="w-3.5 h-3.5 mr-2" />
-                Recherche flexible
-              </Badge>
-            </div>
           </div>
           
           {/* Carte principale */}
-          <Card className="border-0 shadow-2xl bg-card/50 backdrop-blur-xl ring-1 ring-white/10 dark:ring-white/5 overflow-hidden">
-            <div className="p-8 md:p-10 space-y-8">
-              {/* En-tête de la carte */}
-              <div className="flex items-center justify-between border-b border-border/50 pb-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-xl text-primary ring-1 ring-primary/20">
-                    <Sparkles className="h-6 w-6" />
+          <Card className="border shadow-lg bg-card overflow-hidden">
+            <div className="p-6 md:p-8 space-y-6">
+              {/* En-tête de la carte simplifié */}
+              <div className="flex items-center justify-between pb-4 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                    <Search className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-foreground">
                       {t.customerSearch.searchCriteria}
-                      <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                        Flexible
-                      </span>
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Utilisez le numéro SIM ou les informations de carte d'identité
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t.customerSearch.useSimOrIdCard}
                     </p>
                   </div>
                 </div>
@@ -445,7 +422,7 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
                         : 'text-yellow-700 dark:text-yellow-400'
                     }`}>
                       {(actionData as any)?.errorType === 'authentication' || (actionData as any)?.errorType === 'authorization'
-                        ? 'Accès refusé'
+                        ? t.customerSearch.accessDenied.title
                         : t.customerSearch.errors.attention
                       }
                     </h4>
@@ -488,7 +465,7 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
                   <div className="absolute inset-0 bg-background/40 backdrop-blur-sm rounded-xl z-10 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-                      <span className="text-xs text-muted-foreground">Recherche en cours...</span>
+                      <span className="text-xs text-muted-foreground">{t.customerSearch.searching}</span>
                     </div>
                   </div>
                 )}
