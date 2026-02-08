@@ -116,7 +116,7 @@ export function FiltersSection() {
   const hasActiveFilters = localFilters.status || localFilters.search || localFilters.dateFrom || localFilters.dateTo || localFilters.mine;
 
   return (
-    <Card className="p-6 mb-6 shadow-sm border-border/40 bg-linear-to-br from-background to-muted/20">
+    <Card className="p-4 sm:p-6 mb-6 shadow-sm border-border/40 bg-linear-to-br from-background to-muted/20">
       <div className="flex items-center gap-2 mb-6">
         <div className="rounded-lg bg-primary/10 p-2">
           <Filter className="h-5 w-5 text-primary" />
@@ -194,17 +194,17 @@ export function FiltersSection() {
 
 
       {/* Boutons d'action */}
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/40">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-6 pt-4 border-t border-border/40">
         <div className="flex items-center gap-2">
           <ExportButtons />
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           {hasActiveFilters && (
             <Button
               variant="outline"
               onClick={handleClearFilters}
-              className="gap-2"
+              className="gap-2 flex-1 sm:flex-initial"
               disabled={isLoading}
             >
               <X className="h-4 w-4" />
@@ -213,13 +213,14 @@ export function FiltersSection() {
           )}
           <Button
             onClick={handleApplyFilters}
-            className="gap-2 min-w-[120px]"
+            className="gap-2 min-w-0 sm:min-w-[120px] flex-1 sm:flex-initial"
             disabled={isLoading}
           >
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Recherche...
+                <span className="hidden sm:inline">Recherche...</span>
+                <span className="sm:hidden">...</span>
               </>
             ) : (
               <>

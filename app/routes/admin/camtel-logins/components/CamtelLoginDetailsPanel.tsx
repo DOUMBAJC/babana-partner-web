@@ -94,11 +94,11 @@ export function CamtelLoginDetailsPanel({
           <div className="absolute inset-0 bg-linear-to-br from-babana-cyan via-babana-blue to-babana-navy" />
           <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]"></div>
 
-          <div className="relative px-6 pt-6 pb-8">
+          <div className="relative px-4 sm:px-6 pt-6 pb-8">
             <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 transition-all duration-200 group backdrop-blur-sm"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-2 sm:p-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 transition-all duration-200 group backdrop-blur-sm"
             >
               <X className="h-4 w-4 text-white/90 group-hover:text-white transition-colors" />
             </button>
@@ -138,7 +138,7 @@ export function CamtelLoginDetailsPanel({
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0 pr-10">
+              <div className="flex-1 min-w-0 pr-4 sm:pr-10">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-2xl font-black text-white truncate">{displayLogin}</h2>
                   <Badge variant="outline" className="rounded-lg bg-white/10 border-white/25 text-xs font-mono text-white">
@@ -204,7 +204,7 @@ export function CamtelLoginDetailsPanel({
         </div>
 
         <ScrollArea className="flex-1">
-          <div className="px-6 pb-6 pt-6 bg-white dark:bg-slate-900">
+          <div className="px-4 sm:px-6 pb-6 pt-6 bg-white dark:bg-slate-900">
             {isLoading ? (
               <div className="space-y-4 animate-pulse mt-4">
                 {[1, 2, 3].map((i) => (

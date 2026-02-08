@@ -576,7 +576,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
       <Toaster />
       <ProtectedRoute role={["admin", "super_admin"]} mode="any">
         <div className="container mx-auto space-y-6 py-8 px-4">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-2">
               <Breadcrumb>
                 <BreadcrumbList>
@@ -604,27 +604,28 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => navigate("/admin")}>
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              <Button variant="outline" onClick={() => navigate("/admin")} className="flex-1 sm:flex-initial">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t.actions.back}
               </Button>
               <Button
                 variant="outline"
                 onClick={openCreate}
-                className="border-babana-cyan/25 hover:border-babana-cyan/45"
+                className="border-babana-cyan/25 hover:border-babana-cyan/45 flex-1 sm:flex-initial"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 {t.adminCamtelLogins.actions.createButton}
               </Button>
               <Button
                 variant="default"
-                className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy active:scale-[0.98] transition-transform"
+                className="bg-babana-cyan hover:bg-babana-cyan-dark text-babana-navy active:scale-[0.98] transition-transform flex-1 sm:flex-initial"
                 onClick={() => revalidator.revalidate()}
                 disabled={isRefreshing}
               >
                 <RefreshCcw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-                {isRefreshing ? t.common.loading : t.actions.refresh}
+                <span className="hidden sm:inline">{isRefreshing ? t.common.loading : t.actions.refresh}</span>
+                <span className="sm:hidden">{isRefreshing ? "..." : t.actions.refresh}</span>
               </Button>
             </div>
           </div>
@@ -694,7 +695,7 @@ export default function AdminCamtelLoginsPage({ loaderData, actionData }: Route.
               </Card>
 
               <Dialog open={isDrawerOpen} onOpenChange={(open) => (!open ? closeLogin() : null)}>
-                <DialogContent className="fixed left-auto right-0 top-0 translate-x-0 translate-y-0 h-dvh w-[min(680px,100vw)] max-w-none rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
+                <DialogContent className="fixed left-1/2 md:left-auto right-auto md:right-0 top-1/2 md:top-0 -translate-x-1/2 md:translate-x-0 -translate-y-1/2 md:translate-y-0 h-[90vh] md:h-dvh w-[95vw] md:w-[min(680px,100vw)] max-w-none rounded-lg md:rounded-none p-0 gap-0 overflow-hidden bg-background text-foreground border md:border-l border-border shadow-2xl data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=closed]:duration-200">
                   <CamtelLoginDetailsPanel
                     login={selected}
                     loginId={desiredLoginId}
