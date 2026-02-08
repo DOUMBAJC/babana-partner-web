@@ -378,7 +378,7 @@ export default function CustomerSearchPage({ loaderData }: Route.ComponentProps)
               {/* En-tête de la carte simplifié */}
               <div className="flex items-center justify-between pb-6 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl text-primary shadow-sm">
+                  <div className="p-2.5 bg-linear-to-br from-primary/20 to-primary/10 rounded-xl text-primary shadow-sm">
                     <Search className="h-5 w-5" />
                   </div>
                   <h2 className="text-xl font-bold text-foreground">

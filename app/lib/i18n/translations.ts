@@ -776,66 +776,29 @@ export interface Translations {
   // Customer Search
   customerSearch: {
     title: string;
-    subtitle: string;
-    subtitleIdCard: string;
-    searchSubtitle: string;
-    securePortal: string;
     searchCriteria: string;
-    searchCriteriaDescription: string;
-    fillFields: string;
-    advancedSearch: string;
-    standardSearch: string;
-    flexibleSearch: string;
-    flexible: string;
-    useSimOrIdCard: string;
     validFormat: string;
-    or: string;
-    tip: string;
-    importantInfo: string;
-    chooseMethod: string;
-    selectTab: string;
-    searchByIdCard: string;
-    searchByIdCardDescription: string;
-    searchBySim: string;
-    allFieldsFilled: string;
-    simValid: string;
     idCardTab: string;
     simTab: string;
     pleaseWait: string;
     secureConnection: string;
-    notAvailable: string;
     fields: {
-      idCard: string;
-      idCardPlaceholder: string;
-      idCardType: string;
       idCardTypeRequired: string;
-      idCardNumber: string;
       idCardNumberRequired: string;
       idCardNumberPlaceholder: string;
       simNumber: string;
       simNumberPlaceholder: string;
-      simNumberDescription: string;
-      name: string;
-      namePlaceholder: string;
-      phone: string;
-      phonePlaceholder: string;
       selectType: string;
-      loading: string;
     };
     searchButton: string;
     searching: string;
     accessDenied: {
       title: string;
-      message: string;
-      backHome: string;
     };
     results: {
       notFound: string;
-      notFoundMessage: string;
       createCustomer: string;
-      cancel: string;
       found: string;
-      foundMessage: string;
       sellSim: string;
       newSearch: string;
       limitReached: string;
@@ -857,7 +820,6 @@ export interface Translations {
       limitReachedWarning: string;
     };
     errors: {
-      fillAllFields: string;
       attention: string;
       invalidFormat: string;
       invalidSimNumber: string;
@@ -2363,66 +2325,29 @@ export const translations: Record<Language, Translations> = {
     },
     customerSearch: {
       title: "Recherche Client",
-      subtitle: "Accédez rapidement aux informations clients pour faciliter vos opérations.",
-      subtitleIdCard: "Recherchez un client par son numéro de carte d'identité",
-      searchSubtitle: "Recherchez également par numéro SIM des requêtes précédentes",
-      securePortal: "Portail Partenaire Sécurisé",
       searchCriteria: "Critères de Recherche",
-      searchCriteriaDescription: "Saisissez les informations de la carte d'identité",
-      fillFields: "Utilisez les filtres ci-dessous pour trouver un client.",
-      advancedSearch: "Recherche Avancée",
-      standardSearch: "Recherche Standard",
-      flexibleSearch: "Recherche flexible",
-      flexible: "Flexible",
-      useSimOrIdCard: "Utilisez le numéro SIM ou les informations de carte d'identité",
       validFormat: "Format valide",
-      or: "OU",
-      tip: "💡 Astuce",
-      importantInfo: "💡 Information importante",
-      chooseMethod: "Choisissez votre méthode de recherche",
-      selectTab: "Sélectionnez l'onglet correspondant à l'information dont vous disposez",
-      searchByIdCard: "Recherche par Carte d'Identité",
-      searchByIdCardDescription: "Remplissez les deux champs ci-dessous pour rechercher un client par sa carte d'identité.",
-      searchBySim: "Recherche par Numéro SIM",
-      allFieldsFilled: "Tous les champs requis sont remplis. Vous pouvez lancer la recherche.",
-      simValid: "Numéro SIM valide. Vous pouvez lancer la recherche.",
       idCardTab: "Carte d'Identité",
       simTab: "Numéro SIM",
-      pleaseWait: "Veuillez patienter pendant que nous recherchons...",
+      pleaseWait: "Recherche en cours...",
       secureConnection: "Connexion sécurisée",
-      notAvailable: "N/A",
       fields: {
-        idCard: "Numéro CNI / Identifiant",
-        idCardPlaceholder: "Ex: AA233445566",
-        idCardType: "Type de carte d'identité",
         idCardTypeRequired: "Type de carte d'identité *",
-        idCardNumber: "Numéro de carte d'identité",
         idCardNumberRequired: "Numéro de carte d'identité *",
         idCardNumberPlaceholder: "Ex: 123456789",
-        simNumber: "Numéro SIM (Optionnel)",
+        simNumber: "Numéro SIM",
         simNumberPlaceholder: "Ex: 621234567",
-        simNumberDescription: "Rechercher par numéro SIM des requêtes précédentes",
-        name: "Nom Complet",
-        namePlaceholder: "Nom du client",
-        phone: "Téléphone",
-        phonePlaceholder: "Ex: 622037000",
         selectType: "Sélectionnez un type",
-        loading: "Chargement...",
       },
-      searchButton: "Lancer la recherche",
+      searchButton: "Rechercher",
       searching: "Recherche en cours...",
       accessDenied: {
         title: "Accès Refusé",
-        message: "Vous n'avez pas les permissions nécessaires pour accéder à cette page.",
-        backHome: "Retour à l'accueil",
       },
       results: {
         notFound: "Client non trouvé",
-        notFoundMessage: "Aucun client ne correspond à ces critères.",
         createCustomer: "Créer un nouveau client",
-        cancel: "Annuler",
         found: "Client Vérifié",
-        foundMessage: "Ce client est enregistré dans la base de données.",
         sellSim: "Vendre une carte SIM",
         newSearch: "Nouvelle Recherche",
         limitReached: "Limite atteinte",
@@ -2444,7 +2369,6 @@ export const translations: Record<Language, Translations> = {
         limitReachedWarning: "Ce client a atteint la limite maximale d'activations",
       },
       errors: {
-        fillAllFields: "Veuillez remplir au moins un critère de recherche",
         attention: "Attention",
         invalidFormat: "Format de numéro de carte invalide",
         invalidSimNumber: "Format invalide. Le numéro SIM doit commencer par 62 et contenir 9 chiffres (ex: 621234567)",
@@ -4232,66 +4156,29 @@ export const translations: Record<Language, Translations> = {
     },
     customerSearch: {
       title: "Customer Search",
-      subtitle: "Quickly access customer information to facilitate your operations.",
-      subtitleIdCard: "Search for a customer by their ID card number",
-      searchSubtitle: "You can also search by SIM number from previous requests",
-      securePortal: "Secure Partner Portal",
       searchCriteria: "Search Criteria",
-      searchCriteriaDescription: "Enter the ID card information",
-      fillFields: "Use the filters below to find a customer.",
-      advancedSearch: "Advanced Search",
-      standardSearch: "Standard Search",
-      flexibleSearch: "Flexible Search",
-      flexible: "Flexible",
-      useSimOrIdCard: "Use SIM number or ID card information",
       validFormat: "Valid Format",
-      or: "OR",
-      tip: "💡 Tip",
-      importantInfo: "💡 Important Information",
-      chooseMethod: "Choose your search method",
-      selectTab: "Select the tab corresponding to the information you have",
-      searchByIdCard: "Search by ID Card",
-      searchByIdCardDescription: "Fill in both fields below to search for a customer by their ID card.",
-      searchBySim: "Search by SIM Number",
-      allFieldsFilled: "All required fields are filled. You can start the search.",
-      simValid: "Valid SIM number. You can start the search.",
       idCardTab: "ID Card",
       simTab: "SIM Number",
-      pleaseWait: "Please wait while we search...",
+      pleaseWait: "Searching...",
       secureConnection: "Secure Connection",
-      notAvailable: "N/A",
       fields: {
-        idCard: "ID Card Number / Identifier",
-        idCardPlaceholder: "Ex: 112233445566",
-        idCardType: "ID Card Type",
         idCardTypeRequired: "ID Card Type *",
-        idCardNumber: "ID Card Number",
         idCardNumberRequired: "ID Card Number *",
         idCardNumberPlaceholder: "Ex: 123456789",
-        simNumber: "SIM Number (Optional)",
+        simNumber: "SIM Number",
         simNumberPlaceholder: "Ex: 621234567",
-        simNumberDescription: "Search by SIM number from previous requests",
-        name: "Full Name",
-        namePlaceholder: "Customer Name",
-        phone: "Phone",
-        phonePlaceholder: "Ex: +237 622 037 000 (Orange, MTN, Camtel Blue)",
         selectType: "Select a type",
-        loading: "Loading...",
       },
-      searchButton: "Start Search",
+      searchButton: "Search",
       searching: "Searching...",
       accessDenied: {
         title: "Access Denied",
-        message: "You do not have the necessary permissions to access this page.",
-        backHome: "Back to Home",
       },
       results: {
         notFound: "Customer Not Found",
-        notFoundMessage: "No customer matches these criteria.",
         createCustomer: "Create New Customer",
-        cancel: "Cancel",
         found: "Customer Verified",
-        foundMessage: "This customer is registered in the database.",
         sellSim: "Sell SIM Card",
         newSearch: "New Search",
         limitReached: "Limit Reached",
@@ -4313,7 +4200,6 @@ export const translations: Record<Language, Translations> = {
         limitReachedWarning: "This customer has reached the maximum activation limit",
       },
       errors: {
-        fillAllFields: "Please fill in at least one search criterion",
         attention: "Warning",
         invalidFormat: "Invalid card number format",
         invalidSimNumber: "Invalid format. SIM number must start with 62 and contain 9 digits (e.g. 621234567)",

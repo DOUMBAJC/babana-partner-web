@@ -1,20 +1,7 @@
 import { useState } from 'react';
 import { Form } from 'react-router';
-import {
-  CreditCard,
-  AlertCircle,
-  CheckCircle,
-  Search,
-  CardSim,
-  Info,
-  ArrowRight,
-  CheckCircle2
-} from 'lucide-react';
-import {
-  Input,
-  Button,
-  Label,
-} from '~/components';
+import { CreditCard, AlertCircle, CheckCircle, Search, CardSim, Info, ArrowRight, CheckCircle2} from 'lucide-react';
+import { Input, Button, Label} from '~/components';
 import { EnhancedSelect, SelectItem } from '~/components/EnhancedSelect';
 import { useTranslation } from '~/hooks';
 import type { IdCardType } from '~/types/customer.types';
