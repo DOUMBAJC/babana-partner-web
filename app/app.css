@@ -309,13 +309,3 @@ body {
   }
 }
 
-/* Ensure mobile layout is preserved during print */
-@media print {
-  @media screen and (max-width: 767px) {
-    /* Preserve mobile layout in print */
-    * {
-      print-color-adjust: exact;
-      -webkit-print-color-adjust: exact;
-    }
-  }
-}

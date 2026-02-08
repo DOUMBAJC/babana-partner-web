@@ -20,7 +20,7 @@ import "./app.css";
 export function meta({}: Route.MetaArgs) {
   return [
     { charset: "utf-8" },
-    { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" },
+    { name: "viewport", content: "width=device-width, initial-scale=1" },
     { title: "Babana Partner" },
     { name: "description", content: "Plateforme partenaire BABANA ETS DAIROU" },
     { property: "og:site_name", content: "Babana Partner" },
@@ -81,7 +81,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   viewport.name = 'viewport';
                   document.head.appendChild(viewport);
                 }
-                viewport.content = 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover';
+                viewport.content = 'width=device-width, initial-scale=1';
                 
                 // Theme initialization
                 const theme = localStorage.getItem('babana-ui-theme') || 'system';
@@ -90,25 +90,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 } else {
                   document.documentElement.classList.add('light');
                 }
-                
-                // Force media query recalculation on resize
-                let resizeTimer;
-                function forceMediaQueryUpdate() {
-                  // Trigger a reflow to force media query recalculation
-                  document.body.style.display = 'none';
-                  document.body.offsetHeight; // Trigger reflow
-                  document.body.style.display = '';
-                }
-                
-                window.addEventListener('resize', function() {
-                  clearTimeout(resizeTimer);
-                  resizeTimer = setTimeout(forceMediaQueryUpdate, 100);
-                });
-                
-                // Force update on orientation change
-                window.addEventListener('orientationchange', function() {
-                  setTimeout(forceMediaQueryUpdate, 100);
-                });
               } catch (e) {}
             `,
           }}
@@ -142,41 +123,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </LanguageProvider>
         <ScrollRestoration />
         <Scripts />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Force media query recalculation after page load
-              (function() {
-                if (typeof window === 'undefined') return;
-                
-                function forceMediaQueryRecalc() {
-                  // Force browser to recalculate media queries
-                  const event = new Event('resize');
-                  window.dispatchEvent(event);
-                  
-                  // Also trigger a reflow
-                  document.body.style.display = 'none';
-                  void document.body.offsetHeight;
-                  document.body.style.display = '';
-                }
-                
-                // Run after DOM is fully loaded
-                if (document.readyState === 'complete') {
-                  setTimeout(forceMediaQueryRecalc, 0);
-                } else {
-                  window.addEventListener('load', function() {
-                    setTimeout(forceMediaQueryRecalc, 0);
-                  });
-                }
-                
-                // Also handle orientation changes
-                window.addEventListener('orientationchange', function() {
-                  setTimeout(forceMediaQueryRecalc, 100);
-                });
-              })();
-            `,
-          }}
-        />
       </body>
     </html>
   );
