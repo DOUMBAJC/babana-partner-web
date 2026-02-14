@@ -850,6 +850,7 @@ export interface Translations {
     success: string;
     save: string;
     saving: string;
+    cancel: string;
     errors: {
       createFailed: string;
     };
@@ -2398,6 +2399,7 @@ export const translations: Record<Language, Translations> = {
       success: "Client créé avec succès !",
       save: "Enregistrer Client",
       saving: "Enregistrement...",
+      cancel: "Annuler",
       errors: {
         createFailed: "Erreur lors de la création du client",
       },
@@ -4229,6 +4231,7 @@ export const translations: Record<Language, Translations> = {
       success: "Customer created successfully!",
       save: "Save Customer",
       saving: "Saving...",
+      cancel: "Cancel",
       errors: {
         createFailed: "Error creating customer",
       },

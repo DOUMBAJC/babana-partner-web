@@ -26,6 +26,7 @@ export function ContactInfoSection({
   return (
     <FormSection icon={Phone} title={t.customerCreate.contactInfo} variant="secondary">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Phone Field */}
         <FormField
           id="phone"
           label={t.customerCreate.fields.phone}
@@ -40,6 +41,7 @@ export function ContactInfoSection({
           showSuccess={touchedFields.has('phone') && !errors.phone}
         />
 
+        {/* Email Field */}
         <FormField
           id="email"
           label={t.customerCreate.fields.email}
@@ -53,6 +55,7 @@ export function ContactInfoSection({
           showSuccess={touchedFields.has('email') && !errors.email && formData.email.trim() !== ''}
         />
 
+        {/* Address Field - Full Width */}
         <div className="md:col-span-2">
           <FormField
             id="address"
