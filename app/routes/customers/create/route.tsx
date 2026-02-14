@@ -169,7 +169,6 @@ export default function CustomerCreatePage() {
     isFormValid
   } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
 
-  // Validation du numéro de carte selon le type sélectionné (comme dans customers.search.tsx)
   const selectedCardType = idCardTypes.find(
     (type: IdCardType) => type.id.toString() === formData.idCardTypeId
   );
@@ -180,7 +179,6 @@ export default function CustomerCreatePage() {
     setValidationError: setIdCardValidationError 
   } = useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
 
-  // Gérer la réponse de l'action
   useEffect(() => {
     if (actionData) {
       setLoading(false);
@@ -190,7 +188,6 @@ export default function CustomerCreatePage() {
         setSuccessMessage(t.customerCreate.success);
         setErrorMessage('');
         
-        // Rediriger vers la page d'activation après 1.5 secondes
         const timeoutId = setTimeout(() => {
           navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
             state: {
@@ -203,14 +200,12 @@ export default function CustomerCreatePage() {
       } else if (actionData.error) {
         const errorType = (actionData as any).errorType;
         
-        // Erreur de duplication - proposer d'activer le client existant
         if (errorType === 'duplicate' && (actionData as any).existingCustomer) {
           const existingCustomer = (actionData as any).existingCustomer;
           const errorMsg = `${actionData.error} - Client: ${existingCustomer.full_name}. Souhaitez-vous l'activer ?`;
           toast.error(errorMsg);
           setErrorMessage(errorMsg);
         } 
-        // Erreurs de validation backend
         else if (errorType === 'validation' && (actionData as any).validationErrors) {
           const validationErrors = (actionData as any).validationErrors;
           const errorMessages = Object.entries(validationErrors)
@@ -220,16 +215,11 @@ export default function CustomerCreatePage() {
           toast.error(errorMsg);
           setErrorMessage(errorMsg);
         }
-        // Erreur d'authentification
         else if (errorType === 'authentication') {
           toast.error(actionData.error);
           setErrorMessage(actionData.error);
-          // Rediriger vers login après 2 secondes
-          setTimeout(() => {
-            navigate('/login');
-          }, 2000);
+          navigate('/login');
         }
-        // Autres erreurs
         else {
           toast.error(actionData.error);
           setErrorMessage(actionData.error);
@@ -289,22 +279,12 @@ export default function CustomerCreatePage() {
   return (
     <Layout>
       <Toaster />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 py-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Enhanced Background Elements with More Depth */}
+      <div className="min-h-screen bg-linear-to-br from-background via-background/95 to-primary/5 py-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          {/* Primary Gradient Orb */}
-          <div className="absolute -top-[25%] -right-[15%] w-[60%] h-[60%] bg-gradient-to-br from-primary/25 via-purple-500/20 to-pink-500/15 blur-[140px] rounded-full mix-blend-screen opacity-60 animate-pulse" style={{ animationDuration: '8s' }} />
-          
-          {/* Secondary Gradient Orb */}
-          <div className="absolute top-[35%] -left-[15%] w-[50%] h-[50%] bg-gradient-to-br from-secondary/25 via-blue-500/20 to-cyan-500/15 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
-          
-          {/* Tertiary Gradient Orb */}
-          <div className="absolute bottom-[5%] right-[15%] w-[40%] h-[40%] bg-gradient-to-br from-emerald-500/20 via-teal-500/15 to-green-500/10 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
-          
-          {/* Accent Orbs */}
-          <div className="absolute top-[60%] right-[40%] w-[25%] h-[25%] bg-gradient-to-br from-violet-500/15 to-fuchsia-500/10 blur-[80px] rounded-full mix-blend-screen opacity-30 animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
-          
-          {/* Grid Pattern Overlay */}
+          <div className="absolute -top-[25%] -right-[15%] w-[60%] h-[60%] bg-linear-to-br from-primary/25 via-purple-500/20 to-pink-500/15 blur-[140px] rounded-full mix-blend-screen opacity-60 animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="absolute top-[35%] -left-[15%] w-[50%] h-[50%] bg-linear-to-br from-secondary/25 via-blue-500/20 to-cyan-500/15 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
+          <div className="absolute bottom-[5%] right-[15%] w-[40%] h-[40%] bg-linear-to-br from-emerald-500/20 via-teal-500/15 to-green-500/10 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
+          <div className="absolute top-[60%] right-[40%] w-[25%] h-[25%] bg-linear-to-br from-violet-500/15 to-fuchsia-500/10 blur-[80px] rounded-full mix-blend-screen opacity-30 animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size[4rem_4rem] mask[radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
         </div>
 
@@ -312,7 +292,7 @@ export default function CustomerCreatePage() {
           <div className="mb-6 sm:mb-8 animate-in fade-in slide-in-from-left-4 duration-500">
             <Button 
               variant="ghost" 
-              onClick={() => navigate('/customers/search')}
+              onClick={() => navigate('/')}
               className="group pl-0 hover:bg-primary/5 rounded-lg px-3 py-2 -ml-3 transition-all duration-300 hover:shadow-sm"
               disabled={loading}
             >
