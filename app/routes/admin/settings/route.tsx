@@ -227,7 +227,7 @@ export default function AdminSettingsPage() {
   return (
     <Layout>
       <ProtectedRoute role={['admin', 'super_admin']} mode="any">
-        <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <div className="min-h-screen bg-linear-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
           {/* Hero Section avec effet glassmorphism */}
           <div className="relative overflow-hidden">
             <div className="absolute inset-0 bg-linear-to-r from-babana-cyan/20 via-babana-blue/20 to-babana-cyan/20 blur-3xl" />
@@ -239,7 +239,7 @@ export default function AdminSettingsPage() {
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <div className="absolute inset-0 bg-babana-cyan rounded-2xl blur-xl opacity-50 animate-pulse" />
-                      <div className="relative p-4 bg-gradient-to-br from-babana-cyan to-babana-blue rounded-2xl shadow-2xl">
+                      <div className="relative p-4 bg-linear-to-br from-babana-cyan to-babana-blue rounded-2xl shadow-2xl">
                         <Settings className="w-8 h-8 text-white" />
                       </div>
                     </div>
@@ -278,12 +278,12 @@ export default function AdminSettingsPage() {
                     className="group relative overflow-hidden rounded-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
                     <div className="relative p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className={cn(
-                          "p-3 rounded-xl bg-gradient-to-br shadow-lg",
-                          `bg-gradient-to-br ${stat.color}`
+                          "p-3 rounded-xl bg-linear-to-br shadow-lg",
+                          `bg-linear-to-br ${stat.color}`
                         )}>
                           <stat.icon className="w-6 h-6 text-white" />
                         </div>
@@ -395,7 +395,7 @@ export default function AdminSettingsPage() {
                 <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl">
                   <CardHeader className="border-b border-zinc-100 dark:border-zinc-800 bg-linear-to-r from-babana-cyan/10 to-babana-blue/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-babana-cyan to-babana-blue rounded-lg">
+                      <div className="p-2 bg-linear-to-br from-babana-cyan to-babana-blue rounded-lg">
                         <Globe className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -518,7 +518,7 @@ export default function AdminSettingsPage() {
                 <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl">
                   <CardHeader className="border-b border-zinc-100 dark:border-zinc-800 bg-linear-to-r from-red-500/10 to-orange-500/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg">
+                      <div className="p-2 bg-linear-to-br from-red-500 to-orange-500 rounded-lg">
                         <Shield className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -660,7 +660,7 @@ export default function AdminSettingsPage() {
                 <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl">
                   <CardHeader className="border-b border-zinc-100 dark:border-zinc-800 bg-linear-to-r from-blue-500/10 to-cyan-500/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
+                      <div className="p-2 bg-linear-to-br from-blue-500 to-cyan-500 rounded-lg">
                         <Mail className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -776,7 +776,7 @@ export default function AdminSettingsPage() {
                 <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl">
                   <CardHeader className="border-b border-zinc-100 dark:border-zinc-800 bg-linear-to-r from-purple-500/10 to-pink-500/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
+                      <div className="p-2 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg">
                         <Bell className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -914,7 +914,7 @@ export default function AdminSettingsPage() {
                 <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl">
                   <CardHeader className="border-b border-zinc-100 dark:border-zinc-800 bg-linear-to-r from-slate-500/10 to-gray-500/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-slate-500 to-gray-600 rounded-lg">
+                      <div className="p-2 bg-linear-to-br from-slate-500 to-gray-600 rounded-lg">
                         <Server className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -1076,7 +1076,7 @@ export default function AdminSettingsPage() {
                 <Card className="border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-xl">
                   <CardHeader className="border-b border-zinc-100 dark:border-zinc-800 bg-linear-to-r from-pink-500/10 to-rose-500/10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg">
+                      <div className="p-2 bg-linear-to-br from-pink-500 to-rose-500 rounded-lg">
                         <Palette className="w-5 h-5 text-white" />
                       </div>
                       <div>

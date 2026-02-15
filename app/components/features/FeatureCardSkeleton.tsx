@@ -21,19 +21,19 @@ export function FeatureCardSkeleton({ size = 'default' }: FeatureCardSkeletonPro
     >
       {/* Shimmer overlay */}
       <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite]">
-        <div className="h-full w-full bg-gradient-to-r from-transparent via-white/60 dark:via-white/10 to-transparent" />
+        <div className="h-full w-full bg-linear-to-r from-transparent via-white/60 dark:via-white/10 to-transparent" />
       </div>
 
       {/* Animated gradient border */}
       <div className="absolute inset-0 rounded-xl opacity-30">
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-babana-cyan/30 via-purple-500/30 to-pink-500/30 animate-[borderShift_3s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 rounded-xl bg-linear-to-r from-babana-cyan/30 via-purple-500/30 to-pink-500/30 animate-[borderShift_3s_ease-in-out_infinite]" />
       </div>
 
       <div className="relative flex flex-col h-full">
         {/* Icon skeleton */}
         <div className="mb-3 md:mb-4">
           <div className={cn(
-            "rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 animate-pulse",
+            "rounded-2xl bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 animate-pulse",
             isCompact ? "w-10 h-10" : "w-10 h-10 md:w-12 md:h-12"
           )} />
         </div>
@@ -41,7 +41,7 @@ export function FeatureCardSkeleton({ size = 'default' }: FeatureCardSkeletonPro
         {/* Title skeleton */}
         <div className="space-y-1 md:space-y-2 mb-3 md:mb-4 flex-grow">
           <div className={cn(
-            "rounded-lg bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse",
+            "rounded-lg bg-linear-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse",
             isCompact ? "h-5 w-3/4" : "h-5 md:h-6 w-3/4"
           )} />
           

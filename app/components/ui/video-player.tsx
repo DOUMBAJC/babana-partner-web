@@ -162,7 +162,7 @@ export function VideoPlayer({
       {/* Overlay Gradient */}
       <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300",
+          "absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300",
           showControls || !isPlaying ? "opacity-100" : "opacity-0"
         )}
       />
@@ -189,7 +189,7 @@ export function VideoPlayer({
           </div>
 
           {/* Control Buttons */}
-          <div className="flex items-center gap-2 p-4 bg-gradient-to-t from-black/80 to-transparent">
+          <div className="flex items-center gap-2 p-4 bg-linear-to-t from-black/80 to-transparent">
             <Button
               variant="ghost"
               size="icon"

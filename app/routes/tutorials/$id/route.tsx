@@ -128,11 +128,11 @@ export default function TutorialDetailPage({ loaderData }: Route.ComponentProps)
     <Layout>
       <main className="min-h-screen pb-20">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-babana-cyan/10 via-white/50 to-babana-navy/5 dark:from-babana-navy dark:via-gray-900/50 dark:to-babana-cyan/10 py-12 md:py-16">
+        <section className="relative overflow-hidden bg-linear-to-br from-babana-cyan/10 via-white/50 to-babana-navy/5 dark:from-babana-navy dark:via-gray-900/50 dark:to-babana-cyan/10 py-12 md:py-16">
           {/* Animated Background */}
           <div className={cn(
             "absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl animate-pulse opacity-30",
-            `bg-gradient-to-br ${translatedTutorial.color}`
+            `bg-linear-to-br ${translatedTutorial.color}`
           )} />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-babana-navy/20 dark:bg-babana-navy/30 rounded-full blur-3xl animate-pulse delay-1000" />
           
@@ -149,7 +149,7 @@ export default function TutorialDetailPage({ loaderData }: Route.ComponentProps)
             <div className="max-w-4xl mx-auto">
               {/* Icon */}
               <div className={cn(
-                "inline-flex items-center justify-center w-20 h-20 rounded-3xl shadow-2xl mb-6 animate-in fade-in zoom-in duration-700 bg-gradient-to-br",
+                "inline-flex items-center justify-center w-20 h-20 rounded-3xl shadow-2xl mb-6 animate-in fade-in zoom-in duration-700 bg-linear-to-br",
                 translatedTutorial.color
               )}>
                 <Icon className="w-10 h-10 text-white" />
@@ -179,7 +179,7 @@ export default function TutorialDetailPage({ loaderData }: Route.ComponentProps)
                   </div>
                 </div>
 
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-babana-navy via-babana-cyan to-babana-navy dark:from-babana-cyan dark:via-white dark:to-babana-cyan bg-clip-text text-transparent">
+                <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-babana-navy via-babana-cyan to-babana-navy dark:from-babana-cyan dark:via-white dark:to-babana-cyan bg-clip-text text-transparent">
                   {translatedTutorial.title}
                 </h1>
                 
@@ -260,7 +260,7 @@ export default function TutorialDetailPage({ loaderData }: Route.ComponentProps)
                       {/* Step Number Badge */}
                       <div className="relative">
                         <div className={cn(
-                          "absolute top-6 left-6 w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg bg-gradient-to-br z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3",
+                          "absolute top-6 left-6 w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg bg-linear-to-br z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3",
                           translatedTutorial.color
                         )}>
                           {step.id}
@@ -268,7 +268,7 @@ export default function TutorialDetailPage({ loaderData }: Route.ComponentProps)
                         
                         {/* Gradient Line */}
                         <div className={cn(
-                          "absolute top-0 left-0 right-0 h-1 bg-gradient-to-r",
+                          "absolute top-0 left-0 right-0 h-1 bg-linear-to-r",
                           translatedTutorial.color
                         )} />
                     </div>

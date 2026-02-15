@@ -225,7 +225,7 @@ export function MobileNav({ links }: MobileNavProps) {
                           >
                             <div className="flex items-center gap-3">
                               <div className={cn(
-                                "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md",
+                                "w-10 h-10 rounded-xl bg-linear-to-br flex items-center justify-center shadow-md",
                                 config.icon
                               )}>
                                 <Wallet className="w-5 h-5 text-white" />

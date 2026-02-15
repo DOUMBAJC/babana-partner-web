@@ -133,8 +133,8 @@ export function PersonalInfoSection({
           
           {/* Premium Success Message */}
           {selectedCardType?.validation_pattern && !idCardValidationError && formData.idCardNumber && touchedFields.has('idCardNumber') && !errors.idCardNumber && (
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-2 border-green-500/30 p-3.5 animate-in fade-in slide-in-from-top-2 duration-300 shadow-md shadow-green-500/10">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent" />
+            <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-green-500/10 to-emerald-500/10 border-2 border-green-500/30 p-3.5 animate-in fade-in slide-in-from-top-2 duration-300 shadow-md shadow-green-500/10">
+              <div className="absolute inset-0 bg-linear-to-r from-green-500/5 to-transparent" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(34,197,94,0.1),transparent)]" />
               
               <div className="relative flex items-start gap-3">

@@ -22,7 +22,7 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
     <div className="mt-6 pt-6 border-t border-green-500/20">
       {/* Header */}
       <div className="flex items-center gap-2 mb-5">
-        <div className="p-2 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg">
+        <div className="p-2 bg-linear-to-br from-green-500/20 to-emerald-500/20 rounded-lg">
           <Info className="h-5 w-5 text-green-600 dark:text-green-400" />
         </div>
         <h5 className="font-bold text-green-700 dark:text-green-400 text-base">
@@ -42,11 +42,11 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
         </div>
         <div className="relative h-3 bg-background/50 rounded-full overflow-hidden border border-green-500/10">
           <div 
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full transition-all duration-500 ease-out shadow-lg shadow-green-500/30"
+            className="absolute inset-y-0 left-0 bg-linear-to-r from-green-500 to-emerald-600 rounded-full transition-all duration-500 ease-out shadow-lg shadow-green-500/30"
             style={{ width: `${progressPercentage}%` }}
           />
           <div 
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-white/30 to-transparent rounded-full transition-all duration-500 ease-out"
+            className="absolute inset-y-0 left-0 bg-linear-to-r from-white/30 to-transparent rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
@@ -55,8 +55,8 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Activations Count */}
-        <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 p-4 hover:border-blue-500/40 transition-all duration-300 hover:shadow-md hover:shadow-blue-500/10">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group relative overflow-hidden rounded-xl bg-linear-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 p-4 hover:border-blue-500/40 transition-all duration-300 hover:shadow-md hover:shadow-blue-500/10">
+          <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 bg-blue-500/20 rounded-md">
@@ -73,8 +73,8 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
         </div>
 
         {/* Remaining */}
-        <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 p-4 hover:border-amber-500/40 transition-all duration-300 hover:shadow-md hover:shadow-amber-500/10">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group relative overflow-hidden rounded-xl bg-linear-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 p-4 hover:border-amber-500/40 transition-all duration-300 hover:shadow-md hover:shadow-amber-500/10">
+          <div className="absolute inset-0 bg-linear-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 bg-amber-500/20 rounded-md">
@@ -91,8 +91,8 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
         </div>
 
         {/* Maximum */}
-        <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 p-4 hover:border-purple-500/40 transition-all duration-300 hover:shadow-md hover:shadow-purple-500/10">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group relative overflow-hidden rounded-xl bg-linear-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 p-4 hover:border-purple-500/40 transition-all duration-300 hover:shadow-md hover:shadow-purple-500/10">
+          <div className="absolute inset-0 bg-linear-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 bg-purple-500/20 rounded-md">
@@ -111,10 +111,10 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
         {/* Can Activate Status */}
         <div className={`group relative overflow-hidden rounded-xl p-4 transition-all duration-300 hover:shadow-md ${
           activationStatus.can_activate 
-            ? 'bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 hover:border-green-500/40 hover:shadow-green-500/10' 
-            : 'bg-gradient-to-br from-red-500/10 to-red-600/5 border border-red-500/20 hover:border-red-500/40 hover:shadow-red-500/10'
+            ? 'bg-linear-to-br from-green-500/10 to-green-600/5 border border-green-500/20 hover:border-green-500/40 hover:shadow-green-500/10' 
+            : 'bg-linear-to-br from-red-500/10 to-red-600/5 border border-red-500/20 hover:border-red-500/40 hover:shadow-red-500/10'
         }`}>
-          <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+          <div className={`absolute inset-0 bg-linear-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
             activationStatus.can_activate ? 'from-green-500/5' : 'from-red-500/5'
           } to-transparent`} />
           <div className="relative">
@@ -146,8 +146,8 @@ export function ActivationStatusCard({ activationStatus }: ActivationStatusCardP
 
       {/* Warning Message */}
       {!activationStatus.can_activate && (
-        <div className="mt-4 relative overflow-hidden rounded-xl bg-gradient-to-br from-red-500/10 to-red-600/5 border border-red-500/20 p-4 shadow-md shadow-red-500/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent" />
+        <div className="mt-4 relative overflow-hidden rounded-xl bg-linear-to-br from-red-500/10 to-red-600/5 border border-red-500/20 p-4 shadow-md shadow-red-500/5">
+          <div className="absolute inset-0 bg-linear-to-br from-red-500/5 to-transparent" />
           <div className="relative flex items-start gap-3">
             <div className="p-2 bg-red-500/20 rounded-lg shrink-0">
               <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />

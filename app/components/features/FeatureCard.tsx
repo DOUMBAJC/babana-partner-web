@@ -129,7 +129,7 @@ export function FeatureCard({
       <div 
         className={cn(
           "absolute -inset-[2px] rounded-2xl opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500",
-          "bg-gradient-to-r animate-border-shift bg-[length:200%_100%]",
+          "bg-linear-to-r animate-border-shift bg-[length:200%_100%]",
           colorInfo.gradient
         )}
         style={{
@@ -141,7 +141,7 @@ export function FeatureCard({
       <div 
         className={cn(
           "absolute -inset-1 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500",
-          `bg-gradient-to-r ${colorInfo.gradient}`
+          `bg-linear-to-r ${colorInfo.gradient}`
         )}
       />
 
@@ -234,7 +234,7 @@ export function FeatureCard({
             className={cn(
               "absolute bottom-0 left-0 right-0 h-1 transform scale-x-0 transition-transform duration-500 origin-left",
               "hidden md:block group-hover:scale-x-100",
-              `bg-gradient-to-r ${colorInfo.gradient}`
+              `bg-linear-to-r ${colorInfo.gradient}`
             )}
           />
         )}
@@ -244,7 +244,7 @@ export function FeatureCard({
           className={cn(
             "absolute top-0 right-0 w-16 h-16 transform translate-x-8 -translate-y-8",
             "opacity-0 group-hover:opacity-10 transition-opacity duration-500",
-            `bg-gradient-to-bl ${colorInfo.gradient} rounded-full blur-xl`
+            `bg-linear-to-bl ${colorInfo.gradient} rounded-full blur-xl`
           )}
         />
       </Card>

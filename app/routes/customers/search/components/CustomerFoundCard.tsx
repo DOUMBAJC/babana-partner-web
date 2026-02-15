@@ -26,9 +26,9 @@ export function CustomerFoundCard({
   return (
     <>
       {/* Main Card with Glassmorphism */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500/10 via-emerald-500/5 to-teal-500/10 border border-green-500/20 backdrop-blur-sm shadow-lg shadow-green-500/5">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-green-500/10 via-emerald-500/5 to-teal-500/10 border border-green-500/20 backdrop-blur-sm shadow-lg shadow-green-500/5">
         {/* Animated Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-400/5 via-transparent to-emerald-400/5 animate-pulse" style={{ animationDuration: '3s' }} />
+        <div className="absolute inset-0 bg-linear-to-br from-green-400/5 via-transparent to-emerald-400/5 animate-pulse" style={{ animationDuration: '3s' }} />
         
         {/* Content */}
         <div className="relative p-6 md:p-8 space-y-6">
@@ -37,7 +37,7 @@ export function CustomerFoundCard({
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-green-500/30 rounded-full blur-md animate-pulse" />
-                <div className="relative p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full text-white shadow-lg">
+                <div className="relative p-3 bg-linear-to-br from-green-500 to-emerald-600 rounded-full text-white shadow-lg">
                   <UserIcon className="h-6 w-6" />
                 </div>
               </div>
@@ -59,7 +59,7 @@ export function CustomerFoundCard({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Full Name */}
             <div className="group relative overflow-hidden rounded-xl bg-background/50 backdrop-blur-sm border border-green-500/10 p-4 hover:border-green-500/30 transition-all duration-300 hover:shadow-md hover:shadow-green-500/5">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-start gap-3">
                 <div className="p-2 bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300">
                   <UserIcon className="h-4 w-4" />
@@ -77,7 +77,7 @@ export function CustomerFoundCard({
 
             {/* Phone */}
             <div className="group relative overflow-hidden rounded-xl bg-background/50 backdrop-blur-sm border border-green-500/10 p-4 hover:border-green-500/30 transition-all duration-300 hover:shadow-md hover:shadow-green-500/5">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-start gap-3">
                 <div className="p-2 bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300">
                   <Phone className="h-4 w-4" />
@@ -95,7 +95,7 @@ export function CustomerFoundCard({
 
             {/* ID Card Type */}
             <div className="group relative overflow-hidden rounded-xl bg-background/50 backdrop-blur-sm border border-green-500/10 p-4 hover:border-green-500/30 transition-all duration-300 hover:shadow-md hover:shadow-green-500/5">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-start gap-3">
                 <div className="p-2 bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300">
                   <FileText className="h-4 w-4" />
@@ -113,7 +113,7 @@ export function CustomerFoundCard({
 
             {/* ID Card Number */}
             <div className="group relative overflow-hidden rounded-xl bg-background/50 backdrop-blur-sm border border-green-500/10 p-4 hover:border-green-500/30 transition-all duration-300 hover:shadow-md hover:shadow-green-500/5">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-start gap-3">
                 <div className="p-2 bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300">
                   <IdCard className="h-4 w-4" />
@@ -132,7 +132,7 @@ export function CustomerFoundCard({
             {/* Address (Full Width if present) */}
             {customer.address && (
               <div className="group relative overflow-hidden rounded-xl bg-background/50 backdrop-blur-sm border border-green-500/10 p-4 hover:border-green-500/30 transition-all duration-300 hover:shadow-md hover:shadow-green-500/5 md:col-span-2">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-start gap-3">
                   <div className="p-2 bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="h-4 w-4" />
@@ -171,7 +171,7 @@ export function CustomerFoundCard({
                 : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" style={{ clipPath: 'polygon(0 80%, 100% 60%, 100% 100%, 0% 100%)' }} />
             <CreditCard className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
             <span className="relative z-10 text-white">

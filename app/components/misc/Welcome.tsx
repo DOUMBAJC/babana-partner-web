@@ -121,7 +121,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         description: t.pages.tutorials.subtitle,
         icon: GraduationCap,
         href: "/tutorials",
-        color: "bg-gradient-to-br from-purple-500 to-pink-500",
+        color: "bg-linear-to-br from-purple-500 to-pink-500",
         permission: undefined as Permission | undefined,
       },
       {
@@ -129,7 +129,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         description: t.pages.support.description,
         icon: LifeBuoy,
         href: "/support",
-        color: "bg-gradient-to-br from-blue-500 to-cyan-500",
+        color: "bg-linear-to-br from-blue-500 to-cyan-500",
         permission: undefined as Permission | undefined,
       },
     ].filter(action => {
