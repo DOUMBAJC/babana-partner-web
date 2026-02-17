@@ -1,6 +1,5 @@
 import { createCookieSessionStorage, createCookie, redirect } from "react-router";
 
-// Use a secure secret from env or fallback for dev
 const sessionSecret = import.meta.env.SESSION_SECRET || "default-secret-change-me";
 
 export const sessionStorage = createCookieSessionStorage({
@@ -10,11 +9,10 @@ export const sessionStorage = createCookieSessionStorage({
     path: "/",
     sameSite: "lax",
     secrets: [sessionSecret],
-    secure: import.meta.env.PROD, // Secure only in production
+    secure: import.meta.env.PROD,
   },
 });
 
-// Cookie pour la langue (accessible côté client aussi)
 export const languageCookie = createCookie("babana-language", {
   path: "/",
   sameSite: "lax",
@@ -63,10 +61,8 @@ export async function logout(request: Request) {
  * Récupère la langue depuis le cookie ou le header Accept-Language
  */
 export async function getLanguage(request: Request): Promise<string> {
-  // D'abord, essayer de lire depuis le cookie (préférence utilisateur explicite)
   const cookieHeader = request.headers.get("Cookie");
   
-  // Lire manuellement le cookie car React Router parse() ne fonctionne pas bien avec les cookies simples
   let language: string | null = null;
   if (cookieHeader) {
     const match = cookieHeader.match(/(?:^|;\s*)babana-language=([^;]+)/);

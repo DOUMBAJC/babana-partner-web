@@ -1,7 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { getUserToken, logout, getLanguage, getAcceptLanguageHeader } from "./session.server";
+import { getUserToken, logout, getAcceptLanguageHeader } from "./session.server";
 import type { User } from "~/types/auth.types";
-import type { Role } from "~/types/auth.types";
 
 /**
  * Liste des endpoints publics qui n'ont pas besoin d'authentification
@@ -45,7 +44,6 @@ export const createApi = (options: CreateApiOptions = {}) => {
     },
   });
 
-  // Intercepteur pour ajouter le token uniquement aux endpoints protégés
   api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
       if (token && !isPublicEndpoint(config.url)) {
@@ -93,7 +91,7 @@ const userCache = new Map<string, { user: User | null, timestamp: number }>();
 const USER_CACHE_DURATION = 5000; // 5 secondes
 
 /**
- * Nettoie les entrées du cache expirées (appelé périodiquement)
+ * Nettoie les entrées du cache expirées 
  */
 const cleanUserCache = () => {
   const now = Date.now();
@@ -122,18 +120,18 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
   try {
     const api = await createAuthenticatedApi(request);
     const response = await api.get("/auth/user");
-    
+
     // L'API retourne { success: true, data: { user, roles, permissions } }
     const apiData = response.data;
-    
+
     let user: User | null = null;
-    
+
     // Fonction helper pour normaliser les rôles en slugs
     const normalizeRoles = (rolesInput: any): string[] => {
       if (!rolesInput) return [];
-      
+
       const rolesArray = Array.isArray(rolesInput) ? rolesInput : [rolesInput];
-      
+
       return rolesArray.map((role: any) => {
         if (!role) return '';
         if (typeof role === 'string') return role;
@@ -141,16 +139,16 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
         return '';
       }).filter(Boolean);
     };
-    
+
     // Si c'est un succès et qu'on a data.user
     if (apiData.success && apiData.data) {
       const { user: userData, roles, permissions } = apiData.data;
-      
+
       // Extraire les slugs des rôles (les rôles peuvent être des objets Role ou des strings)
       // Utiliser les rôles de data.roles en priorité, sinon userData.roles
       const rolesToNormalize = roles || userData?.roles || [];
       const roleSlugs = normalizeRoles(rolesToNormalize);
-      
+
       // Merger user avec roles transformés en slugs
       user = {
         ...userData,
@@ -176,12 +174,12 @@ export async function getCurrentUser(request: Request): Promise<User | null> {
       }
       userCache.set(token, { user, timestamp: Date.now() });
     }
-    
+
     return user;
   } catch (error: any) {
     console.error('Error getting current user:', error.message);
     // Ne pas mettre en cache les erreurs
-    return null; 
+    return null;
   }
 }
 

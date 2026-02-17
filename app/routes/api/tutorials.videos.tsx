@@ -13,22 +13,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const api = await createApiFromRequest(request);
     const url = new URL(request.url);
     const tutorialId = url.searchParams.get("tutorialId");
-
-    // Appel à l'API backend pour récupérer les liens des vidéos
-    // L'endpoint backend devrait retourner un objet comme :
-    // {
-    //   "getting-started": {
-    //     "main": "https://cdn.example.com/videos/signup.mp4",
-    //     "steps": {
-    //       "1": "https://cdn.example.com/videos/signup.mp4"
-    //     }
-    //   },
-    //   "sim-activation": {
-    //     "main": "https://cdn.example.com/videos/vente-sim.mp4"
-    //   },
-    //   ...
-    // }
-    
     const endpoint = tutorialId 
       ? `/tutorials/${tutorialId}/videos`
       : `/tutorials/videos`;

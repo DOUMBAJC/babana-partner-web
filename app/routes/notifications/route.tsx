@@ -1,8 +1,3 @@
-/**
- * Page de liste des notifications
- * Affiche toutes les notifications de l'utilisateur avec pagination
- */
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import {

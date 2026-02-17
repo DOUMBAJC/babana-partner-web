@@ -17,18 +17,14 @@ export async function action({ request }: ActionFunctionArgs) {
   const t = getTranslations(language);
 
   try {
-    // Le endpoint /support/tickets est accessible sans authentification
-    // On essaie d'obtenir l'API authentifiée si disponible, sinon on utilise l'API publique
     let api;
     try {
       api = await createAuthenticatedApi(request);
     } catch {
-      // Si l'utilisateur n'est pas authentifié, créer une API publique
       const { createApiFromRequest } = await import("~/services/api.server");
       api = await createApiFromRequest(request);
     }
     
-    // Vérifier si c'est FormData (avec fichiers) ou JSON
     const contentType = request.headers.get("content-type") || "";
     const isFormData = contentType.includes("multipart/form-data");
     
@@ -47,9 +43,6 @@ export async function action({ request }: ActionFunctionArgs) {
       message = formData.get("message") as string;
       priority = (formData.get("priority") as string) || "normal";
       
-      // Récupérer les fichiers d'attachement
-      // Laravel accepte les deux formats : attachments[] ou attachments[0], attachments[1], etc.
-      // Les deux formats fonctionnent avec la validation 'attachments.*'
       const attachmentEntries = Array.from(formData.entries())
         .filter(([key, value]) => {
           const keyStr = key.toString();
