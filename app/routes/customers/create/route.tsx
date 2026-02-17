@@ -6,7 +6,12 @@ import {
   ArrowLeft,
   CheckCircle,
   AlertTriangle,
-  UserCheck
+  UserCheck,
+  User,
+  MapPin,
+  CreditCard,
+  ArrowRight,
+  ChevronRight
 } from 'lucide-react';
 import {
   Card,
@@ -157,6 +162,7 @@ export default function CustomerCreatePage() {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'personal' | 'contact'>('personal');
 
   const {
     formData,
@@ -411,7 +417,7 @@ export default function CustomerCreatePage() {
               <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/60 to-transparent animate-shimmer" />
             </div>
 
-            <Form method="post" onSubmit={handleSubmit}>
+            <Form method="post" onSubmit={handleSubmit} className="relative">
               <input type="hidden" name="firstName" value={formData.firstName} />
               <input type="hidden" name="lastName" value={formData.lastName} />
               <input type="hidden" name="idCardTypeId" value={formData.idCardTypeId} />
@@ -420,69 +426,179 @@ export default function CustomerCreatePage() {
               <input type="hidden" name="email" value={formData.email} />
               <input type="hidden" name="address" value={formData.address} />
               
-              <div className="p-6 sm:p-8 md:p-10 space-y-10">
-                <PersonalInfoSection
-                  formData={formData}
-                  errors={errors}
-                  touchedFields={touchedFields}
-                  onFieldChange={updateField}
-                  onFieldBlur={touchField}
-                  onIdCardTypeChange={handleIdCardTypeChange}
-                  onIdCardNumberChange={handleIdCardNumberChange}
-                  idCardTypes={idCardTypes}
-                  idCardValidationError={idCardValidationError}
-                  selectedCardType={selectedCardType}
-                  t={t}
-                />
+              <div className="p-6 sm:p-8 md:p-10 space-y-8">
+                {/* Tabs Navigation */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8 relative">
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border/50 -z-10 hidden sm:block" />
+                  
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('personal')}
+                    className={`group relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 ${
+                      activeTab === 'personal'
+                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105 ring-2 ring-primary/20 ring-offset-2 ring-offset-background'
+                        : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-xl transition-colors ${activeTab === 'personal' ? 'bg-white/20' : 'bg-muted/50 group-hover:bg-muted'}`}>
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div className="text-left">
+                      <p className={`text-xs font-medium uppercase tracking-wider ${activeTab === 'personal' ? 'text-primary-foreground/80' : 'text-muted-foreground/70'}`}>Étape 1</p>
+                      <p className="font-bold text-sm">Informations</p>
+                    </div>
+                    {activeTab === 'personal' && (
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    )}
+                  </button>
 
-                <ContactInfoSection
-                  formData={formData}
-                  errors={errors}
-                  touchedFields={touchedFields}
-                  onFieldChange={updateField}
-                  onFieldBlur={touchField}
-                  t={t}
-                />
+                  <div className="flex items-center justify-center sm:hidden">
+                    <ChevronRight className="w-5 h-5 text-muted-foreground/50" />
+                  </div>
 
-                <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                       const hasBasicInfo = formData.lastName && formData.idCardTypeId && formData.idCardNumber && !idCardValidationError && formData.idCardNumber.length >= 5;
+                       if (hasBasicInfo) setActiveTab('contact');
+                       else {
+                          touchField('lastName');
+                          touchField('idCardTypeId');
+                          touchField('idCardNumber');
+                          if (!formData.idCardNumber || formData.idCardNumber.length < 5) touchField('idCardNumber');
+                          toast.error('Veuillez d\'abord compléter les informations personnelles');
+                       }
+                    }}
+                    className={`group relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 ${
+                      activeTab === 'contact'
+                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105 ring-2 ring-primary/20 ring-offset-2 ring-offset-background'
+                        : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-xl transition-colors ${activeTab === 'contact' ? 'bg-white/20' : 'bg-muted/50 group-hover:bg-muted'}`}>
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div className="text-left">
+                      <p className={`text-xs font-medium uppercase tracking-wider ${activeTab === 'contact' ? 'text-primary-foreground/80' : 'text-muted-foreground/70'}`}>Étape 2</p>
+                      <p className="font-bold text-sm">Contact</p>
+                    </div>
+                    {activeTab === 'contact' && (
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Content Area with Animation */}
+                <div className="relative min-h-[400px]">
+                  <div className={`transition-all duration-500 ease-in-out transform ${
+                    activeTab === 'personal' 
+                      ? 'opacity-100 translate-x-0 relative z-10' 
+                      : 'opacity-0 -translate-x-8 absolute top-0 left-0 w-full pointer-events-none'
+                  }`}>
+                    <PersonalInfoSection
+                      formData={formData}
+                      errors={errors}
+                      touchedFields={touchedFields}
+                      onFieldChange={updateField}
+                      onFieldBlur={touchField}
+                      onIdCardTypeChange={handleIdCardTypeChange}
+                      onIdCardNumberChange={handleIdCardNumberChange}
+                      idCardTypes={idCardTypes}
+                      idCardValidationError={idCardValidationError}
+                      selectedCardType={selectedCardType}
+                      t={t}
+                    />
+                  </div>
+
+                  <div className={`transition-all duration-500 ease-in-out transform ${
+                    activeTab === 'contact' 
+                      ? 'opacity-100 translate-x-0 relative z-10' 
+                      : 'opacity-0 translate-x-8 absolute top-0 left-0 w-full pointer-events-none'
+                  }`}>
+                    <ContactInfoSection
+                      formData={formData}
+                      errors={errors}
+                      touchedFields={touchedFields}
+                      onFieldChange={updateField}
+                      onFieldBlur={touchField}
+                      t={t}
+                    />
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-4">
                   <Button 
                     type="button" 
-                    variant="outline"
-                    onClick={() => navigate('/customers/search')}
-                    className="group h-12 sm:h-13 rounded-xl px-6 sm:px-8 border-2 hover:border-primary/50 bg-background/80 hover:bg-primary/5 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 font-semibold text-base backdrop-blur-sm"
+                    variant="ghost"
+                    onClick={() => {
+                      if (activeTab === 'contact') setActiveTab('personal');
+                      else navigate('/customers/search');
+                    }}
+                    className="h-12 px-6 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground font-medium transition-all duration-300"
                     disabled={loading}
                   >
-                    <span className="group-hover:scale-105 transition-transform duration-300">{t.customerCreate.cancel}</span>
+                    {activeTab === 'contact' ? (
+                      <>
+                        <ArrowLeft className="w-5 h-5 mr-2" />
+                        Précédent
+                      </>
+                    ) : (
+                      <span className="group-hover:translate-x-1 transition-transform">{t.customerCreate.cancel}</span>
+                    )}
                   </Button>
                   
-                  <Button 
-                    type="submit" 
-                    disabled={loading || !isFormReallyValid}
-                    className="group relative h-12 sm:h-13 rounded-xl px-8 sm:px-10 font-bold text-base overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-xl hover:shadow-2xl disabled:shadow-lg"
-                    style={{
-                      background: isFormReallyValid 
-                        ? 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 50%, #2A8FB5 100%)' 
-                        : 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.2),transparent)]" />
-                    
-                    <div className="relative z-10 flex items-center justify-center text-white">
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin mr-2.5" />
-                          <span className="font-bold">{t.customerCreate.saving}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Save className="w-5 h-5 mr-2.5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300" />
-                          <span className="font-bold">{t.customerCreate.save}</span>
-                        </>
-                      )}
-                    </div>
-                  </Button>
+                  {activeTab === 'personal' ? (
+                    <Button 
+                      type="button" 
+                      onClick={() => {
+                        const hasBasicInfo = formData.lastName && formData.idCardTypeId && formData.idCardNumber && !idCardValidationError && formData.idCardNumber.length >= 5;
+                        if (hasBasicInfo) {
+                           setActiveTab('contact');
+                           window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                           touchField('lastName');
+                           touchField('idCardTypeId');
+                           touchField('idCardNumber');
+                           if (!formData.idCardNumber || formData.idCardNumber.length < 5) touchField('idCardNumber');
+                           toast.error('Veuillez remplir les informations obligatoires');
+                        }
+                      }}
+                      className="group relative h-12 rounded-xl px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
+                    >
+                      Suivant
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      type="submit" 
+                      disabled={loading || !isFormReallyValid}
+                      className="group relative h-12 sm:h-13 rounded-xl px-8 sm:px-10 font-bold text-base overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-xl hover:shadow-2xl disabled:shadow-lg"
+                      style={{
+                        background: isFormReallyValid 
+                          ? 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 50%, #2A8FB5 100%)' 
+                          : 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.2),transparent)]" />
+                      
+                      <div className="relative z-10 flex items-center justify-center text-white">
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin mr-2.5" />
+                            <span className="font-bold">{t.customerCreate.saving}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-5 h-5 mr-2.5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300" />
+                            <span className="font-bold">{t.customerCreate.save}</span>
+                          </>
+                        )}
+                      </div>
+                    </Button>
+                  )}
                 </div>
               </div>
             </Form>
