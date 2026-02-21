@@ -18,17 +18,23 @@ interface BusinessAdvisorTableProps {
     rejected: number;
     pending: number;
     cancelled?: number;
+    rank?: number;
   }>;
 }
 
 export function BusinessAdvisorTable({ data }: BusinessAdvisorTableProps) {
-  const sortedData = [...data].sort((a, b) => b.total - a.total);
+  // Trier par nombre d'activations pour le classement, puis par total s'il y a égalité
+  const sortedData = [...data].sort((a, b) => {
+    if (b.activated !== a.activated) return b.activated - a.activated;
+    return b.total - a.total;
+  });
 
   return (
     <div className="rounded-lg border overflow-hidden overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
+            <TableHead className="text-xs sm:text-sm font-bold w-12 text-center">Rang</TableHead>
             <TableHead className="text-xs sm:text-sm font-bold">Conseiller</TableHead>
             <TableHead className="text-xs sm:text-sm font-bold text-center">Total</TableHead>
             <TableHead className="text-xs sm:text-sm font-bold text-center hidden sm:table-cell">Activées</TableHead>
@@ -41,18 +47,29 @@ export function BusinessAdvisorTable({ data }: BusinessAdvisorTableProps) {
         <TableBody>
           {sortedData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                 Aucune donnée disponible
               </TableCell>
             </TableRow>
           ) : (
             sortedData.map((ba) => {
+              const displayRank = ba.rank;
               const successRate = ba.total > 0 ? ((ba.activated / ba.total) * 100).toFixed(1) : "0";
-              const rejectionRate = ba.total > 0 ? ((ba.rejected / ba.total) * 100).toFixed(1) : "0";
               const isPositive = parseFloat(successRate) >= 70;
 
               return (
                 <TableRow key={ba.ba_id} className="hover:bg-muted/30 transition-colors">
+                  <TableCell className="text-center">
+                    {displayRank === 1 ? (
+                      <span className="text-xl">🥇</span>
+                    ) : displayRank === 2 ? (
+                      <span className="text-xl">🥈</span>
+                    ) : displayRank === 3 ? (
+                      <span className="text-xl">🥉</span>
+                    ) : (
+                      <span className="text-xs font-bold text-muted-foreground">#{displayRank}</span>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium text-xs sm:text-sm">
                     <div className="flex flex-col">
                       <span className="font-semibold">{ba.ba_name || "N/A"}</span>

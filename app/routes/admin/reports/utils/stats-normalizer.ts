@@ -127,6 +127,7 @@ export function normalizeStats(
         return time;
       })(),
       total_processed: stats?.performance?.total_processed ?? 0,
+      trend_success_rate: stats?.performance?.trend_success_rate,
     },
     by_ba: Array.isArray(stats?.by_ba)
       ? stats.by_ba.map((ba: any) => ({
@@ -137,6 +138,17 @@ export function normalizeStats(
           rejected: ba.rejected ?? 0,
           pending: ba.pending ?? 0,
           cancelled: ba.cancelled ?? 0,
+          rank: ba.rank,
+        }))
+      : [],
+    by_processor: Array.isArray(stats?.by_processor)
+      ? stats.by_processor.map((p: any) => ({
+          processor_id: p.processor_id ?? p.id ?? "",
+          processor_name: p.processor_name ?? p.name ?? "N/A",
+          processor_role: p.processor_role,
+          total: p.total ?? 0,
+          activated: p.activated ?? p.approved ?? 0,
+          rejected: p.rejected ?? 0,
         }))
       : [],
     generated_at: stats?.generated_at || new Date().toISOString(),
@@ -167,6 +179,7 @@ export function createDefaultStats(): ReportsStats {
       total_processed: 0,
     },
     by_ba: [],
+    by_processor: [],
     generated_at: new Date().toISOString(),
   };
 }

@@ -446,6 +446,10 @@ export interface Translations {
         title: string;
         description: string;
       };
+      adminReports: {
+        title: string;
+        description: string;
+      };
     };
     support: {
       title: string;
@@ -915,6 +919,94 @@ export interface Translations {
     activate: string;
     success: string;
     backToSearch: string;
+  };
+  reports: {
+    title: string;
+    subtitle: string;
+    tabs: {
+      overview: string;
+      performance: string;
+      analytics: string;
+      export: string;
+    };
+    filters: {
+      title: string;
+      active: string;
+      startDate: string;
+      endDate: string;
+      apply: string;
+      reset: string;
+    };
+    stats: {
+      total: string;
+      totalCard: string;
+      pending: string;
+      processing: string;
+      activated: string;
+      rejected: string;
+      cancelled: string;
+      trends: {
+        today: string;
+        thisWeek: string;
+        thisMonth: string;
+        thisMonthTotal: string;
+        notAvailable: string;
+      };
+    };
+    analytics: {
+      detailedAnalysis: string;
+      advancedMetrics: string;
+      conversionRate: string;
+      avgProcessingTime: string;
+      totalProcessed: string;
+      trendsTitle: string;
+      keyIndicators: string;
+      activatedRequests: string;
+      rejectedRequests: string;
+      percentOfTotal: string;
+    };
+    export: {
+      title: string;
+      description: string;
+      csv: string;
+      csvDesc: string;
+      excel: string;
+      excelDesc: string;
+      pdf: string;
+      pdfDesc: string;
+      exporting: string;
+      secretTitle: string;
+      secretTitleUnlocked: string;
+      secretDesc: string;
+      secretDescUnlocked: string;
+      secretPlaceholder: string;
+      unlock: string;
+      hint: string;
+      advancedFeatureNote: string;
+      secretExportInProgress: string;
+      messages: {
+        secretCodeValidated: string;
+        secretCodeIncorrect: string;
+        preparingSecretExport: string;
+        secretExportSuccess: string;
+        secretExportError: string;
+      };
+    };
+    actions: {
+      back: string;
+      refresh: string;
+      refreshing: string;
+    };
+    errors: {
+      accessDenied: string;
+      accessDeniedTitle: string;
+      errorTitle: string;
+    };
+    footer: {
+      lastUpdate: string;
+      totalRequests: string;
+      request: string;
+    };
   };
   // Activation Requests
   activationRequests: {
@@ -1747,6 +1839,10 @@ export const translations: Record<Language, Translations> = {
         activationRequests: {
           title: "Requêtes d'Activation - BABANA Partner",
           description: "Gérez et traitez les requêtes d'activation de cartes SIM",
+        },
+        adminReports: {
+          title: "Rapports et Statistiques - BABANA Partner",
+          description: "Analyse des performances et rapports détaillés du système",
         },
       },
       support: {
@@ -2604,6 +2700,94 @@ export const translations: Record<Language, Translations> = {
       },
       notFound: "Requête introuvable",
     },
+    reports: {
+      title: "Rapports et Statistiques",
+      subtitle: "Analysez les performances et générez des rapports détaillés",
+      tabs: {
+        overview: "Vue d'ensemble",
+        performance: "Performance",
+        analytics: "Analytique",
+        export: "Export",
+      },
+      filters: {
+        title: "Filtres de période",
+        active: "Filtres actifs",
+        startDate: "Date de début",
+        endDate: "Date de fin",
+        apply: "Appliquer",
+        reset: "Réinitialiser",
+      },
+      stats: {
+        total: "Total",
+        totalCard: "Total",
+        pending: "En attente",
+        processing: "En traitement",
+        activated: "Activées",
+        rejected: "Rejetées",
+        cancelled: "Annulées",
+        trends: {
+          today: "Aujourd'hui",
+          thisWeek: "Cette semaine",
+          thisMonth: "Ce mois",
+          thisMonthTotal: "Ce mois (total)",
+          notAvailable: "N/A",
+        },
+      },
+      analytics: {
+        detailedAnalysis: "Analyse détaillée",
+        advancedMetrics: "Métriques avancées et insights",
+        conversionRate: "Taux de conversion",
+        avgProcessingTime: "Temps moyen de traitement",
+        totalProcessed: "Total traité",
+        trendsTitle: "Tendances",
+        keyIndicators: "Évolution des indicateurs clés",
+        activatedRequests: "Requêtes activées",
+        rejectedRequests: "Requêtes rejetées",
+        percentOfTotal: "{percent}% du total",
+      },
+      export: {
+        title: "Exporter les données",
+        description: "Générez des rapports dans différents formats",
+        csv: "CSV",
+        csvDesc: "Exportez les données brutes au format CSV",
+        excel: "Excel",
+        excelDesc: "Générez un fichier Excel avec graphiques",
+        pdf: "PDF",
+        pdfDesc: "Créez un rapport PDF professionnel",
+        exporting: "Export en cours...",
+        secretTitle: "Exports Secrets",
+        secretTitleUnlocked: "Exports Secrets Débloqués",
+        secretDesc: "Entrez le code secret pour débloquer les exports avancés",
+        secretDescUnlocked: "🎉 Accès aux exports secrets activé !",
+        secretPlaceholder: "Entrez le code secret...",
+        unlock: "Débloquer",
+        hint: "💡 Indice : Le code est lié au nom de l'application...",
+        advancedFeatureNote: "Les exports secrets utilisent une fonctionnalité avancée du backend",
+        secretExportInProgress: "Export secret en cours...",
+        messages: {
+          secretCodeValidated: "🎉 Code secret validé ! Les boutons secrets sont maintenant disponibles.",
+          secretCodeIncorrect: "❌ Code incorrect. Essayez encore !",
+          preparingSecretExport: "Export secret {format} en cours de préparation...",
+          secretExportSuccess: "🎉 Export secret {format} téléchargé avec succès !",
+          secretExportError: "Erreur lors de l'export secret {format}: {error}",
+        },
+      },
+      actions: {
+        back: "Retour",
+        refresh: "Actualiser",
+        refreshing: "Actualisation...",
+      },
+      errors: {
+        accessDenied: "Vous n'avez pas les permissions nécessaires pour accéder à cette page.",
+        accessDeniedTitle: "Accès refusé",
+        errorTitle: "Erreur",
+      },
+      footer: {
+        lastUpdate: "Dernière mise à jour : {date}",
+        totalRequests: "{count} requête{plural} au total",
+        request: "requête",
+      },
+    },
     adminUsers: {
       breadcrumb: {
         admin: "Administration",
@@ -3454,6 +3638,10 @@ export const translations: Record<Language, Translations> = {
         activationRequests: {
           title: "Activation Requests - BABANA Partner",
           description: "Manage and process SIM card activation requests",
+        },
+        adminReports: {
+          title: "Reports and Statistics - BABANA Partner",
+          description: "Performance analysis and detailed system reports",
         },
       },
       support: {
@@ -4435,6 +4623,94 @@ export const translations: Record<Language, Translations> = {
         backHome: "Back to home",
       },
       notFound: "Request not found",
+    },
+    reports: {
+      title: "Reports and Statistics",
+      subtitle: "Analyze performance and generate detailed reports",
+      tabs: {
+        overview: "Overview",
+        performance: "Performance",
+        analytics: "Analytics",
+        export: "Export",
+      },
+      filters: {
+        title: "Period Filters",
+        active: "Active Filters",
+        startDate: "Start Date",
+        endDate: "End Date",
+        apply: "Apply",
+        reset: "Reset",
+      },
+      stats: {
+        total: "Total",
+        totalCard: "Total",
+        pending: "Pending",
+        processing: "Processing",
+        activated: "Activated",
+        rejected: "Rejected",
+        cancelled: "Cancelled",
+        trends: {
+          today: "Today",
+          thisWeek: "This week",
+          thisMonth: "This month",
+          thisMonthTotal: "This month (total)",
+          notAvailable: "N/A",
+        },
+      },
+      analytics: {
+        detailedAnalysis: "Detailed Analysis",
+        advancedMetrics: "Advanced metrics and insights",
+        conversionRate: "Conversion Rate",
+        avgProcessingTime: "Average Processing Time",
+        totalProcessed: "Total Processed",
+        trendsTitle: "Trends",
+        keyIndicators: "Evolution of key indicators",
+        activatedRequests: "Activated requests",
+        rejectedRequests: "Rejected requests",
+        percentOfTotal: "{percent}% of total",
+      },
+      export: {
+        title: "Export Data",
+        description: "Generate reports in different formats",
+        csv: "CSV",
+        csvDesc: "Export raw data in CSV format",
+        excel: "Excel",
+        excelDesc: "Generate an Excel file with charts",
+        pdf: "PDF",
+        pdfDesc: "Create a professional PDF report",
+        exporting: "Exporting...",
+        secretTitle: "Secret Exports",
+        secretTitleUnlocked: "Secret Exports Unlocked",
+        secretDesc: "Enter the secret code to unlock advanced exports",
+        secretDescUnlocked: "🎉 Secret export access activated!",
+        secretPlaceholder: "Enter secret code...",
+        unlock: "Unlock",
+        hint: "💡 Hint: The code is related to the app name...",
+        advancedFeatureNote: "Secret exports use an advanced backend feature",
+        secretExportInProgress: "Secret export in progress...",
+        messages: {
+          secretCodeValidated: "🎉 Secret code validated! Secret buttons are now available.",
+          secretCodeIncorrect: "❌ Incorrect code. Try again!",
+          preparingSecretExport: "Preparing secret {format} export...",
+          secretExportSuccess: "🎉 Secret {format} export downloaded successfully!",
+          secretExportError: "Error during secret {format} export: {error}",
+        },
+      },
+      actions: {
+        back: "Back",
+        refresh: "Refresh",
+        refreshing: "Refreshing...",
+      },
+      errors: {
+        accessDenied: "You do not have the necessary permissions to access this page.",
+        accessDeniedTitle: "Access Denied",
+        errorTitle: "Error",
+      },
+      footer: {
+        lastUpdate: "Last update: {date}",
+        totalRequests: "{count} total request{plural}",
+        request: "request",
+      },
     },
     adminUsers: {
       breadcrumb: {

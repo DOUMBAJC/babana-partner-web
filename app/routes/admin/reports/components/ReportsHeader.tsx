@@ -5,6 +5,7 @@
 import { useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { BarChart3, RefreshCcw, ArrowLeft, Sparkles } from "lucide-react";
+import { useTranslation } from "~/hooks";
 
 interface ReportsHeaderProps {
   isRefreshing: boolean;
@@ -16,6 +17,7 @@ export function ReportsHeader({
   onRefresh,
 }: ReportsHeaderProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -29,11 +31,11 @@ export function ReportsHeader({
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground wrap-break-word flex items-center gap-2">
-              Rapports et Statistiques
+              {t.reports.title}
               <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-amber-500 animate-pulse shrink-0" />
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground wrap-break-word">
-              Analysez les performances et générez des rapports détaillés
+              {t.reports.subtitle}
             </p>
           </div>
         </div>
@@ -47,7 +49,7 @@ export function ReportsHeader({
           className="text-xs sm:text-sm sm:size-default"
         >
           <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-          <span className="hidden sm:inline">Retour</span>
+          <span className="hidden sm:inline">{t.reports.actions.back}</span>
         </Button>
         <Button
           variant="default"
@@ -60,7 +62,7 @@ export function ReportsHeader({
             className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 ${isRefreshing ? "animate-spin" : ""}`}
           />
           <span className="hidden sm:inline">
-            {isRefreshing ? "Actualisation..." : "Actualiser"}
+            {isRefreshing ? t.reports.actions.refreshing : t.reports.actions.refresh}
           </span>
         </Button>
       </div>

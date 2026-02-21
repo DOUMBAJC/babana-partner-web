@@ -6,6 +6,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Badge } from "~/components/ui/badge";
 import { Filter, Calendar, X } from "lucide-react";
+import { useTranslation } from "~/hooks";
 
 interface ReportsFiltersProps {
   dateFrom: string | null;
@@ -15,6 +16,7 @@ interface ReportsFiltersProps {
 export function ReportsFilters({ dateFrom, dateTo }: ReportsFiltersProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   
   const [localDateFrom, setLocalDateFrom] = useState(dateFrom || "");
   const [localDateTo, setLocalDateTo] = useState(dateTo || "");
@@ -52,10 +54,10 @@ export function ReportsFilters({ dateFrom, dateTo }: ReportsFiltersProps) {
           <div className="p-2 rounded-lg bg-orange-500/10">
             <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
           </div>
-          <h3 className="text-sm sm:text-base font-semibold text-foreground">Filtres de période</h3>
+          <h3 className="text-sm sm:text-base font-semibold text-foreground">{t.reports.filters.title}</h3>
           {hasActiveFilters && (
             <Badge variant="outline" className="ml-auto text-xs">
-              Filtres actifs
+              {t.reports.filters.active}
             </Badge>
           )}
         </div>
@@ -64,7 +66,7 @@ export function ReportsFilters({ dateFrom, dateTo }: ReportsFiltersProps) {
           <div className="space-y-2">
             <Label htmlFor="dateFrom" className="text-xs sm:text-sm flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5" />
-              Date de début
+              {t.reports.filters.startDate}
             </Label>
             <Input
               id="dateFrom"
@@ -78,7 +80,7 @@ export function ReportsFilters({ dateFrom, dateTo }: ReportsFiltersProps) {
           <div className="space-y-2">
             <Label htmlFor="dateTo" className="text-xs sm:text-sm flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5" />
-              Date de fin
+              {t.reports.filters.endDate}
             </Label>
             <Input
               id="dateTo"
@@ -95,7 +97,7 @@ export function ReportsFilters({ dateFrom, dateTo }: ReportsFiltersProps) {
               onClick={handleApplyFilters}
               className="flex-1 bg-orange-500 hover:bg-orange-600 text-white h-9 sm:h-10 text-xs sm:text-sm"
             >
-              Appliquer
+              {t.reports.filters.apply}
             </Button>
           </div>
 
@@ -107,7 +109,7 @@ export function ReportsFilters({ dateFrom, dateTo }: ReportsFiltersProps) {
                 className="w-full border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 h-9 sm:h-10 text-xs sm:text-sm"
               >
                 <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                Réinitialiser
+                {t.reports.filters.reset}
               </Button>
             </div>
           )}

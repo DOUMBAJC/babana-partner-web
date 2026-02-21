@@ -32,6 +32,7 @@ export interface ReportsStats {
     success_rate: number;
     avg_processing_time_minutes: number | null;
     total_processed: number;
+    trend_success_rate?: 'up' | 'down' | 'stable';
   };
   by_ba: Array<{
     ba_id: string;
@@ -41,6 +42,15 @@ export interface ReportsStats {
     rejected: number;
     pending: number;
     cancelled: number;
+    rank?: number;
+  }>;
+  by_processor: Array<{
+    processor_id: string;
+    processor_name: string;
+    processor_role?: string;
+    total: number;
+    activated: number;
+    rejected: number;
   }>;
   generated_at: string;
 }

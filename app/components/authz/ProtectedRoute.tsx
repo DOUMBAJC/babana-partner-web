@@ -32,20 +32,6 @@ interface ProtectedRouteProps {
 
 /**
  * Composant pour protéger les routes basé sur l'authentification et les permissions
- *
- * @example
- * ```tsx
- * <ProtectedRoute permission="admin-access">
- *   <AdminDashboard />
- * </ProtectedRoute>
- * ```
- *
- * @example
- * ```tsx
- * <ProtectedRoute role={['admin', 'super_admin']} mode="any">
- *   <AdminPanel />
- * </ProtectedRoute>
- * ```
  */
 export function ProtectedRoute({
   children,

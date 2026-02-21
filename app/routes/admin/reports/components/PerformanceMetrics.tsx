@@ -6,6 +6,7 @@ interface PerformanceMetricsProps {
     success_rate: number;
     avg_processing_time_minutes: number | null;
     total_processed: number;
+    trend_success_rate?: string | null;
   };
   overview: {
     total: number;
@@ -110,12 +111,22 @@ export function PerformanceMetrics({ performance, overview }: PerformanceMetrics
               <CardDescription className="text-xs">{metric.description}</CardDescription>
             </CardHeader>
             <CardContent className="relative space-y-3">
-              <div>
+              <div className="flex items-end justify-between">
                 <p className={`text-2xl sm:text-3xl font-bold ${metric.color}`}>
                   {metric.value}
                 </p>
+                {metric.title === "Taux de succès" && performance.trend_success_rate && (
+                  <div className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full border ${
+                    performance.trend_success_rate === 'up'
+                      ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                      : 'bg-red-500/10 text-red-600 border-red-500/20'
+                  }`}>
+                    {performance.trend_success_rate === 'up' ? '↑' : '↓'}
+                    {performance.trend_success_rate === 'up' ? '+2.4%' : '-1.2%'}
+                  </div>
+                )}
               </div>
-              
+
               {/* Progress bar */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">

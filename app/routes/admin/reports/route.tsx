@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Route } from "./+types/route";
 import { Layout, ProtectedRoute, Toaster } from "~/components";
-import { usePageTitle } from "~/hooks";
+import { usePageTitle, useTranslation } from "~/hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components";
 import { Download, Activity, TrendingUp, PieChart } from "lucide-react";
 import {
@@ -17,14 +17,15 @@ import {
 } from "./components";
 import { useExport } from "./hooks/useExport";
 import { createDefaultStats } from "./utils/stats-normalizer";
-import type { ReportsLoaderData, ReportsStats } from "./types";
+import type { ReportsStats } from "./types";
 import { loader } from "./loaders";
 
 // Exporter le loader depuis loaders.ts
 export { loader };
 
 export default function ReportsPage({ loaderData }: Route.ComponentProps) {
-  usePageTitle("Rapports et Statistiques");
+  const { t } = useTranslation();
+  usePageTitle(t.reports.title);
 
   // Si loaderData n'est pas un LoaderData (c'est une Response ou une erreur d'export), ne pas rendre le composant
   if (!loaderData || typeof loaderData !== "object" || !("hasAccess" in loaderData)) {
@@ -44,14 +45,14 @@ export default function ReportsPage({ loaderData }: Route.ComponentProps) {
   if (!loaderData.hasAccess) {
     return (
       <AccessDenied
-        title="Accès refusé"
-        message={loaderData.error || "Vous n'avez pas les permissions nécessaires pour accéder à cette page."}
+        title={t.reports.errors.accessDeniedTitle}
+        message={loaderData.error || t.reports.errors.accessDenied}
       />
     );
   }
 
   if (loaderData.error && !loaderData.stats) {
-    return <AccessDenied title="Erreur" message={loaderData.error} />;
+    return <AccessDenied title={t.reports.errors.errorTitle} message={loaderData.error} />;
   }
 
   // Utiliser les stats normalisées ou des valeurs par défaut
@@ -74,30 +75,40 @@ export default function ReportsPage({ loaderData }: Route.ComponentProps) {
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as any)}
-            className="space-y-4 sm:space-y-6"
+            className="space-y-4 sm:space-y-8"
           >
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
-              <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 sm:py-3">
-                <Activity className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                <span className="hidden sm:inline">Vue d'ensemble</span>
-                <span className="sm:hidden">Vue</span>
-              </TabsTrigger>
-              <TabsTrigger value="performance" className="text-xs sm:text-sm py-2 sm:py-3">
-                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                <span className="hidden sm:inline">Performance</span>
-                <span className="sm:hidden">Perf</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-xs sm:text-sm py-2 sm:py-3">
-                <PieChart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                <span className="hidden sm:inline">Analytique</span>
-                <span className="sm:hidden">Anal</span>
-              </TabsTrigger>
-              <TabsTrigger value="export" className="text-xs sm:text-sm py-2 sm:py-3">
-                <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                <span className="hidden sm:inline">Export</span>
-                <span className="sm:hidden">Exp</span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-center sm:justify-start overflow-x-auto pb-2 sm:pb-0 scrollbar-none">
+              <TabsList className="flex w-fit bg-muted/40 backdrop-blur-sm p-1 gap-1 rounded-xl border border-border/50">
+                <TabsTrigger 
+                  value="overview" 
+                  className="rounded-lg px-4 py-2 text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=active]:ring-1 data-[state=active]:ring-orange-500/20"
+                >
+                  <Activity className="h-4 w-4 mr-2" />
+                  <span>{t.reports.tabs.overview}</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="performance" 
+                  className="rounded-lg px-4 py-2 text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=active]:ring-1 data-[state=active]:ring-orange-500/20"
+                >
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  <span>{t.reports.tabs.performance}</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analytics" 
+                  className="rounded-lg px-4 py-2 text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-orange-600 data-[state=active]:shadow-md data-[state=active]:ring-1 data-[state=active]:ring-orange-500/20"
+                >
+                  <PieChart className="h-4 w-4 mr-2" />
+                  <span>{t.reports.tabs.analytics}</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="export" 
+                  className="rounded-lg px-4 py-2 text-xs sm:text-sm transition-all duration-300 data-[state=active]:bg-background data-[state=active]:text-orange-500 data-[state=active]:shadow-md data-[state=active]:ring-1 data-[state=active]:ring-orange-500/20"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  <span>{t.reports.tabs.export}</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="overview" className="space-y-4 sm:space-y-6">
               <OverviewTab stats={stats} />
