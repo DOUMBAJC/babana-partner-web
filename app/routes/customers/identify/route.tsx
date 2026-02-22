@@ -208,7 +208,10 @@ export default function CustomerIdentifyPage() {
         setSuccessMessage(t.identifications.messages.submittedSubtitle);
         setErrorMessage('');
         setTimeout(() => {
-          navigate('/customers/search');
+          navigate(`/sales/activation?customerId=${actionData.customer?.id}`,{
+            state: { customer: actionData.customer
+          }
+        });
         }, 3000);
       } else if (actionData.error) {
         setErrorMessage(actionData.error);
