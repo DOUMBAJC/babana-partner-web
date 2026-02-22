@@ -798,6 +798,8 @@ export interface Translations {
     searching: string;
     accessDenied: {
       title: string;
+      message: string;
+      backHome: string;
     };
     results: {
       notFound: string;
@@ -840,6 +842,16 @@ export interface Translations {
     subtitle: string;
     personalInfo: string;
     contactInfo: string;
+    steps: {
+      personal: {
+        label: string;
+        title: string;
+      };
+      contact: {
+        label: string;
+        title: string;
+      };
+    };
     fields: {
       firstName: string;
       lastName: string;
@@ -865,12 +877,30 @@ export interface Translations {
       invalidName: string;
       minLength: string;
       maxLength: string;
+      personalRequired: string;
+      contactRequired: string;
+      duplicate: string;
+      activateThisCustomer: string;
     };
   };
   // Customer Identify
   customerIdentify: {
     title: string;
     subtitle: string;
+    steps: {
+      personal: {
+        label: string;
+        title: string;
+      };
+      contact: {
+        label: string;
+        title: string;
+      };
+      documents: {
+        label: string;
+        title: string;
+      };
+    };
     documents: {
       title: string;
       description: string;
@@ -886,10 +916,25 @@ export interface Translations {
       remove: string;
       dragDrop: string;
       fileType: string;
+      optional: string;
     };
     success: string;
     submit: string;
     submitting: string;
+    validation: {
+      personalRequired: string;
+      contactRequired: string;
+      documentsRequired: string;
+      formError: string;
+    };
+  };
+  // Customer Update
+  customerUpdate: {
+    title: string;
+    subtitle: string;
+    success: string;
+    updating: string;
+    submit: string;
   };
   // SIM Activation
   simActivation: {
@@ -2440,6 +2485,8 @@ export const translations: Record<Language, Translations> = {
       searching: "Recherche en cours...",
       accessDenied: {
         title: "Accès Refusé",
+        message: "Vous n'avez pas les permissions nécessaires pour accéder à la recherche de clients.",
+        backHome: "Retour à l'accueil",
       },
       results: {
         notFound: "Client non trouvé",
@@ -2481,6 +2528,16 @@ export const translations: Record<Language, Translations> = {
       subtitle: "Enregistrez un nouveau client pour effectuer des opérations.",
       personalInfo: "Informations Personnelles",
       contactInfo: "Coordonnées",
+      steps: {
+        personal: {
+          label: "Étape 1",
+          title: "Informations",
+        },
+        contact: {
+          label: "Étape 2",
+          title: "Contact",
+        },
+      },
       fields: {
         firstName: "Prénom",
         lastName: "Nom",
@@ -2506,11 +2563,29 @@ export const translations: Record<Language, Translations> = {
         invalidName: "Le nom doit contenir au moins 2 caractères (lettres uniquement)",
         minLength: "Minimum {min} caractères requis",
         maxLength: "Maximum {max} caractères autorisés",
+        personalRequired: "Veuillez remplir les informations obligatoires",
+        contactRequired: "Veuillez remplir les informations de contact",
+        duplicate: "Souhaitez-vous l'activer ?",
+        activateThisCustomer: "Activer ce client",
       },
     },
     customerIdentify: {
       title: "Identification Client",
       subtitle: "Remplissez le formulaire et ajoutez les documents requis pour identifier le client.",
+      steps: {
+        personal: {
+          label: "Étape 1",
+          title: "Informations",
+        },
+        contact: {
+          label: "Étape 2",
+          title: "Contact",
+        },
+        documents: {
+          label: "Étape 3",
+          title: "Documents",
+        },
+      },
       documents: {
         title: "Documents & Photos",
         description: "Veuillez fournir les documents d'identification et photos requis.",
@@ -2526,10 +2601,24 @@ export const translations: Record<Language, Translations> = {
         remove: "Supprimer",
         dragDrop: "Cliquez ou glissez une image",
         fileType: "JPG, PNG, GIF (max. 5MB)",
+        optional: "Les documents sont optionnels pour la mise à jour",
       },
       success: "Demande d'identification soumise avec succès",
       submit: "Soumettre la demande",
       submitting: "Envoi en cours...",
+      validation: {
+        personalRequired: "Veuillez remplir les informations obligatoires",
+        contactRequired: "Veuillez remplir les informations de contact",
+        documentsRequired: "Veuillez ajouter tous les documents requis",
+        formError: "Veuillez corriger les erreurs avant de soumettre.",
+      },
+    },
+    customerUpdate: {
+      title: "Mise à jour du client",
+      subtitle: "Modifiez les informations du client",
+      success: "Client mis à jour avec succès",
+      updating: "Mise à jour...",
+      submit: "Mettre à jour",
     },
     simActivation: {
       title: "Activation SIM",
@@ -4364,6 +4453,8 @@ export const translations: Record<Language, Translations> = {
       searching: "Searching...",
       accessDenied: {
         title: "Access Denied",
+        message: "You do not have the necessary permissions to access customer search.",
+        backHome: "Back to Home",
       },
       results: {
         notFound: "Customer Not Found",
@@ -4405,6 +4496,16 @@ export const translations: Record<Language, Translations> = {
       subtitle: "Register a new customer to perform operations.",
       personalInfo: "Personal Information",
       contactInfo: "Contact Details",
+      steps: {
+        personal: {
+          label: "Step 1",
+          title: "Information",
+        },
+        contact: {
+          label: "Step 2",
+          title: "Contact",
+        },
+      },
       fields: {
         firstName: "First Name",
         lastName: "Last Name",
@@ -4430,11 +4531,29 @@ export const translations: Record<Language, Translations> = {
         invalidName: "Name must contain at least 2 characters (letters only)",
         minLength: "Minimum {min} characters required",
         maxLength: "Maximum {max} characters allowed",
+        personalRequired: "Please fill in the required information",
+        contactRequired: "Please fill in the contact information",
+        duplicate: "Would you like to activate them?",
+        activateThisCustomer: "Activate this customer",
       },
     },
     customerIdentify: {
       title: "Customer Identification",
       subtitle: "Complete the form and upload required documents to identify the customer.",
+      steps: {
+        personal: {
+          label: "Step 1",
+          title: "Information",
+        },
+        contact: {
+          label: "Step 2",
+          title: "Contact",
+        },
+        documents: {
+          label: "Step 3",
+          title: "Documents",
+        },
+      },
       documents: {
         title: "Documents & Photos",
         description: "Please provide the required identification documents and photos.",
@@ -4450,10 +4569,24 @@ export const translations: Record<Language, Translations> = {
         remove: "Remove",
         dragDrop: "Click or drag an image",
         fileType: "JPG, PNG, GIF (max. 5MB)",
+        optional: "Documents are optional for update",
       },
       success: "Identification request submitted successfully!",
       submit: "Submit Request",
       submitting: "Submitting...",
+      validation: {
+        personalRequired: "Please fill in the required information",
+        contactRequired: "Please fill in the contact information",
+        documentsRequired: "Please add all required documents",
+        formError: "Please correct the errors before submitting.",
+      },
+    },
+    customerUpdate: {
+      title: "Customer Update",
+      subtitle: "Modify customer information",
+      success: "Customer updated successfully",
+      updating: "Updating...",
+      submit: "Update",
     },
     simActivation: {
       title: "SIM Activation",

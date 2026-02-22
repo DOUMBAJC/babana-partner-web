@@ -16,10 +16,8 @@ export function useScrolled(threshold: number = 10): boolean {
       }
     };
 
-    // Vérifier l'état initial
     handleScroll();
 
-    // Ajouter l'écouteur d'événement
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     // Nettoyer

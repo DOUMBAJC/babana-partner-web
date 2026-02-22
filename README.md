@@ -2,11 +2,9 @@
 
 **Plateforme partenaire BABANA ETS DAIROU**
 
-Version simplifiée pour apprendre React Router pas à pas.
-
 ## 📖 À Propos
 
-Ce projet est configuré avec React Router 7, Tailwind CSS et TypeScript. Il est volontairement simple pour faciliter l'apprentissage.
+Ce projet est configuré avec React Router 7, Tailwind CSS et TypeScript.
 
 ## ✨ Ce qui est inclus
 
@@ -34,7 +32,6 @@ cp .env.example .env
 npm run dev
 ```
 
-
 ## 🛠 Technologies
 
 - **React 19** : Library UI moderne
@@ -52,9 +49,9 @@ npm run dev
 
 ```
 app/
-├── root.tsx                  # Layout principal avec Providers
-├── routes.ts                 # Configuration des routes
-├── app.css                   # Styles globaux + variables Tailwind
+├── root.tsx         # Layout principal avec Providers
+├── routes.ts        # Configuration des routes
+├── app.css          # Styles globaux + variables Tailwind
 ├── routes/
 │   └── home.tsx              # Page d'accueil (/)
 ├── components/
@@ -96,7 +93,7 @@ Ces couleurs sont utilisées dans le CSS via les classes Tailwind :
 
 ### 🌍 Système de Traductions Complet
 
-Le système de traductions permet d'afficher votre application en français et en anglais automatiquement.
+Le système de traductions permet d'afficher l'application en français et en anglais automatiquement.
 
 ```tsx
 import { useTranslation } from '~/hooks';
@@ -107,6 +104,7 @@ function MyComponent() {
   return (
     <div>
       <h1>{t.nav.home}</h1>
+      <h2>{{language === 'fr' ? 'Bonjour' : 'Hallo' }} !</h2>
       <button>{t.actions.save}</button>
       <p>{t.common.loading}</p>
     </div>
@@ -116,7 +114,7 @@ function MyComponent() {
 
 ### 🎨 Composants shadcn/ui
 
-Plus de 20 composants UI prêts à l'emploi :
+Plus de 40 composants UI prêts à l'emploi :
 
 ```tsx
 import { Button, Card, Dialog, Input, Select } from '~/components';
@@ -130,8 +128,6 @@ import { Button, Card, Dialog, Input, Select } from '~/components';
 </Card>
 ```
 
-Voir [SHADCN_GUIDE.md](./SHADCN_GUIDE.md) pour la liste complète.
-
 ## 📝 Commandes
 
 ```bash
@@ -143,10 +139,9 @@ npm run typecheck   # Vérifier les types TypeScript
 ## 🚀 Démarrage
 
 1. **Configurer l'API** : Éditer `.env` avec l'URL de votre API
-2. **Lire la documentation** : Consulter les guides dans le dossier racine
-3. **Créer des services** : Ajouter vos services API dans `app/lib/`
-4. **Créer des pages** : Ajouter de nouvelles routes dans `app/routes/`
-5. **Personnaliser** : Adapter les composants à vos besoins
+2. **Créer des services** : Ajouter vos services API dans `app/lib/`
+3. **Créer des pages** : Ajouter de nouvelles routes dans `app/routes/`
+4. **Personnaliser** : Adapter les composants à vos besoins
 
 ## 📚 Ressources
 

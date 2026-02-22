@@ -12,19 +12,24 @@ interface ValidationMessages {
   maxLength: string;
 }
 
+export interface CustomerFormOptions {
+  requiredFiles?: boolean;
+}
+
 export function useCustomerForm(
   initialData: CustomerIdentifyFormData,
   validationMessages: ValidationMessages,
-  idCardTypes?: IdCardType[]
+  idCardTypes?: IdCardType[],
+  options: CustomerFormOptions = { requiredFiles: true }
 ) {
   const [formData, setFormData] = useState<CustomerIdentifyFormData>(initialData);
   const [errors, setErrors] = useState<CustomerIdentifyFormErrors>({});
   const [touchedFields, setTouchedFields] = useState<Set<keyof CustomerIdentifyFormData>>(new Set());
 
   const validateField = (field: keyof CustomerIdentifyFormData, value: any): string | undefined => {
-    // Champs de fichier requis
-    if (['idCardFront', 'idCardBack', 'portraitPhoto', 'locationPlan'].includes(field)) {
-       if (!value) return validationMessages.required;
+    // Champs de fichier requis si l'option est activée
+    if (['id_card_front', 'id_card_back', 'portrait_photo', 'location_plan'].includes(field)) {
+       if (options.requiredFiles && !value) return validationMessages.required;
        return undefined;
     }
 
@@ -120,17 +125,23 @@ export function useCustomerForm(
     setTouchedFields(new Set());
   };
 
-  const isFormValid = (): boolean => {
-    return Object.values(errors).every(error => !error) && 
+  const isFormValidInternal = (): boolean => {
+    const baseValid = Object.values(errors).every(error => !error) && 
            formData.lastName.trim() !== '' &&
            formData.idCardTypeId !== '' &&
            formData.idCardNumber.trim() !== '' &&
            formData.phone.trim() !== '' &&
-           formData.address.trim() !== '' &&
-           formData.id_card_front !== null &&
-           formData.id_card_back !== null &&
-           formData.portrait_photo !== null &&
-           formData.location_plan !== null;
+           formData.address.trim() !== '';
+
+    if (options.requiredFiles) {
+      return baseValid &&
+             formData.id_card_front !== null &&
+             formData.id_card_back !== null &&
+             formData.portrait_photo !== null &&
+             formData.location_plan !== null;
+    }
+
+    return baseValid;
   };
 
   return {
@@ -142,6 +153,6 @@ export function useCustomerForm(
     touchField,
     validateForm,
     resetForm,
-    isFormValid: isFormValid()
+    isFormValid: isFormValidInternal()
   };
 }

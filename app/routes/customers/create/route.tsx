@@ -8,10 +8,7 @@ import {
   AlertTriangle,
   UserCheck,
   User,
-  MapPin,
-  CreditCard,
-  ArrowRight,
-  ChevronRight
+  MapPin
 } from 'lucide-react';
 import {
   Card,
@@ -36,6 +33,13 @@ import {
   PersonalInfoSection,
   ContactInfoSection
 } from './components';
+
+import { 
+  useStepNavigation, 
+  StepIndicator, 
+  FormFooter, 
+  type StepDefinition 
+} from '~/components/forms/wizard';
 
 // --- LOADER ---
 export async function loader({ request }: Route.LoaderArgs) {
@@ -162,7 +166,6 @@ export default function CustomerCreatePage() {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'personal' | 'contact'>('personal');
 
   const {
     formData,
@@ -175,112 +178,103 @@ export default function CustomerCreatePage() {
     isFormValid
   } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
 
+  type StepId = 'personal' | 'contact';
+  const stepsList: StepId[] = ['personal', 'contact'];
+  const { activeStep, setActiveStep, nextStep, prevStep, isFirstStep, isLastStep } = useStepNavigation(stepsList);
+
   const selectedCardType = idCardTypes.find(
     (type: IdCardType) => type.id.toString() === formData.idCardTypeId
   );
 
-  const { 
-    validationError: idCardValidationError, 
-    validateIdCardNumber, 
-    setValidationError: setIdCardValidationError 
-  } = useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
+  const { validationError: idCardValidationError, validateIdCardNumber, setValidationError: setIdCardValidationError } = 
+    useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
 
   useEffect(() => {
     if (actionData) {
       setLoading(false);
-      
       if (actionData.success && actionData.customer) {
         toast.success(t.customerCreate.success);
         setSuccessMessage(t.customerCreate.success);
         setErrorMessage('');
-        
         const timeoutId = setTimeout(() => {
           navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
-            state: {
-              customer: actionData.customer
-            }
+            state: { customer: actionData.customer }
           });
         }, 1500);
-        
         return () => clearTimeout(timeoutId);
       } else if (actionData.error) {
         const errorType = (actionData as any).errorType;
-        
         if (errorType === 'duplicate' && (actionData as any).existingCustomer) {
           const existingCustomer = (actionData as any).existingCustomer;
-          const errorMsg = `${actionData.error} - Client: ${existingCustomer.full_name}. Souhaitez-vous l'activer ?`;
-          toast.error(errorMsg);
-          setErrorMessage(errorMsg);
-        } 
-        else if (errorType === 'validation' && (actionData as any).validationErrors) {
-          const validationErrors = (actionData as any).validationErrors;
-          const errorMessages = Object.entries(validationErrors)
-            .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
-            .join(' | ');
-          const errorMsg = `${actionData.error}: ${errorMessages}`;
-          toast.error(errorMsg);
-          setErrorMessage(errorMsg);
-        }
-        else if (errorType === 'authentication') {
-          toast.error(actionData.error);
-          setErrorMessage(actionData.error);
-          navigate('/login');
-        }
-        else {
-          toast.error(actionData.error);
+          setErrorMessage(`${actionData.error} - Client: ${existingCustomer.full_name}. ${t.customerCreate.validation.duplicate}`);
+        } else {
           setErrorMessage(actionData.error);
         }
-        
+        toast.error(actionData.error);
         setSuccessMessage('');
       }
     }
   }, [actionData, navigate, t.customerCreate.success]);
 
-  // Gérer le changement du type de carte
   const handleIdCardTypeChange = (value: string) => {
     updateField('idCardTypeId', value);
-    
-    // Revalider le numéro de carte si déjà rempli
     if (formData.idCardNumber) {
       setTimeout(() => {
-        const newCardType = idCardTypes.find(
-          (type: IdCardType) => type.id.toString() === value
-        );
-        if (newCardType?.validation_pattern) {
-          validateIdCardNumber(formData.idCardNumber);
-        } else {
-          setIdCardValidationError('');
-        }
+        const newCardType = idCardTypes.find((type: IdCardType) => type.id.toString() === value);
+        if (newCardType?.validation_pattern) validateIdCardNumber(formData.idCardNumber);
+        else setIdCardValidationError('');
       }, 100);
     }
   };
 
-  // Gérer le changement du numéro de carte
   const handleIdCardNumberChange = (value: string) => {
     updateField('idCardNumber', value);
-    
-    if (value.length > 0) {
-      validateIdCardNumber(value);
-    } else {
-      setIdCardValidationError('');
-    }
+    if (value.length > 0) validateIdCardNumber(value);
+    else setIdCardValidationError('');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    // La validation côté client avant soumission
     if (!validateForm() || idCardValidationError) {
       e.preventDefault();
       setErrorMessage(t.customerCreate.errors.createFailed);
       return;
     }
-    
     setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
   };
 
-  // Vérifier si le formulaire est vraiment valide (tous les champs + pas d'erreur de validation carte)
-  const isFormReallyValid = isFormValid && !idCardValidationError && formData.idCardNumber.length >= 5;
+  const isPersonalValid = !!(formData.lastName && formData.idCardTypeId && formData.idCardNumber && !idCardValidationError && formData.idCardNumber.length >= 5 && !errors.lastName && !errors.idCardNumber);
+  const isContactValid = !!(formData.phone && formData.address && formData.address.length >= 3 && !errors.phone && !errors.address);
+  const isFormReallyValid = !!(isFormValid && !idCardValidationError && formData.idCardNumber.length >= 5);
+
+  const stepDefinitions: StepDefinition<StepId>[] = [
+    {
+      id: 'personal',
+      label: t.customerCreate.steps.personal.label,
+      title: t.customerCreate.steps.personal.title,
+      icon: User,
+      isValid: isPersonalValid,
+      validationErrorMsg: t.customerCreate.validation.personalRequired,
+      touchFields: () => {
+        touchField('lastName');
+        touchField('idCardTypeId');
+        touchField('idCardNumber');
+      }
+    },
+    {
+      id: 'contact',
+      label: t.customerCreate.steps.contact.label,
+      title: t.customerCreate.steps.contact.title,
+      icon: MapPin,
+      isValid: isContactValid,
+      validationErrorMsg: t.customerCreate.validation.contactRequired,
+      touchFields: () => {
+        touchField('phone');
+        touchField('address');
+      }
+    }
+  ];
 
   return (
     <Layout>
@@ -290,63 +284,32 @@ export default function CustomerCreatePage() {
           <div className="absolute -top-[25%] -right-[15%] w-[60%] h-[60%] bg-linear-to-br from-primary/25 via-purple-500/20 to-pink-500/15 blur-[140px] rounded-full mix-blend-screen opacity-60 animate-pulse" style={{ animationDuration: '8s' }} />
           <div className="absolute top-[35%] -left-[15%] w-[50%] h-[50%] bg-linear-to-br from-secondary/25 via-blue-500/20 to-cyan-500/15 blur-[120px] rounded-full mix-blend-screen opacity-50 animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
           <div className="absolute bottom-[5%] right-[15%] w-[40%] h-[40%] bg-linear-to-br from-emerald-500/20 via-teal-500/15 to-green-500/10 blur-[100px] rounded-full mix-blend-screen opacity-40 animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
-          <div className="absolute top-[60%] right-[40%] w-[25%] h-[25%] bg-linear-to-br from-violet-500/15 to-fuchsia-500/10 blur-[80px] rounded-full mix-blend-screen opacity-30 animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size[4rem_4rem] mask[radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
         </div>
 
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="mb-6 sm:mb-8 animate-in fade-in slide-in-from-left-4 duration-500">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="group pl-0 hover:bg-primary/5 rounded-lg px-3 py-2 -ml-3 transition-all duration-300 hover:shadow-sm"
-              disabled={loading}
-            >
+            <Button variant="ghost" onClick={() => navigate('/')} className="group pl-0 hover:bg-primary/5 rounded-lg px-3 py-2 -ml-3 transition-all duration-300 hover:shadow-sm" disabled={loading}>
               <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
               <span className="font-semibold">{t.customerCreate.cancel}</span>
             </Button>
           </div>
 
           <div className="text-center mb-10 sm:mb-12 space-y-5 animate-in fade-in slide-in-from-top-6 duration-700">
-            <div className="relative inline-block">
-              <div className="absolute inset-0 bg-linear-to-r from-primary/40 via-purple-500/40 to-pink-500/30 blur-3xl opacity-60 animate-pulse" style={{ animationDuration: '4s' }} />
-              <div className="absolute inset-0 bg-linear-to-r from-primary/30 to-purple-500/30 blur-2xl opacity-50" />
-              
-              <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-black tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary via-purple-500 to-primary animate-gradient bg-size-[200%_auto]">
-                {t.customerCreate.title}
-              </h1>
-            </div>
-            
+            <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-black tracking-tight bg-clip-text text-transparent bg-linear-to-r from-primary via-purple-500 to-primary animate-gradient bg-size-[200%_auto]">
+              {t.customerCreate.title}
+            </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground/90 max-w-2xl mx-auto leading-relaxed font-medium px-4">
               {t.customerCreate.subtitle}
             </p>
-            
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <div className="h-1 w-12 bg-linear-to-r from-transparent via-primary/50 to-transparent rounded-full" />
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse" />
-              <div className="h-1 w-12 bg-linear-to-r from-transparent via-purple-500/50 to-transparent rounded-full" />
-            </div>
           </div>
 
           {successMessage && (
             <div className="mb-6 sm:mb-8 relative overflow-hidden rounded-2xl bg-linear-to-br from-green-500/10 via-emerald-500/5 to-teal-500/10 border-2 border-green-500/30 backdrop-blur-xl shadow-2xl shadow-green-500/10 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="absolute inset-0 bg-linear-to-br from-green-400/10 via-emerald-400/5 to-transparent" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(34,197,94,0.1),transparent)]" />
-              
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
-              
               <div className="relative p-6 flex items-start gap-4">
-                <div className="relative shrink-0">
-                  <div className="absolute inset-0 bg-green-500/40 rounded-full blur-xl animate-pulse" style={{ animationDuration: '2s' }} />
-                  <div className="absolute inset-0 bg-green-400/30 rounded-full blur-md" />
-                  
-                  <div className="relative p-3 bg-linear-to-br from-green-500 via-emerald-500 to-green-600 rounded-xl shadow-lg shadow-green-500/50">
-                    <CheckCircle className="h-7 w-7 text-white" strokeWidth={2.5} />
-                  </div>
-                </div>
-                
+                <CheckCircle className="h-7 w-7 text-green-500" />
                 <div className="flex-1 pt-1">
-                  <p className="font-bold text-green-700 dark:text-green-300 text-lg mb-1.5">Succès !</p>
+                  <p className="font-bold text-green-700 dark:text-green-300 text-lg mb-1.5">{t.common.success} !</p>
                   <p className="text-green-600 dark:text-green-400/90 text-sm leading-relaxed font-medium">{successMessage}</p>
                 </div>
               </div>
@@ -355,67 +318,27 @@ export default function CustomerCreatePage() {
 
           {errorMessage && (
             <div className="mb-6 sm:mb-8 relative overflow-hidden rounded-2xl bg-linear-to-br from-red-500/10 via-red-600/5 to-rose-500/10 border-2 border-red-500/30 backdrop-blur-xl shadow-2xl shadow-red-500/10 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="absolute inset-0 bg-linear-to-br from-red-400/10 via-rose-400/5 to-transparent" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(239,68,68,0.1),transparent)]" />
-              
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
-              
-              <div className="relative p-6">
-                <div className="flex items-start gap-4">
-                  <div className="relative shrink-0">
-                    <div className="absolute inset-0 bg-red-500/40 rounded-full blur-xl" />
-                    <div className="absolute inset-0 bg-red-400/30 rounded-full blur-md" />
-                    
-                    <div className="relative p-3 bg-linear-to-br from-red-500 via-rose-500 to-red-600 rounded-xl shadow-lg shadow-red-500/50">
-                      <AlertTriangle className="h-7 w-7 text-white" strokeWidth={2.5} />
+              <div className="relative p-6 flex items-start gap-4">
+                <AlertTriangle className="h-7 w-7 text-red-500" />
+                <div className="flex-1 pt-1">
+                  <h4 className="font-bold text-red-700 dark:text-red-300 mb-2 text-lg">{t.common.error}</h4>
+                  <p className="text-red-600 dark:text-red-400/90 text-sm leading-relaxed font-medium">{errorMessage}</p>
+                  {(actionData as any)?.errorType === 'duplicate' && (actionData as any)?.existingCustomer && (
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <Button type="button" variant="outline" className="h-11 px-5 rounded-xl border-2 border-red-500/40 bg-red-500/5 text-red-700" onClick={() => navigate(`/sales/activation?customerId=${(actionData as any).existingCustomer.id}`)}>
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        {t.customerCreate.validation.activateThisCustomer}
+                      </Button>
+                      <Button type="button" variant="ghost" className="h-11 px-5 rounded-xl text-red-600" onClick={() => { setErrorMessage(''); resetForm(); }}>{t.connection.retry}</Button>
                     </div>
-                  </div>
-                  
-                  <div className="flex-1 pt-1">
-                    <h4 className="font-bold text-red-700 dark:text-red-300 mb-2 text-lg">
-                      Erreur
-                    </h4>
-                    <p className="text-red-600 dark:text-red-400/90 text-sm leading-relaxed font-medium">{errorMessage}</p>
-                    
-                    {(actionData as any)?.errorType === 'duplicate' && (actionData as any)?.existingCustomer && (
-                      <div className="mt-5 flex flex-wrap gap-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-11 px-5 rounded-xl border-2 border-red-500/40 bg-red-500/5 hover:bg-red-500/15 hover:border-red-500/60 text-red-700 dark:text-red-300 font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
-                          onClick={() => {
-                            const customer = (actionData as any).existingCustomer;
-                            navigate(`/sales/activation?customerId=${customer.id}`, {
-                              state: { customer }
-                            });
-                          }}
-                        >
-                          <UserCheck className="w-4 h-4 mr-2" />
-                          Activer ce client
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="h-11 px-5 rounded-xl hover:bg-red-500/10 text-red-600 dark:text-red-400 font-semibold transition-all duration-300"
-                          onClick={() => {
-                            setErrorMessage('');
-                            resetForm();
-                          }}
-                        >
-                          Réessayer
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
           <Card className="border-0 shadow-2xl bg-card/70 backdrop-blur-2xl ring-1 ring-white/10 dark:ring-white/5 overflow-hidden relative animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-primary via-purple-500 to-pink-500">
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/60 to-transparent animate-shimmer" />
-            </div>
+            <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-primary via-purple-500 to-pink-500" />
 
             <Form method="post" onSubmit={handleSubmit} className="relative">
               <input type="hidden" name="firstName" value={formData.firstName} />
@@ -427,179 +350,35 @@ export default function CustomerCreatePage() {
               <input type="hidden" name="address" value={formData.address} />
               
               <div className="p-6 sm:p-8 md:p-10 space-y-8">
-                {/* Tabs Navigation */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8 relative">
-                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border/50 -z-10 hidden sm:block" />
-                  
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('personal')}
-                    className={`group relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 ${
-                      activeTab === 'personal'
-                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105 ring-2 ring-primary/20 ring-offset-2 ring-offset-background'
-                        : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-xl transition-colors ${activeTab === 'personal' ? 'bg-white/20' : 'bg-muted/50 group-hover:bg-muted'}`}>
-                      <User className="w-5 h-5" />
-                    </div>
-                    <div className="text-left">
-                      <p className={`text-xs font-medium uppercase tracking-wider ${activeTab === 'personal' ? 'text-primary-foreground/80' : 'text-muted-foreground/70'}`}>Étape 1</p>
-                      <p className="font-bold text-sm">Informations</p>
-                    </div>
-                    {activeTab === 'personal' && (
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                    )}
-                  </button>
+                <StepIndicator steps={stepDefinitions} activeStep={activeStep} onStepClick={setActiveStep} />
 
-                  <div className="flex items-center justify-center sm:hidden">
-                    <ChevronRight className="w-5 h-5 text-muted-foreground/50" />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                       const hasBasicInfo = formData.lastName && formData.idCardTypeId && formData.idCardNumber && !idCardValidationError && formData.idCardNumber.length >= 5;
-                       if (hasBasicInfo) setActiveTab('contact');
-                       else {
-                          touchField('lastName');
-                          touchField('idCardTypeId');
-                          touchField('idCardNumber');
-                          if (!formData.idCardNumber || formData.idCardNumber.length < 5) touchField('idCardNumber');
-                          toast.error('Veuillez d\'abord compléter les informations personnelles');
-                       }
-                    }}
-                    className={`group relative flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 ${
-                      activeTab === 'contact'
-                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105 ring-2 ring-primary/20 ring-offset-2 ring-offset-background'
-                        : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-xl transition-colors ${activeTab === 'contact' ? 'bg-white/20' : 'bg-muted/50 group-hover:bg-muted'}`}>
-                      <MapPin className="w-5 h-5" />
-                    </div>
-                    <div className="text-left">
-                      <p className={`text-xs font-medium uppercase tracking-wider ${activeTab === 'contact' ? 'text-primary-foreground/80' : 'text-muted-foreground/70'}`}>Étape 2</p>
-                      <p className="font-bold text-sm">Contact</p>
-                    </div>
-                    {activeTab === 'contact' && (
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                    )}
-                  </button>
-                </div>
-
-                {/* Content Area with Animation */}
                 <div className="relative min-h-[400px]">
-                  <div className={`transition-all duration-500 ease-in-out transform ${
-                    activeTab === 'personal' 
-                      ? 'opacity-100 translate-x-0 relative z-10' 
-                      : 'opacity-0 -translate-x-8 absolute top-0 left-0 w-full pointer-events-none'
-                  }`}>
-                    <PersonalInfoSection
-                      formData={formData}
-                      errors={errors}
-                      touchedFields={touchedFields}
-                      onFieldChange={updateField}
-                      onFieldBlur={touchField}
-                      onIdCardTypeChange={handleIdCardTypeChange}
-                      onIdCardNumberChange={handleIdCardNumberChange}
-                      idCardTypes={idCardTypes}
-                      idCardValidationError={idCardValidationError}
-                      selectedCardType={selectedCardType}
-                      t={t}
-                    />
+                  <div className={`transition-all duration-500 ease-in-out transform ${activeStep === 'personal' ? 'opacity-100 translate-x-0 relative z-10' : 'opacity-0 -translate-x-8 absolute top-0 left-0 w-full pointer-events-none'}`}>
+                    <PersonalInfoSection formData={formData} errors={errors} touchedFields={touchedFields} onFieldChange={updateField} onFieldBlur={touchField} onIdCardTypeChange={handleIdCardTypeChange} onIdCardNumberChange={handleIdCardNumberChange} idCardTypes={idCardTypes} idCardValidationError={idCardValidationError} selectedCardType={selectedCardType} t={t} />
                   </div>
-
-                  <div className={`transition-all duration-500 ease-in-out transform ${
-                    activeTab === 'contact' 
-                      ? 'opacity-100 translate-x-0 relative z-10' 
-                      : 'opacity-0 translate-x-8 absolute top-0 left-0 w-full pointer-events-none'
-                  }`}>
-                    <ContactInfoSection
-                      formData={formData}
-                      errors={errors}
-                      touchedFields={touchedFields}
-                      onFieldChange={updateField}
-                      onFieldBlur={touchField}
-                      t={t}
-                    />
+                  <div className={`transition-all duration-500 ease-in-out transform ${activeStep === 'contact' ? 'opacity-100 translate-x-0 relative z-10' : 'opacity-0 translate-x-8 absolute top-0 left-0 w-full pointer-events-none'}`}>
+                    <ContactInfoSection formData={formData} errors={errors} touchedFields={touchedFields} onFieldChange={updateField} onFieldBlur={touchField} t={t} />
                   </div>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <Button 
-                    type="button" 
-                    variant="ghost"
-                    onClick={() => {
-                      if (activeTab === 'contact') setActiveTab('personal');
-                      else navigate('/customers/search');
-                    }}
-                    className="h-12 px-6 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground font-medium transition-all duration-300"
-                    disabled={loading}
-                  >
-                    {activeTab === 'contact' ? (
-                      <>
-                        <ArrowLeft className="w-5 h-5 mr-2" />
-                        Précédent
-                      </>
-                    ) : (
-                      <span className="group-hover:translate-x-1 transition-transform">{t.customerCreate.cancel}</span>
-                    )}
-                  </Button>
-                  
-                  {activeTab === 'personal' ? (
-                    <Button 
-                      type="button" 
-                      onClick={() => {
-                        const hasBasicInfo = formData.lastName && formData.idCardTypeId && formData.idCardNumber && !idCardValidationError && formData.idCardNumber.length >= 5;
-                        if (hasBasicInfo) {
-                           setActiveTab('contact');
-                           window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
-                           touchField('lastName');
-                           touchField('idCardTypeId');
-                           touchField('idCardNumber');
-                           if (!formData.idCardNumber || formData.idCardNumber.length < 5) touchField('idCardNumber');
-                           toast.error('Veuillez remplir les informations obligatoires');
-                        }
-                      }}
-                      className="group relative h-12 rounded-xl px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
-                    >
-                      Suivant
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  ) : (
-                    <Button 
-                      type="submit" 
-                      disabled={loading || !isFormReallyValid}
-                      className="group relative h-12 sm:h-13 rounded-xl px-8 sm:px-10 font-bold text-base overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-xl hover:shadow-2xl disabled:shadow-lg"
-                      style={{
-                        background: isFormReallyValid 
-                          ? 'linear-gradient(135deg, #5FC8E9 0%, #3BA5C7 50%, #2A8FB5 100%)' 
-                          : 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.2),transparent)]" />
-                      
-                      <div className="relative z-10 flex items-center justify-center text-white">
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin mr-2.5" />
-                            <span className="font-bold">{t.customerCreate.saving}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-5 h-5 mr-2.5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300" />
-                            <span className="font-bold">{t.customerCreate.save}</span>
-                          </>
-                        )}
-                      </div>
-                    </Button>
-                  )}
-                </div>
+                <FormFooter
+                  isFirstStep={isFirstStep}
+                  isLastStep={isLastStep}
+                  prevStep={prevStep}
+                  nextStep={nextStep}
+                  onCancel={() => navigate('/')}
+                  isStepValid={activeStep === 'personal' ? isPersonalValid : isContactValid}
+                  isFormValid={isFormReallyValid}
+                  loading={loading}
+                  loadingText={t.customerCreate.saving}
+                  submitText={t.customerCreate.save}
+                  cancelText={t.customerCreate.cancel}
+                  onNextValidationFailed={() => {
+                    const currentStep = stepDefinitions.find(s => s.id === activeStep);
+                    if (currentStep?.touchFields) currentStep.touchFields();
+                  }}
+                  nextValidationErrorMsg={activeStep === 'personal' ? t.customerCreate.validation.personalRequired : t.customerCreate.validation.contactRequired}
+                />
               </div>
             </Form>
           </Card>

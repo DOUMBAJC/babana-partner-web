@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Label } from '~/components';
+import { compressImage } from '~/lib/utils/image-compression';
 
 interface ImageUploadProps {
   name: string;
@@ -44,14 +45,31 @@ export function ImageUpload({
     }
   }, [defaultImage]);
 
-  const handleFile = (file: File) => {
+
+  const handleFile = async (file: File) => {
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      onChange?.(file);
+      try {
+        // Compresser l'image avant de l'envoyer au parent
+        const compressedFile = await compressImage(file);
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreview(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+        
+        // On passe le fichier compressé au formulaire
+        onChange?.(compressedFile);
+      } catch (error) {
+        console.error('Erreur lors de la compression:', error);
+        // En cas d'échec de compression, on envoie le fichier original par sécurité
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+        onChange?.(file);
+      }
     }
   };
 
