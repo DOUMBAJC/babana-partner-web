@@ -61,6 +61,15 @@ export function Header() {
       });
     }
 
+    if (canProcessRequests) {
+      links.push({
+        href: "/admin/identifications",
+        label: t.nav.identificationManagement,
+        icon: FileText,
+        requiresAuth: true,
+      });
+    }
+
     return links;
   })();
 

@@ -33,6 +33,14 @@ export type {
   ActivationRequestStatsResponse,
 } from './activation-request.types';
 
+// Identification Request types
+export type {
+  IdentificationRequest,
+  IdentificationRequestStatus,
+  IdentificationRequestFilters,
+  IdentificationRequestStats,
+} from './identification-request.types';
+
 // API types
 export type {
   PaginatedResponse,

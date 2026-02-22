@@ -203,15 +203,13 @@ export default function CustomerIdentifyPage() {
   useEffect(() => {
     if (actionData) {
       setLoading(false);
-      if (actionData.success && actionData.customer) {
-        toast.success(t.customerIdentify.success);
-        setSuccessMessage(t.customerIdentify.success);
+      if (actionData.success) {
+        toast.success(t.identifications.messages.submittedTitle);
+        setSuccessMessage(t.identifications.messages.submittedSubtitle);
         setErrorMessage('');
         setTimeout(() => {
-          navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
-            state: { customer: actionData.customer }
-          });
-        }, 2000);
+          navigate('/customers/search');
+        }, 3000);
       } else if (actionData.error) {
         setErrorMessage(actionData.error);
         toast.error(actionData.error);

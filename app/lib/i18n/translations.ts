@@ -208,6 +208,7 @@ export interface Translations {
     activationRequests: string;
     admin: string;
     camtelLogins: string;
+    identificationManagement: string;
   };
   // Actions
   actions: {
@@ -757,6 +758,35 @@ export interface Translations {
     name: string;
     description: string;
   }>;
+  // Identification Request Management
+  identifications: {
+    title: string;
+    description: string;
+    status: {
+      pending: string;
+      approved: string;
+      rejected: string;
+      verified: string;
+    };
+    labels: {
+      ba: string;
+      processor: string;
+      submittedAt: string;
+      processedAt: string;
+      reason: string;
+    };
+    messages: {
+      submittedTitle: string;
+      submittedSubtitle: string;
+      approved: string;
+      rejected: string;
+    };
+    actions: {
+      approve: string;
+      reject: string;
+      viewDetails: string;
+    };
+  };
   // Permissions
   permissionGroups: Record<string, string>;
   permissions: Record<string, {
@@ -1479,6 +1509,7 @@ export const translations: Record<Language, Translations> = {
       activationRequests: "Requêtes",
       admin: "Admin",
       camtelLogins: "Logins CAMTEL",
+      identificationManagement: "Gestion Identifications",
     },
     actions: {
       login: "Connexion",
@@ -2397,11 +2428,40 @@ export const translations: Record<Language, Translations> = {
       admin: { name: "Administrateur", description: "Accès à la plupart des fonctionnalités administratives" },
       ba: { name: "Brand Ambassador (BA)", description: "Ambassadeur de marque avec accès aux fonctionnalités de base" },
       activateur: { name: "Activateur", description: "Gère et traite les requêtes des BA" },
+      identificateur: { name: "Identificateur", description: "Gère et valide les identifications clients (KYC)" },
       pos: { name: "Point de Vente (POS)", description: "Point de vente avec les droits des BA et des droits supplémentaires" },
       dsm: { name: "District Sales Manager (DSM)", description: "Gère les points de vente (POS)" },
       vendeur: { name: "Vendeur", description: "Vend les produits aux BA" },
       customer: { name: "Client", description: "Client de la plateforme" },
       autre: { name: "Autre", description: "Utilisateur avec accès limité à la gestion de leurs tâches" },
+    },
+    identifications: {
+      title: "Gestion des Identifications",
+      description: "Vérification des documents d'identité des clients (KYC)",
+      status: {
+        pending: "En attente",
+        approved: "Approuvé",
+        rejected: "Rejeté",
+        verified: "Vérifié"
+      },
+      labels: {
+        ba: "Chargé d'Affaires",
+        processor: "Identificateur",
+        submittedAt: "Soumis le",
+        processedAt: "Traité le",
+        reason: "Raison du rejet"
+      },
+      messages: {
+        submittedTitle: "Identification Soumise",
+        submittedSubtitle: "La demande a été envoyée avec succès et est en attente de vérification par un identificateur.",
+        approved: "L'identification a été approuvée.",
+        rejected: "L'identification a été rejetée."
+      },
+      actions: {
+        approve: "Approuver",
+        reject: "Rejeter",
+        viewDetails: "Voir Détails"
+      }
     },
     permissionGroups: {
       users: "Utilisateurs",
@@ -3322,6 +3382,7 @@ export const translations: Record<Language, Translations> = {
       activationRequests: "Requests",
       admin: "Admin",
       camtelLogins: "CAMTEL Logins",
+      identificationManagement: "Identification Management",
     },
     actions: {
       login: "Login",
@@ -4240,11 +4301,40 @@ export const translations: Record<Language, Translations> = {
       admin: { name: "Administrator", description: "Access to most administrative features" },
       ba: { name: "Brand Ambassador (BA)", description: "Brand Ambassador with basic feature access" },
       activateur: { name: "Activator", description: "Manages and processes BA requests" },
+      identificateur: { name: "Identifier", description: "Manages and validates customer identifications (KYC)" },
       pos: { name: "Point of Sale (POS)", description: "Point of sale with BA rights and additional rights" },
       dsm: { name: "District Sales Manager (DSM)", description: "Manages Points of Sale (POS)" },
       vendeur: { name: "Seller", description: "Sells products to BAs" },
       customer: { name: "Customer", description: "Platform customer" },
       autre: { name: "Other", description: "User with limited access to manage their tasks" },
+    },
+    identifications: {
+      title: "Identification Management",
+      description: "Verification of customer identity documents (KYC)",
+      status: {
+        pending: "Pending",
+        approved: "Approved",
+        rejected: "Rejected",
+        verified: "Verified"
+      },
+      labels: {
+        ba: "Business Advisor",
+        processor: "Identifier",
+        submittedAt: "Submitted on",
+        processedAt: "Processed on",
+        reason: "Rejection Reason"
+      },
+      messages: {
+        submittedTitle: "Identification Submitted",
+        submittedSubtitle: "The request has been successfully sent and is pending verification by an identifier.",
+        approved: "Identification has been approved.",
+        rejected: "Identification has been rejected."
+      },
+      actions: {
+        approve: "Approve",
+        reject: "Reject",
+        viewDetails: "View Details"
+      }
     },
     adminCamtelLogins: {
       breadcrumb: {

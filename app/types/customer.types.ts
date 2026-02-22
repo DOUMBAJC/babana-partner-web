@@ -32,11 +32,21 @@ export interface Customer {
   created_at: string;
   updated_at: string;
   
-  // URLs des images
+  // Identification status
+  identification_status: 'none' | 'pending' | 'verified' | 'rejected';
+  identification_rejected_reason?: string | null;
+
+  // URLs des images (backend)
   id_card_front_url?: string | null;
   id_card_back_url?: string | null;
   portrait_url?: string | null;
   location_plan_url?: string | null;
+  
+  // Alternative names sometimes used in the codebase
+  id_card_front?: string | null;
+  id_card_back?: string | null;
+  portrait_photo?: string | null;
+  localization_plan?: string | null;
 
   // Relations (chargées via include)
   id_card_type?: IdCardType;
