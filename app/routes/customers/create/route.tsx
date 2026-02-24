@@ -211,7 +211,7 @@ export default function CustomerCreatePage() {
           const existingCustomer = (actionData as any).existingCustomer;
           setErrorMessage(`${actionData.error} - Client: ${existingCustomer.full_name}. ${t.customerCreate.validation.duplicate}`);
         } else if (errorType === 'validation' && validationErrors) {
-          // Mapper les erreurs de validation Laravel du type { phone: ["numéro déjà pris"] }
+          // Mapper les erreurs de validation Serveur du type { phone: ["numéro déjà pris"] }
           // vers le format du hook { phone: "numéro déjà pris" }
           const mappedErrors: Record<string, string> = {};
           Object.entries(validationErrors).forEach(([field, msgs]) => {
