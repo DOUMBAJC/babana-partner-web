@@ -28,6 +28,7 @@ import { customerService } from '~/lib/services/customer.service';
 // Import des composants et configurations modulaires
 import { INITIAL_FORM_DATA } from './config';
 import { useCustomerForm } from './hooks/useCustomerForm';
+import { useFormPersistence } from './hooks/useFormPersistence';
 import { useIdCardValidation } from '../search/hooks/useIdCardValidation';
 import {
   PersonalInfoSection,
@@ -179,6 +180,8 @@ export default function CustomerCreatePage() {
     isFormValid
   } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
 
+  const { clearPersistence } = useFormPersistence(formData, updateField);
+
   type StepId = 'personal' | 'contact';
   const stepsList: StepId[] = ['personal', 'contact'];
   const { activeStep, setActiveStep, nextStep, prevStep, isFirstStep, isLastStep } = useStepNavigation(stepsList);
@@ -199,6 +202,7 @@ export default function CustomerCreatePage() {
         toast.success(t.customerCreate.success);
         setSuccessMessage(t.customerCreate.success);
         setErrorMessage('');
+        clearPersistence(); // Effacer les données après un succès
         const timeoutId = setTimeout(() => {
           navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
             state: { customer: actionData.customer }
