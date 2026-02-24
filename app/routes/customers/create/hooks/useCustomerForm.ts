@@ -120,6 +120,46 @@ export function useCustomerForm(
   };
 
   /**
+   * Définit des erreurs externes (ex: provenant du serveur)
+   * Gère le mapping des clés snake_case (Laravel) vers camelCase (Form)
+   */
+  const setExternalErrors = (externalErrors: Record<string, string>) => {
+    const fieldMapping: Record<string, keyof CustomerFormData> = {
+      'first_name': 'firstName',
+      'last_name': 'lastName',
+      'full_name': 'lastName', // Le serveur utilise full_name, on le mappe sur lastName par défaut
+      'id_card_type_id': 'idCardTypeId',
+      'id_card_number': 'idCardNumber',
+      'phone': 'phone',
+      'email': 'email',
+      'address': 'address'
+    };
+
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      Object.entries(externalErrors).forEach(([key, message]) => {
+        const formKey = fieldMapping[key] || (key as keyof CustomerFormData);
+        
+        if (formKey in initialData) {
+          newErrors[formKey as keyof CustomerFormData] = message;
+        }
+      });
+      return newErrors;
+    });
+
+    setTouchedFields(prev => {
+      const newTouched = new Set(prev);
+      Object.keys(externalErrors).forEach(key => {
+        const formKey = fieldMapping[key] || (key as keyof CustomerFormData);
+        if (formKey in initialData) {
+          newTouched.add(formKey as keyof CustomerFormData);
+        }
+      });
+      return newTouched;
+    });
+  };
+
+  /**
    * Marque un champ comme touché (pour la validation)
    */
   const touchField = (field: keyof CustomerFormData) => {
@@ -159,6 +199,7 @@ export function useCustomerForm(
     touchField,
     validateForm,
     resetForm,
+    setExternalErrors,
     isFormValid: isFormValid()
   };
 }

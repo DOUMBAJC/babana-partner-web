@@ -139,7 +139,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (status === 422) {
       return data({
         success: false,
-        error: 'Erreurs de validation',
+        error: t.common.validationError || 'Erreurs de validation',
         customer: null,
         validationErrors: errorData?.errors || null,
         errorType: 'validation'
@@ -175,6 +175,7 @@ export default function CustomerCreatePage() {
     touchField,
     validateForm,
     resetForm,
+    setExternalErrors,
     isFormValid
   } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
 
@@ -204,12 +205,36 @@ export default function CustomerCreatePage() {
         return () => clearTimeout(timeoutId);
       } else if (actionData.error) {
         const errorType = (actionData as any).errorType;
+        const validationErrors = (actionData as any).validationErrors;
+        
         if (errorType === 'duplicate' && (actionData as any).existingCustomer) {
           const existingCustomer = (actionData as any).existingCustomer;
           setErrorMessage(`${actionData.error} - Client: ${existingCustomer.full_name}. ${t.customerCreate.validation.duplicate}`);
+        } else if (errorType === 'validation' && validationErrors) {
+          // Mapper les erreurs de validation Laravel du type { phone: ["numéro déjà pris"] }
+          // vers le format du hook { phone: "numéro déjà pris" }
+          const mappedErrors: Record<string, string> = {};
+          Object.entries(validationErrors).forEach(([field, msgs]) => {
+            if (Array.isArray(msgs) && msgs.length > 0) {
+              mappedErrors[field] = msgs[0];
+            } else if (typeof msgs === 'string') {
+              mappedErrors[field] = msgs;
+            }
+          });
+          
+          setExternalErrors(mappedErrors);
+          
+          // Construire un message d'erreur global plus informatif
+          const errorMessages = Object.values(mappedErrors);
+          if (errorMessages.length > 0) {
+            setErrorMessage(`${actionData.error}: ${errorMessages.join('. ')}`);
+          } else {
+            setErrorMessage(actionData.error);
+          }
         } else {
           setErrorMessage(actionData.error);
         }
+        
         toast.error(actionData.error);
         setSuccessMessage('');
       }
