@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, data, useLoaderData, useActionData, Form } from 'react-router';
+import { useNavigate, data, useLoaderData, useActionData, Form, useLocation } from 'react-router';
 import { 
   Loader2,
   Save,
@@ -190,6 +190,8 @@ export default function CustomerCreatePage() {
   const { validationError: idCardValidationError, validateIdCardNumber, setValidationError: setIdCardValidationError } = 
     useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
 
+  const location = useLocation();
+
   useEffect(() => {
     if (actionData) {
       setLoading(false);
@@ -240,6 +242,19 @@ export default function CustomerCreatePage() {
       }
     }
   }, [actionData, navigate, t.customerCreate.success]);
+
+  // Pré-remplissage depuis la recherche
+  useEffect(() => {
+    const state = location.state as { idCardTypeId?: string; idCardNumber?: string } | null;
+    if (state) {
+      if (state.idCardTypeId) {
+        updateField('idCardTypeId', state.idCardTypeId);
+      }
+      if (state.idCardNumber) {
+        updateField('idCardNumber', state.idCardNumber);
+      }
+    }
+  }, [location.state]);
 
   const handleIdCardTypeChange = (value: string) => {
     updateField('idCardTypeId', value);

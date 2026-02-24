@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useTranslation } from "./useTranslation";
 
 /**
  * Hook pour gérer le titre de la page dynamiquement.

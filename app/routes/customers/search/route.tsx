@@ -11,7 +11,7 @@ import {
   Layout
 } from '~/components';
 import { useTranslation, usePageTitle } from '~/hooks'; 
-import type { Customer, IdCardType } from '~/types/customer.types';
+import type { IdCardType } from '~/types/customer.types';
 import type { Route } from "./+types/route";
 import { createAuthenticatedApi, getCurrentUser } from '~/services/api.server';
 import { getLanguage } from '~/services/session.server';
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { Toaster } from '~/components/ui/toaster';
 
 // Import des composants et configurations modulaires
-import { AUTHORIZED_ROLES, type SearchQuery, type ActivationStatus } from './config';
+import { AUTHORIZED_ROLES, type SearchQuery } from './config';
 import { useIdCardValidation } from './hooks/useIdCardValidation';
 import { useSimNumberValidation } from './hooks/useSimNumberValidation';
 import {
