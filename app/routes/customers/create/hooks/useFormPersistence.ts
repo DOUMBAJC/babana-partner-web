@@ -4,41 +4,39 @@ import type { CustomerFormData } from '../config';
 const STORAGE_KEY = 'babana_customer_create_form';
 
 /**
- * Hook pour gérer la persistance locale du formulaire de création de client.
- * Permet de sauvegarder les données en cas de rafraîchissement ou perte de réseau.
+ * Hook: useFormPersistence
+ * Persiste les données du formulaire dans le localStorage pour éviter les pertes (refresh/réseau)
  */
 export function useFormPersistence(
   formData: CustomerFormData,
   updateField: (field: keyof CustomerFormData, value: string) => void
 ) {
-  // 1. Charger les données au montage
+  // Restauration initiale au montage
   useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData) as Partial<CustomerFormData>;
-        Object.entries(parsedData).forEach(([field, value]) => {
-          if (value && typeof value === 'string') {
-            updateField(field as keyof CustomerFormData, value);
-          }
-        });
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données sauvegardées:', error);
-      }
-    }
-  }, []); // Seulement au montage
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
 
-  // 2. Sauvegarder les données à chaque changement (debounce optionnel mais ici direct car données légères)
+    try {
+      const parsed = JSON.parse(saved) as Partial<CustomerFormData>;
+      Object.entries(parsed).forEach(([field, value]) => {
+        if (value && typeof value === 'string') {
+          updateField(field as keyof CustomerFormData, value);
+        }
+      });
+    } catch (e) {
+      console.warn('Persistence: Erreur de lecture', e);
+    }
+  }, []);
+
+  // Sauvegarde automatique
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    const hasData = Object.values(formData).some(val => val && val.trim() !== '');
+    if (hasData) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }
   }, [formData]);
 
-  /**
-   * Nettoie les données sauvegardées (à appeler après un succès)
-   */
-  const clearPersistence = () => {
-    localStorage.removeItem(STORAGE_KEY);
-  };
+  const clearPersistence = () => localStorage.removeItem(STORAGE_KEY);
 
   return { clearPersistence };
 }

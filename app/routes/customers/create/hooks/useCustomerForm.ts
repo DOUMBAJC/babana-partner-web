@@ -13,8 +13,8 @@ interface ValidationMessages {
 }
 
 /**
- * Hook personnalisé pour gérer le formulaire de création de client
- * Validation adaptée pour le Cameroun (Orange, MTN, Blue)
+ * Hook: useCustomerForm
+ * Gère l'état, la validation et la synchronisation des erreurs serveur du formulaire client.
  */
 export function useCustomerForm(
   initialData: CustomerFormData,
@@ -25,70 +25,38 @@ export function useCustomerForm(
   const [errors, setErrors] = useState<CustomerFormErrors>({});
   const [touchedFields, setTouchedFields] = useState<Set<keyof CustomerFormData>>(new Set());
 
-  /**
-   * Valide un champ spécifique
-   */
+  // Validation d'un champ selon les règles métier (Cameroun)
   const validateField = (field: keyof CustomerFormData, value: string): string | undefined => {
-    // Champs requis (selon la migration DB) - firstName est optionnel
     if (['lastName', 'idCardTypeId', 'idCardNumber', 'phone', 'address'].includes(field)) {
-      if (!value || value.trim() === '') {
-        return validationMessages.required;
-      }
+      if (!value || value.trim() === '') return validationMessages.required;
     }
 
-    // Validation spécifique par champ
     switch (field) {
       case 'firstName':
       case 'lastName':
-        if (value && value.trim().length < 2) {
-          return validationMessages.minLength.replace('{min}', '2');
-        }
-        if (value && !VALIDATION_PATTERNS.name.test(value)) {
-          return validationMessages.invalidName;
-        }
-        // Vérifier que ce n'est pas seulement des espaces
-        if (value && value.trim().length === 0) {
-          return validationMessages.required;
-        }
+        if (value && value.trim().length < 2) return validationMessages.minLength.replace('{min}', '2');
+        if (value && !VALIDATION_PATTERNS.name.test(value)) return validationMessages.invalidName;
         break;
-
       case 'phone':
         if (value) {
           const phoneValidation = validateCameroonPhone(value);
-          if (!phoneValidation.isValid) {
-            return phoneValidation.message || validationMessages.invalidPhone;
-          }
+          if (!phoneValidation.isValid) return phoneValidation.message || validationMessages.invalidPhone;
         }
         break;
-
       case 'email':
-        // Email optionnel mais si fourni, doit être valide
-        if (value && value.trim() !== '' && !VALIDATION_PATTERNS.email.test(value)) {
-          return validationMessages.invalidEmail;
-        }
+        if (value && value.trim() !== '' && !VALIDATION_PATTERNS.email.test(value)) return validationMessages.invalidEmail;
         break;
-
       case 'idCardNumber':
-        if (value && value.length < 5) {
-          return validationMessages.minLength.replace('{min}', '5');
-        }
-        // Note: La validation du pattern est gérée séparément via useIdCardValidation
+        if (value && value.length < 5) return validationMessages.minLength.replace('{min}', '5');
         break;
-
       case 'address':
-        // Adresse obligatoire selon migration
-        if (value && value.length < 3) {
-          return validationMessages.minLength.replace('{min}', '3');
-        }
+        if (value && value.length < 3) return validationMessages.minLength.replace('{min}', '3');
         break;
     }
-
     return undefined;
   };
 
-  /**
-   * Valide tous les champs du formulaire
-   */
+  // Valide l'intégralité du formulaire
   const validateForm = (): boolean => {
     const newErrors: CustomerFormErrors = {};
     let isValid = true;
@@ -105,29 +73,22 @@ export function useCustomerForm(
     return isValid;
   };
 
-  /**
-   * Met à jour la valeur d'un champ
-   */
+  // Met à jour un champ et déclenche sa validation
   const updateField = (field: keyof CustomerFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-
-    // Marquer le champ comme touché automatiquement
     setTouchedFields(prev => new Set(prev).add(field));
-    
-    // Valider le champ immédiatement (onChange)
     const error = validateField(field, value);
     setErrors(prev => ({ ...prev, [field]: error }));
   };
 
   /**
-   * Définit des erreurs externes (ex: provenant du serveur)
-   * Gère le mapping des clés snake_case (Laravel) vers camelCase (Form)
+   * setExternalErrors : Synchronise les erreurs de validation venant du serveur (Laravel snake_case).
    */
   const setExternalErrors = (externalErrors: Record<string, string>) => {
     const fieldMapping: Record<string, keyof CustomerFormData> = {
       'first_name': 'firstName',
       'last_name': 'lastName',
-      'full_name': 'lastName', // Le serveur utilise full_name, on le mappe sur lastName par défaut
+      'full_name': 'lastName',
       'id_card_type_id': 'idCardTypeId',
       'id_card_number': 'idCardNumber',
       'phone': 'phone',

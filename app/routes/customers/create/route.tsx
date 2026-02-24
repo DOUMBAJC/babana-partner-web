@@ -5,10 +5,10 @@ import {
   Save,
   ArrowLeft,
   CheckCircle,
-  AlertTriangle,
-  UserCheck,
+  MapPin,
   User,
-  MapPin
+  UserCheck,
+  AlertTriangle
 } from 'lucide-react';
 import {
   Card,
@@ -147,10 +147,10 @@ export async function action({ request }: Route.ActionArgs) {
       }, { status: 422 });
     }
     
-    // Autres erreurs
+    // Erreur générique par défaut
     return data({
       success: false,
-      error: error?.message || errorData?.message || t.customerCreate.errors.createFailed || 'Une erreur est survenue',
+      error: error?.message || errorData?.message || t.customerCreate.errors.createFailed || 'Erreur Serveur Interne',
       customer: null,
       errorType: 'general'
     }, { status: 500 });
@@ -195,48 +195,49 @@ export default function CustomerCreatePage() {
 
   const location = useLocation();
 
+  // Gestion des résultats de l'action (Succès/Erreur)
   useEffect(() => {
     if (actionData) {
       setLoading(false);
+      
       if (actionData.success && actionData.customer) {
         toast.success(t.customerCreate.success);
         setSuccessMessage(t.customerCreate.success);
         setErrorMessage('');
-        clearPersistence(); // Effacer les données après un succès
+        clearPersistence(); // Nettoie le storage après succès
+        
         const timeoutId = setTimeout(() => {
           navigate(`/sales/activation?customerId=${actionData.customer.id}`, {
             state: { customer: actionData.customer }
           });
         }, 1500);
         return () => clearTimeout(timeoutId);
-      } else if (actionData.error) {
+      } 
+      
+      if (actionData.error) {
         const errorType = (actionData as any).errorType;
         const validationErrors = (actionData as any).validationErrors;
         
+        // Gestion des doublons (409)
         if (errorType === 'duplicate' && (actionData as any).existingCustomer) {
           const existingCustomer = (actionData as any).existingCustomer;
           setErrorMessage(`${actionData.error} - Client: ${existingCustomer.full_name}. ${t.customerCreate.validation.duplicate}`);
-        } else if (errorType === 'validation' && validationErrors) {
-          // Mapper les erreurs de validation Serveur du type { phone: ["numéro déjà pris"] }
-          // vers le format du hook { phone: "numéro déjà pris" }
+        } 
+        // Synchronisation des erreurs de validation serveur
+        else if (errorType === 'validation' && validationErrors) {
           const mappedErrors: Record<string, string> = {};
           Object.entries(validationErrors).forEach(([field, msgs]) => {
-            if (Array.isArray(msgs) && msgs.length > 0) {
-              mappedErrors[field] = msgs[0];
-            } else if (typeof msgs === 'string') {
-              mappedErrors[field] = msgs;
-            }
+            if (Array.isArray(msgs) && msgs.length > 0) mappedErrors[field] = msgs[0];
+            else if (typeof msgs === 'string') mappedErrors[field] = msgs;
           });
           
           setExternalErrors(mappedErrors);
           
-          // Construire un message d'erreur global plus informatif
           const errorMessages = Object.values(mappedErrors);
-          if (errorMessages.length > 0) {
-            setErrorMessage(`${actionData.error}: ${errorMessages.join('. ')}`);
-          } else {
-            setErrorMessage(actionData.error);
-          }
+          setErrorMessage(errorMessages.length > 0 
+            ? `${actionData.error}: ${errorMessages.join('. ')}` 
+            : actionData.error
+          );
         } else {
           setErrorMessage(actionData.error);
         }
@@ -247,18 +248,22 @@ export default function CustomerCreatePage() {
     }
   }, [actionData, navigate, t.customerCreate.success]);
 
-  // Pré-remplissage depuis la recherche
+  // Pré-remplissage depuis les résultats de recherche
   useEffect(() => {
-    const state = location.state as { idCardTypeId?: string; idCardNumber?: string } | null;
-    if (state) {
-      if (state.idCardTypeId) {
-        updateField('idCardTypeId', state.idCardTypeId);
+    const searchState = location.state as { idCardTypeId?: string | number; idCardNumber?: string } | null;
+    
+    // Attendre que les types de carte soient chargés
+    if (searchState && idCardTypes.length > 0) {
+      if (searchState.idCardTypeId) {
+        handleIdCardTypeChange(searchState.idCardTypeId.toString());
       }
-      if (state.idCardNumber) {
-        updateField('idCardNumber', state.idCardNumber);
+      if (searchState.idCardNumber) {
+        handleIdCardNumberChange(searchState.idCardNumber);
       }
+      // Nettoyage de l'état pour éviter les répétitions
+      window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, idCardTypes.length]);
 
   const handleIdCardTypeChange = (value: string) => {
     updateField('idCardTypeId', value);
