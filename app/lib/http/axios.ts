@@ -78,10 +78,11 @@ const getLanguageFromCookie = (): "fr" | "en" => {
 };
 
 /**
- * Gestion de la langue pour l'API
+ * Gestion de la langue et du token pour l'API
  * Initialise avec la langue du cookie si disponible
  */
 let currentLanguage: "fr" | "en" = getLanguageFromCookie();
+let currentToken: string | null = null;
 
 // Synchroniser la langue des erreurs dès l'initialisation
 setErrorLanguage(currentLanguage);
@@ -96,6 +97,14 @@ export const getApiLanguage = (): string => {
 };
 
 /**
+ * Définit le token d'authentification Bearer pour les requêtes client.
+ * Requis pour les routes API protégées appelées depuis le navigateur.
+ */
+export const setApiToken = (token: string | null): void => {
+  currentToken = token;
+};
+
+/**
  * Intercepteur de requête
  * Ajoute les headers nécessaires et les métadonnées client
  */
@@ -103,6 +112,11 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // Langue de l'API
     config.headers["Accept-Language"] = currentLanguage;
+
+    // Token d'authentification Sanctum (si défini)
+    if (currentToken && !isPublicEndpoint(config.url)) {
+      config.headers["Authorization"] = `Bearer ${currentToken}`;
+    }
 
     // Clé API
     if (API_CONFIG.apiKey) {
@@ -162,10 +176,11 @@ axiosInstance.interceptors.response.use(
       const url = error.config?.url || "";
       const isNotificationEndpoint = url.includes("/notifications");
       const isSessionsEndpoint = url.includes("/api/sessions") || url.includes("/auth/sessions");
+      const isBroadcastingEndpoint = url.includes("/broadcasting/auth");
       
       // Ne déclencher la déconnexion QUE si ce n'est PAS un endpoint exclu
-      // Les endpoints de sessions et notifications peuvent échouer sans déconnecter l'utilisateur
-      if (!isNotificationEndpoint && !isSessionsEndpoint) {
+      // Les endpoints de sessions, notifications et broadcasting peuvent échouer sans déconnecter l'utilisateur
+      if (!isNotificationEndpoint && !isSessionsEndpoint && !isBroadcastingEndpoint) {
         window.dispatchEvent(new CustomEvent("auth:unauthorized"));
       }
     }

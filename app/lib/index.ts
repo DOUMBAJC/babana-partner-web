@@ -4,7 +4,7 @@
 export { cn } from "./utils";
 
 // Axios configuration and API client
-export { axiosInstance, api, setApiLanguage, getApiLanguage, getClientInfo } from "./axios";
+export { axiosInstance, api, setApiLanguage, getApiLanguage, setApiToken, getClientInfo } from "./axios";
 export type { ApiError, HttpMethod, RequestOptions, GeolocationData } from "./axios";
 
 // Translations

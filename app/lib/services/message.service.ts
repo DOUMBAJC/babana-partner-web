@@ -1,144 +1,134 @@
 /**
- * Service de gestion des messages/chat
- * Permet aux utilisateurs de contacter les admins et activateurs
+ * Service de messagerie interne – chat en temps réel.
+ *
+ * Toutes les requêtes passent par l'instance axios authentifiée (`api`)
+ * et ciblent le préfixe `/conversations` de l'API Laravel.
  */
 
 import { api, type ApiError } from "./axios";
-import type { User } from "~/types/auth.types";
 
-export interface Message {
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface ChatUser {
+  id: string;
+  name: string;
+  is_online?: boolean;
+}
+
+export interface ChatMessage {
   id: string;
   conversation_id: string;
   sender_id: string;
-  receiver_id: string;
   content: string;
-  is_read: boolean;
+  status: "sent" | "delivered" | "read";
+  attachments: string[];
+  is_mine: boolean;
   created_at: string;
-  updated_at: string;
-  sender?: User;
-  receiver?: User;
+  sender: ChatUser;
 }
 
-export interface Conversation {
+export interface ChatConversation {
   id: string;
-  participant_one_id: string;
-  participant_two_id: string;
-  last_message_id: string | null;
+  label: string | null;
+  participant: ChatUser | null;
+  last_message: {
+    content: string;
+    created_at: string;
+    is_mine: boolean;
+  } | null;
+  unread_count: number;
   last_message_at: string | null;
-  created_at: string;
-  updated_at: string;
-  participant?: User;
-  last_message?: Message;
-  unread_count?: number;
 }
 
-export interface SendMessageData {
-  receiver_id: string;
-  content: string;
+export interface ChatContact {
+  id: string;
+  name: string;
+  roles: string[];
+  role_slug: string | null;
+  is_online: boolean;
 }
 
-export interface ConversationsResponse {
-  data: Conversation[];
-  meta?: {
+export interface PaginatedMessages {
+  data: ChatMessage[];
+  meta: {
     current_page: number;
     per_page: number;
     total: number;
-    total_pages: number;
+    last_page: number;
   };
 }
 
-export interface MessagesResponse {
-  data: Message[];
-  meta?: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
-  };
-}
+// ---------------------------------------------------------------------------
+// Service
+// ---------------------------------------------------------------------------
 
-/**
- * Service de gestion des messages
- */
 export const messageService = {
   /**
-   * Récupère la liste des conversations de l'utilisateur
+   * Récupère toutes les conversations de l'utilisateur courant.
    */
-  getConversations: async (): Promise<ConversationsResponse> => {
-    try {
-      return await api.get<ConversationsResponse>("/messages/conversations");
-    } catch (error) {
-      throw error as ApiError;
-    }
+  getConversations: async (): Promise<ChatConversation[]> => {
+    const res = await api.get<{ success: boolean; data: ChatConversation[] }>(
+      "/conversations"
+    );
+    return res.data;
   },
 
   /**
-   * Récupère les messages d'une conversation
+   * Obtient ou crée une conversation directe avec un utilisateur.
+   */
+  getOrCreateConversation: async (userId: string): Promise<ChatConversation> => {
+    const res = await api.post<{ success: boolean; data: ChatConversation }>(
+      "/conversations/get-or-create",
+      { user_id: userId }
+    );
+    return res.data;
+  },
+
+  /**
+   * Récupère la liste des contacts disponibles pour le chat.
+   */
+  getContacts: async (): Promise<ChatContact[]> => {
+    const res = await api.get<{ success: boolean; data: ChatContact[] }>(
+      "/conversations/contacts"
+    );
+    return res.data;
+  },
+
+  /**
+   * Récupère l'historique paginé des messages d'une conversation.
    */
   getMessages: async (
     conversationId: string,
-    page: number = 1,
-    perPage: number = 50
-  ): Promise<MessagesResponse> => {
-    try {
-      return await api.get<MessagesResponse>(`/messages/conversations/${conversationId}/messages`, {
-        params: {
-          page,
-          per_page: perPage,
-        },
-      });
-    } catch (error) {
-      throw error as ApiError;
-    }
+    page = 1,
+    perPage = 50
+  ): Promise<PaginatedMessages> => {
+    const res = await api.get<{ success: boolean } & PaginatedMessages>(
+      `/conversations/${conversationId}/messages`,
+      { params: { page, per_page: perPage } }
+    );
+    return { data: res.data, meta: res.meta! };
   },
 
   /**
-   * Envoie un message
+   * Envoie un message dans une conversation.
    */
-  sendMessage: async (data: SendMessageData): Promise<Message> => {
-    try {
-      const response = await api.post<{ data: Message }>("/messages", data);
-      return response.data;
-    } catch (error) {
-      throw error as ApiError;
-    }
+  sendMessage: async (
+    conversationId: string,
+    content: string
+  ): Promise<ChatMessage> => {
+    const res = await api.post<{ success: boolean; data: ChatMessage }>(
+      `/conversations/${conversationId}/messages`,
+      { content }
+    );
+    return res.data;
   },
 
   /**
-   * Marque les messages d'une conversation comme lus
+   * Marque tous les messages d'une conversation comme lus.
    */
   markAsRead: async (conversationId: string): Promise<void> => {
-    try {
-      await api.post(`/messages/conversations/${conversationId}/mark-as-read`);
-    } catch (error) {
-      throw error as ApiError;
-    }
-  },
-
-  /**
-   * Récupère la liste des utilisateurs disponibles pour le chat (admins et activateurs)
-   */
-  getAvailableContacts: async (): Promise<{ data: User[] }> => {
-    try {
-      return await api.get<{ data: User[] }>("/messages/contacts");
-    } catch (error) {
-      throw error as ApiError;
-    }
-  },
-
-  /**
-   * Crée ou récupère une conversation avec un utilisateur
-   */
-  getOrCreateConversation: async (userId: string): Promise<Conversation> => {
-    try {
-      const response = await api.post<{ data: Conversation }>(
-        `/messages/conversations/get-or-create`,
-        { user_id: userId }
-      );
-      return response.data;
-    } catch (error) {
-      throw error as ApiError;
-    }
+    await api.post(`/conversations/${conversationId}/mark-as-read`);
   },
 };
-
