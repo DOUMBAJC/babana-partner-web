@@ -94,7 +94,7 @@ export interface UseChat {
   inputText:              string;
   // Actions
   setInputText:           (text: string) => void;
-  selectConversation:     (conversation: ChatConversation) => void;
+  selectConversation:     (conversation: ChatConversation | null) => void;
   startConversationWith:  (contact: ChatContact) => Promise<void>;
   sendMessage:            () => Promise<void>;
   refreshConversations:   () => Promise<void>;
@@ -336,10 +336,12 @@ export function useChat({ userId, userName, token }: UseChatOptions): UseChat {
     }
   }, []);
 
-  const selectConversation = useCallback((conversation: ChatConversation) => {
+  const selectConversation = useCallback((conversation: ChatConversation | null) => {
     setActiveConversation(conversation);
     setInputText("");
-    loadMessages(conversation.id);
+    if (conversation) {
+      loadMessages(conversation.id);
+    }
   }, [loadMessages]);
 
   const startConversationWith = useCallback(async (contact: ChatContact) => {

@@ -1493,6 +1493,39 @@ export interface Translations {
       passwordRevealed: string;
     };
   };
+  chat: {
+    messages: string;
+    searchPlaceholder: string;
+    conversationsTab: string;
+    contactsTab: string;
+    noConversations: string;
+    noConversationsSub: string;
+    noContactsFound: string;
+    startDiscussion: string;
+    online: string;
+    offline: string;
+    typing: string;
+    typingMultiple: string;
+    inputPlaceholder: string;
+    attachments: string;
+    emojis: string;
+    realTime: string;
+    emptyStateTitle: string;
+    emptyStateDesc: string;
+    refresh: string;
+    justNow: string;
+    minutesAgo: string;
+    noMessage: string;
+    startChat: string;
+    conversation: string;
+    you: string;
+    connectionStatus: {
+      connecting: string;
+      disconnected: string;
+      offline: string;
+      connected: string;
+    };
+  };
 };
 
 export const translations: Record<Language, Translations> = {
@@ -3368,6 +3401,39 @@ export const translations: Record<Language, Translations> = {
         },
       },
     },
+    chat: {
+      messages: "Messages",
+      searchPlaceholder: "Rechercher...",
+      conversationsTab: "Conversations",
+      contactsTab: "Contacts",
+      noConversations: "Aucune conversation",
+      noConversationsSub: "Allez dans \"Contacts\" pour démarrer une discussion",
+      noContactsFound: "Aucun contact trouvé",
+      startDiscussion: "Démarrer une discussion",
+      online: "En ligne",
+      offline: "Hors ligne",
+      typing: "est en train d'écrire...",
+      typingMultiple: "sont en train d'écrire...",
+      inputPlaceholder: "Écrivez votre message...",
+      attachments: "Pièces jointes – à venir",
+      emojis: "Émojis – à venir",
+      realTime: "Temps réel",
+      emptyStateTitle: "Vos messages",
+      emptyStateDesc: "Sélectionnez une conversation existante ou démarrez-en une nouvelle depuis l'onglet \"Contacts\".",
+      refresh: "Rafraîchir",
+      justNow: "À l'instant",
+      minutesAgo: "Il y a {n} min",
+      noMessage: "Aucun message pour le moment.",
+      startChat: "Commencez la discussion !",
+      conversation: "Conversation",
+      you: "Vous",
+      connectionStatus: {
+        connecting: "Connexion...",
+        disconnected: "Déconnecté",
+        offline: "Hors ligne",
+        connected: "En ligne",
+      },
+    },
   },
   en: {
     nav: {
@@ -5239,6 +5305,39 @@ export const translations: Record<Language, Translations> = {
           orange: "Orange Money",
           mtn: "MTN MoMo",
         },
+      },
+    },
+    chat: {
+      messages: "Messages",
+      searchPlaceholder: "Search...",
+      conversationsTab: "Conversations",
+      contactsTab: "Contacts",
+      noConversations: "No conversations",
+      noConversationsSub: "Go to \"Contacts\" to start a discussion",
+      noContactsFound: "No contacts found",
+      startDiscussion: "Start a discussion",
+      online: "Online",
+      offline: "Offline",
+      typing: "is typing...",
+      typingMultiple: "are typing...",
+      inputPlaceholder: "Type your message...",
+      attachments: "Attachments – coming soon",
+      emojis: "Emojis – coming soon",
+      realTime: "Real-time",
+      emptyStateTitle: "Your messages",
+      emptyStateDesc: "Select an existing conversation or start a new one from the \"Contacts\" tab.",
+      refresh: "Refresh",
+      justNow: "Just now",
+      minutesAgo: "{n} min ago",
+      noMessage: "No messages yet.",
+      startChat: "Start the conversation!",
+      conversation: "Conversation",
+      you: "You",
+      connectionStatus: {
+        connecting: "Connecting...",
+        disconnected: "Disconnected",
+        offline: "Offline",
+        connected: "Online",
       },
     },
   },

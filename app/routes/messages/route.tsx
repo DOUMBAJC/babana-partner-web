@@ -3,7 +3,7 @@ import { redirect, useLoaderData } from "react-router";
 import type { Route } from "./+types/route";
 import { getCurrentUser } from "~/services/api.server";
 import { getUserToken } from "~/services/session.server";
-import { usePageTitle } from "~/hooks";
+import { usePageTitle, useTranslation } from "~/hooks";
 import { useChat } from "~/hooks/useChat";
 import { Layout } from "~/components/Layout";
 import { Card } from "~/components/ui/card";
@@ -40,6 +40,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import type { ChatConversation, ChatContact, ChatMessage } from "~/lib/services/message.service";
 
+
 // ---------------------------------------------------------------------------
 // Loader
 // ---------------------------------------------------------------------------
@@ -75,16 +76,16 @@ function formatTime(dateString: string): string {
   });
 }
 
-function formatConversationDate(dateString: string | null): string {
+function formatConversationDate(dateString: string | null, t: any, language: string, interpolate: any): string {
   if (!dateString) return "";
   const date = new Date(dateString);
   const now  = new Date();
   const diff = now.getTime() - date.getTime();
 
-  if (diff < 60_000)       return "À l'instant";
-  if (diff < 3_600_000)    return `Il y a ${Math.floor(diff / 60_000)} min`;
+  if (diff < 60_000)       return t.chat.justNow;
+  if (diff < 3_600_000)    return interpolate(t.chat.minutesAgo, { n: Math.floor(diff / 60_000) });
   if (diff < 86_400_000)   return formatTime(dateString);
-  return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+  return date.toLocaleDateString(language === "fr" ? "fr-FR" : "en-US", { day: "2-digit", month: "short" });
 }
 
 // ---------------------------------------------------------------------------
@@ -93,22 +94,28 @@ function formatConversationDate(dateString: string | null): string {
 
 // --- Indicateur de statut de connexion WebSocket ---
 function ConnectionBadge({ status }: { status: string }) {
-  if (status === "connected") return null;
-
+  const { t } = useTranslation();
+  
+  // On peut choisir d'afficher ou non le badge quand on est connecté. 
+  // Ici on le garde pour retour visuel (optionnel).
+  
   return (
     <div className={cn(
       "flex items-center gap-1.5 text-xs px-2 py-1 rounded-full font-medium",
       status === "connecting" && "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400",
       status === "error"      && "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+      status === "connected"  && "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400",
       status === "idle"       && "bg-zinc-100 dark:bg-zinc-800 text-zinc-500",
     )}>
       {status === "connecting" && <Loader2 className="h-3 w-3 animate-spin" />}
+      {status === "connected"  && <span className="h-1.5 w-1.5 rounded-full bg-green-500" />}
       {status === "error"      && <WifiOff className="h-3 w-3" />}
       {status === "idle"       && <WifiOff className="h-3 w-3" />}
       <span>
-        {status === "connecting" && "Connexion..."}
-        {status === "error"      && "Déconnecté"}
-        {status === "idle"       && "Hors ligne"}
+        {status === "connecting" && t.chat.connectionStatus.connecting}
+        {status === "connected"  && t.chat.connectionStatus.connected}
+        {status === "error"      && t.chat.connectionStatus.disconnected}
+        {status === "idle"       && t.chat.connectionStatus.offline}
       </span>
     </div>
   );
@@ -159,7 +166,8 @@ function ConversationItem({
   isActive:      boolean;
   onClick:       () => void;
 }) {
-  const participantName = conversation.participant?.name ?? conversation.label ?? "Conversation";
+  const { t, language, interpolate } = useTranslation();
+  const participantName = conversation.participant?.name ?? conversation.label ?? t.chat.conversation;
 
   return (
     <button
@@ -194,7 +202,7 @@ function ConversationItem({
             {participantName}
           </span>
           <span className="text-[10px] text-zinc-400 whitespace-nowrap ml-2 shrink-0">
-            {formatConversationDate(conversation.last_message_at)}
+            {formatConversationDate(conversation.last_message_at, t, language, interpolate)}
           </span>
         </div>
 
@@ -204,8 +212,8 @@ function ConversationItem({
               <span className="text-green-500 mr-1.5 font-bold">●</span>
             )}
             {conversation.last_message
-              ? (conversation.last_message.is_mine ? "Vous : " : "") + conversation.last_message.content
-              : <span className="italic opacity-50">Aucun message</span>
+              ? (conversation.last_message.is_mine ? `${t.chat.you} : ` : "") + conversation.last_message.content
+              : <span className="italic opacity-50">{t.chat.noMessage}</span>
             }
           </p>
           {conversation.unread_count > 0 && (
@@ -259,7 +267,8 @@ function ContactItem({
 
 export default function MessagesPage() {
   const { user, token } = useLoaderData<typeof loader>();
-  usePageTitle("Messages");
+  const { t, interpolate } = useTranslation();
+  usePageTitle(t.chat.messages);
 
   const chat = useChat({ userId: user?.id, userName: user?.name, token });
 
@@ -314,7 +323,7 @@ export default function MessagesPage() {
             {/* Header sidebar */}
             <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Messages</h2>
+                <h2 className="text-xl font-bold">{t.chat.messages}</h2>
                 <div className="flex items-center gap-2">
                   <ConnectionBadge status={chat.connectionStatus} />
                   <Button
@@ -322,7 +331,7 @@ export default function MessagesPage() {
                     size="icon"
                     className="h-8 w-8 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                     onClick={chat.refreshConversations}
-                    title="Rafraîchir"
+                    title={t.chat.refresh}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
@@ -333,7 +342,7 @@ export default function MessagesPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
                 <Input
-                  placeholder="Rechercher..."
+                  placeholder={t.chat.searchPlaceholder}
                   className="pl-9 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -352,7 +361,7 @@ export default function MessagesPage() {
                   )}
                 >
                   <MessageSquarePlus className="h-3.5 w-3.5" />
-                  Conversations
+                  {t.chat.conversationsTab}
                   {chat.conversations.some((c) => c.unread_count > 0) && (
                     <span className="h-1.5 w-1.5 rounded-full bg-babana-cyan" />
                   )}
@@ -367,7 +376,7 @@ export default function MessagesPage() {
                   )}
                 >
                   <Users className="h-3.5 w-3.5" />
-                  Contacts
+                  {t.chat.contactsTab}
                 </button>
               </div>
             </div>
@@ -386,9 +395,9 @@ export default function MessagesPage() {
                     ) : filteredConversations.length === 0 ? (
                       <div className="text-center py-10 space-y-2">
                         <MessageSquarePlus className="h-8 w-8 mx-auto text-zinc-300" />
-                        <p className="text-sm text-zinc-500">Aucune conversation</p>
+                        <p className="text-sm text-zinc-500">{t.chat.noConversations}</p>
                         <p className="text-xs text-zinc-400">
-                          Allez dans "Contacts" pour démarrer une discussion
+                          {t.chat.noConversationsSub}
                         </p>
                       </div>
                     ) : (
@@ -409,7 +418,7 @@ export default function MessagesPage() {
                   <>
                     {filteredContacts.length === 0 ? (
                       <div className="text-center py-10">
-                        <p className="text-sm text-zinc-500">Aucun contact trouvé</p>
+                        <p className="text-sm text-zinc-500">{t.chat.noContactsFound}</p>
                       </div>
                     ) : (
                       filteredContacts.map((contact) => (
@@ -466,11 +475,11 @@ export default function MessagesPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                           </span>
-                          En ligne
+                          {t.chat.online}
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-xs text-zinc-400 italic">
-                          <span>●</span> Hors ligne
+                          <span>●</span> {t.chat.offline}
                         </span>
                       )}
                       
@@ -478,7 +487,7 @@ export default function MessagesPage() {
                       
                       {chat.connectionStatus === "connected" && (
                         <span className="flex items-center gap-1 text-[10px] text-zinc-400 uppercase tracking-widest font-bold">
-                          Temps réel
+                          {t.chat.realTime}
                         </span>
                       )}
                     </div>
@@ -516,14 +525,14 @@ export default function MessagesPage() {
                     <div className="w-16 h-16 bg-babana-cyan/10 rounded-2xl flex items-center justify-center mb-4">
                       <MessageSquarePlus className="h-8 w-8 text-babana-cyan" />
                     </div>
-                    <p className="text-zinc-500 text-sm">Aucun message pour le moment.</p>
-                    <p className="text-zinc-400 text-xs mt-1">Commencez la discussion !</p>
+                    <p className="text-zinc-500 text-sm">{t.chat.noMessage}</p>
+                    <p className="text-zinc-400 text-xs mt-1">{t.chat.startChat}</p>
                   </div>
                 ) : (
                   <>
                     <div className="flex justify-center mb-2">
                       <span className="text-[10px] uppercase font-medium text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full">
-                        Conversation
+                        {t.chat.conversation}
                       </span>
                     </div>
                     {chat.messages.map((message) => (
@@ -536,7 +545,9 @@ export default function MessagesPage() {
                           <span className="h-1.5 w-1.5 rounded-full bg-zinc-300 animate-bounce duration-700" style={{ animationDelay: '150ms' }} />
                           <span className="h-1.5 w-1.5 rounded-full bg-zinc-300 animate-bounce duration-700" style={{ animationDelay: '300ms' }} />
                         </div>
-                        <span className="text-xs italic">{chat.typingUsers.join(", ")} écrit...</span>
+                        <span className="text-xs italic">
+                          {chat.typingUsers.join(", ")} {chat.typingUsers.length > 1 ? t.chat.typingMultiple : t.chat.typing}
+                        </span>
                       </div>
                     )}
                   </>
@@ -551,7 +562,7 @@ export default function MessagesPage() {
                     size="icon"
                     variant="ghost"
                     className="h-10 w-10 rounded-full text-zinc-400 hover:text-babana-cyan hover:bg-babana-cyan/10 shrink-0"
-                    onClick={() => toast.info("Pièces jointes – à venir")}
+                    onClick={() => toast.info(t.chat.attachments)}
                   >
                     <Paperclip className="h-5 w-5" />
                   </Button>
@@ -563,7 +574,7 @@ export default function MessagesPage() {
                       chat.sendTypingEvent();
                     }}
                     onKeyDown={handleKeyDown}
-                    placeholder="Écrivez votre message..."
+                    placeholder={t.chat.inputPlaceholder}
                     className="flex-1 bg-transparent border-none shadow-none focus-visible:ring-0 min-h-[44px] py-3 text-base"
                     autoComplete="off"
                     disabled={chat.isSending}
@@ -574,7 +585,7 @@ export default function MessagesPage() {
                     size="icon"
                     variant="ghost"
                     className="h-10 w-10 rounded-full text-zinc-400 hover:text-yellow-500 hover:bg-yellow-500/10 shrink-0 hidden sm:flex"
-                    onClick={() => toast.info("Émojis – à venir")}
+                    onClick={() => toast.info(t.chat.emojis)}
                   >
                     <Smile className="h-5 w-5" />
                   </Button>
@@ -610,10 +621,10 @@ export default function MessagesPage() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 mb-2">
-                Vos messages
+                {t.chat.emptyStateTitle}
               </h3>
               <p className="text-zinc-500 dark:text-zinc-400 max-w-md">
-                Sélectionnez une conversation existante ou démarrez-en une nouvelle depuis l'onglet "Contacts".
+                {t.chat.emptyStateDesc}
               </p>
               <div className="mt-6">
                 <ConnectionBadge status={chat.connectionStatus} />
