@@ -39,7 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import type { ChatConversation, ChatContact, ChatMessage } from "~/lib/services/message.service";
-
+import type { Translations } from "~/lib/translations";
 
 // ---------------------------------------------------------------------------
 // Loader
@@ -76,7 +76,12 @@ function formatTime(dateString: string): string {
   });
 }
 
-function formatConversationDate(dateString: string | null, t: any, language: string, interpolate: any): string {
+function formatConversationDate(
+  dateString: string | null, 
+  t: Translations, 
+  language: string, 
+  interpolate: (text: string, params: Record<string, string | number>) => string
+): string {
   if (!dateString) return "";
   const date = new Date(dateString);
   const now  = new Date();
@@ -448,7 +453,7 @@ export default function MessagesPage() {
                     variant="ghost"
                     size="icon"
                     className="md:hidden -ml-2 text-zinc-500"
-                    onClick={() => chat.selectConversation(null as any)}
+                    onClick={() => chat.selectConversation(null)}
                   >
                     <ChevronLeft className="h-6 w-6" />
                   </Button>
