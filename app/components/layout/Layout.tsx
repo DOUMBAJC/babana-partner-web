@@ -1,7 +1,6 @@
 import { Header } from "~/components/Header";
 import { Footer } from "~/components/Footer";
 import { BottomNav } from "./BottomNav";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,7 +15,6 @@ export function Layout({ children }: LayoutProps) {
         <Footer />
       </div>
       <BottomNav />
-      <SpeedInsights /> 
     </div>
   );
 }

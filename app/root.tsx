@@ -15,6 +15,7 @@ import { LanguageSync } from "~/components/LanguageSync";
 import { ConsentBanner } from "~/components/ConsentBanner";
 import { ConnectionAlert } from "~/components/ConnectionAlert";
 import { Toaster } from "~/components";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./app.css";
 
 export function meta({}: Route.MetaArgs) {
@@ -123,6 +124,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </LanguageProvider>
         <ScrollRestoration />
         <Scripts />
+        <SpeedInsights />
       </body>
     </html>
   );
@@ -158,6 +160,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <ServerError error={error} isDev={import.meta.env.DEV} />
         )}
         <Scripts />
+        <SpeedInsights />
       </body>
     </html>
   );
