@@ -1,13 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import { Wifi, WifiOff, RefreshCw, AlertCircle, X, CheckCircle2 } from 'lucide-react';
+import { WifiOff, RefreshCw, X, CheckCircle2, CloudOff } from 'lucide-react';
 import { useConnectionStatus } from '~/hooks/useConnectionStatus';
 import { useTranslation } from '~/hooks';
-import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 
 /**
- * Composant d'alerte de connexion
- * S'affiche lorsqu'il y a un problème de connexion réseau ou quand la connexion revient
+ * Composant d'alerte de connexion — design toast minimaliste
  */
 export function ConnectionAlert() {
   const { isOnline, hasNetworkError, errorMessage, checkConnection } = useConnectionStatus();
@@ -15,11 +13,11 @@ export function ConnectionAlert() {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const previousErrorState = useRef(hasNetworkError);
   const successDismissedRef = useRef(false);
   const autoHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Nettoyer le timer si présent
   const clearAutoHideTimer = () => {
     if (autoHideTimerRef.current) {
       clearTimeout(autoHideTimerRef.current);
@@ -27,249 +25,188 @@ export function ConnectionAlert() {
     }
   };
 
-  // Détecter le retour de connexion (passage de hasNetworkError: true à false)
   useEffect(() => {
-    // Si on passe d'une erreur à pas d'erreur, c'est un succès
     if (previousErrorState.current && !hasNetworkError && isOnline && !successDismissedRef.current) {
       setIsSuccess(true);
       setIsVisible(true);
       setIsAnimating(true);
-      successDismissedRef.current = false; // Réinitialiser pour permettre l'affichage
-      
-      // Nettoyer tout timer précédent
       clearAutoHideTimer();
-      
-      // Masquer automatiquement après 4 secondes
       autoHideTimerRef.current = setTimeout(() => {
-        setIsVisible(false);
         setIsAnimating(false);
-        setIsSuccess(false);
-        successDismissedRef.current = false;
-      }, 4000);
+        setTimeout(() => {
+          setIsVisible(false);
+          setIsSuccess(false);
+          successDismissedRef.current = false;
+        }, 400);
+      }, 3500);
     }
-    
-    // Si on a une erreur, c'est une alerte d'erreur
+
     if (hasNetworkError) {
       setIsSuccess(false);
       setIsVisible(true);
       setIsAnimating(true);
-      successDismissedRef.current = false; // Réinitialiser quand une nouvelle erreur arrive
+      successDismissedRef.current = false;
       clearAutoHideTimer();
     } else if (!hasNetworkError && !isSuccess && !successDismissedRef.current) {
-      // Si pas d'erreur et pas de succès en cours, masquer
       clearAutoHideTimer();
-      const timer = setTimeout(() => {
-        setIsVisible(false);
+      const t = setTimeout(() => {
         setIsAnimating(false);
-      }, 500);
-      return () => clearTimeout(timer);
+        setTimeout(() => setIsVisible(false), 400);
+      }, 300);
+      return () => clearTimeout(t);
     }
-    
+
     previousErrorState.current = hasNetworkError;
-    
-    // Nettoyer le timer au démontage
-    return () => {
-      clearAutoHideTimer();
-    };
+    return () => clearAutoHideTimer();
   }, [hasNetworkError, isOnline, isSuccess]);
 
-  // Ne rien afficher si pas d'erreur et pas de succès
-  if ((!hasNetworkError && !isSuccess) || !isVisible) {
-    return null;
-  }
+  if ((!hasNetworkError && !isSuccess) || !isVisible) return null;
 
   const handleRetry = () => {
-    setIsAnimating(true);
+    setIsRetrying(true);
     checkConnection();
+    setTimeout(() => setIsRetrying(false), 2000);
   };
 
   const handleDismiss = () => {
-    // Nettoyer le timer automatique
     clearAutoHideTimer();
-    
-    // Si c'est une alerte de succès, marquer comme fermée manuellement
-    if (isSuccess) {
-      successDismissedRef.current = true;
-    }
-    
-    setIsVisible(false);
+    if (isSuccess) successDismissedRef.current = true;
     setIsAnimating(false);
-    setIsSuccess(false);
+    setTimeout(() => {
+      setIsVisible(false);
+      setIsSuccess(false);
+    }, 400);
   };
 
-  // Messages selon le type d'erreur ou succès
-  const getMessage = () => {
-    if (isSuccess) {
-      return t.connection?.restored || 'Connexion rétablie';
-    }
-    
-    if (!isOnline) {
-      return t.connection?.offline || 'Vous êtes hors ligne';
-    }
-    
-    switch (errorMessage) {
-      case 'timeout':
-        return t.connection?.timeout || 'La connexion prend trop de temps';
-      case 'server_error':
-        return t.connection?.serverError || 'Le serveur ne répond pas correctement';
-      case 'network_error':
-      default:
-        return t.connection?.networkError || 'Problème de connexion réseau détecté';
-    }
-  };
-
-  const getSubMessage = () => {
-    if (isSuccess) {
-      return t.connection?.restoredSub || 'Votre connexion internet est de retour';
-    }
-    
-    if (!isOnline) {
-      return t.connection?.offlineSub || 'Vérifiez votre connexion internet';
-    }
-    return t.connection?.retrySub || 'Veuillez réessayer dans quelques instants';
-  };
+  const label = isSuccess
+    ? (t.connection?.restored || 'Connexion rétablie')
+    : !isOnline
+    ? (t.connection?.offline || 'Hors ligne')
+    : errorMessage === 'timeout'
+    ? (t.connection?.timeout || 'Temps d\'attente dépassé')
+    : (t.connection?.networkError || 'Connexion interrompue');
 
   return (
     <div
+      role="alert"
+      aria-live="assertive"
       className={cn(
-        'fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-in-out',
-        isVisible && isAnimating
-          ? 'translate-y-0 opacity-100'
-          : '-translate-y-full opacity-0'
+        'fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999]',
+        'transition-all duration-400 ease-out',
+        isAnimating
+          ? 'translate-y-0 opacity-100 scale-100'
+          : 'translate-y-4 opacity-0 scale-95'
       )}
+      style={{ transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease, scale 0.35s ease' }}
     >
-      {/* Alerte avec design moderne */}
-      <div className="relative mx-4 mt-4 sm:mx-auto sm:max-w-2xl">
-        {/* Effet de glow animé - vert pour succès, cyan pour erreur */}
-        <div className={cn(
-          'absolute inset-0 rounded-2xl blur-xl animate-pulse',
-          isSuccess 
-            ? 'bg-green-500/20 dark:bg-green-500/10'
-            : 'bg-babana-cyan/20 dark:bg-babana-cyan/10'
-        )} />
-        
-        {/* Carte principale avec glassmorphism */}
-        <div className={cn(
-          'relative backdrop-blur-xl border-2 rounded-2xl shadow-2xl overflow-hidden',
+      <div
+        className={cn(
+          'flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl',
+          'backdrop-blur-2xl border',
+          'min-w-[260px] max-w-[420px] w-max',
           isSuccess
-            ? 'bg-white/95 dark:bg-gray-900/95 border-green-500/30 dark:border-green-500/20'
-            : 'bg-white/95 dark:bg-gray-900/95 border-babana-cyan/30 dark:border-babana-cyan/20'
-        )}>
-          {/* Barre de progression animée en haut */}
-          <div className={cn(
-            'absolute top-0 left-0 right-0 h-1 animate-gradient bg-size-\[200\%_auto\]',
+            ? [
+                'bg-emerald-950/80 border-emerald-500/25',
+                'shadow-emerald-900/40',
+              ]
+            : [
+                'bg-gray-950/85 border-white/10',
+                'shadow-black/50',
+              ]
+        )}
+      >
+        {/* Icône */}
+        <div
+          className={cn(
+            'flex items-center justify-center w-8 h-8 rounded-xl shrink-0',
             isSuccess
-              ? 'bg-linear-to-r from-green-500 via-emerald-500 to-green-500'
-              : 'bg-linear-to-r from-babana-cyan via-babana-blue to-babana-cyan'
-          )} />
-          
-          <div className="p-4 sm:p-6">
-            <div className="flex items-start gap-4">
-              {/* Icône animée */}
-              <div className="relative shrink-0">
-                {/* Glow effect */}
-                <div className={cn(
-                  'absolute inset-0 rounded-full blur-lg animate-pulse',
-                  isSuccess
-                    ? 'bg-green-500/30 dark:bg-green-500/20'
-                    : 'bg-babana-cyan/30 dark:bg-babana-cyan/20'
-                )} />
-                
-                {/* Icône principale */}
-                <div className={cn(
-                  'relative p-3 rounded-xl border',
-                  isSuccess
-                    ? 'bg-linear-to-br from-green-500/20 to-emerald-500/20 dark:from-green-500/10 dark:to-emerald-500/10 border-green-500/30'
-                    : 'bg-linear-to-br from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/10 dark:to-babana-blue/10 border-babana-cyan/30'
-                )}>
-                  {isSuccess ? (
-                    <Wifi className="w-6 h-6 sm:w-7 sm:h-7 text-green-500 animate-pulse" />
-                  ) : isOnline ? (
-                    <WifiOff className="w-6 h-6 sm:w-7 sm:h-7 text-babana-cyan animate-pulse" />
-                  ) : (
-                    <WifiOff className="w-6 h-6 sm:w-7 sm:h-7 text-orange-500 animate-bounce" />
-                  )}
-                </div>
-              </div>
-
-              {/* Contenu */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <h3 className={cn(
-                      'text-base sm:text-lg font-bold mb-1 flex items-center gap-2',
-                      isSuccess ? 'text-green-600 dark:text-green-400' : 'text-foreground'
-                    )}>
-                      {isSuccess ? (
-                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-babana-cyan" />
-                      )}
-                      {isSuccess 
-                        ? (t.connection?.restored || 'Connexion rétablie')
-                        : (t.connection?.title || 'Problème de connexion')
-                      }
-                    </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground font-medium">
-                      {getMessage()}
-                    </p>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                      {getSubMessage()}
-                    </p>
-                  </div>
-                  
-                  {/* Bouton fermer */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleDismiss}
-                    className={cn(
-                      'h-8 w-8 shrink-0 rounded-lg',
-                      isSuccess 
-                        ? 'hover:bg-green-500/10 dark:hover:bg-green-500/20'
-                        : 'hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/20'
-                    )}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {/* Actions - seulement pour les erreurs */}
-                {!isSuccess && (
-                  <div className="flex items-center gap-3 mt-4">
-                    <Button
-                      onClick={handleRetry}
-                      size="sm"
-                      className="bg-linear-to-r from-babana-cyan to-babana-blue hover:from-babana-cyan-dark hover:to-babana-blue-dark text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      <RefreshCw className={cn(
-                        'w-4 h-4 mr-2',
-                        isAnimating && 'animate-spin'
-                      )} />
-                      {t.connection?.retry || 'Réessayer'}
-                    </Button>
-                    
-                    {!isOnline && (
-                      <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                        <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                        <span>{t.connection?.checking || 'Vérification en cours...'}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Indicateur de statut animé en bas */}
-          <div className={cn(
-            'h-1 bg-linear-to-r from-transparent to-transparent animate-shimmer',
-            isSuccess
-              ? 'via-green-500/50'
-              : 'via-babana-cyan/50'
-          )} />
+              ? 'bg-emerald-500/15 text-emerald-400'
+              : 'bg-white/5 text-red-400'
+          )}
+        >
+          {isSuccess ? (
+            <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} />
+          ) : isOnline ? (
+            <WifiOff className="w-4 h-4" strokeWidth={2.5} />
+          ) : (
+            <CloudOff className="w-4 h-4" strokeWidth={2.5} />
+          )}
         </div>
+
+        {/* Texte */}
+        <div className="flex-1 min-w-0">
+          <p
+            className={cn(
+              'text-sm font-semibold leading-tight tracking-tight truncate',
+              isSuccess ? 'text-emerald-300' : 'text-white'
+            )}
+          >
+            {label}
+          </p>
+          {!isSuccess && (
+            <p className="text-xs text-white/40 mt-0.5 leading-tight">
+              {t.connection?.retrySub || 'Vérifiez votre connexion'}
+            </p>
+          )}
+        </div>
+
+        {/* Séparateur vertical */}
+        <div className="w-px h-6 bg-white/10 shrink-0" />
+
+        {/* Actions */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {!isSuccess && (
+            <button
+              onClick={handleRetry}
+              disabled={isRetrying}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold',
+                'transition-all duration-200 active:scale-95',
+                'bg-white/10 hover:bg-white/15 text-white/80 hover:text-white',
+                isRetrying && 'opacity-60 cursor-not-allowed'
+              )}
+              aria-label={t.connection?.retry || 'Réessayer'}
+            >
+              <RefreshCw
+                className={cn('w-3 h-3', isRetrying && 'animate-spin')}
+                strokeWidth={2.5}
+              />
+              <span>{t.connection?.retry || 'Réessayer'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleDismiss}
+            className={cn(
+              'flex items-center justify-center w-7 h-7 rounded-lg',
+              'transition-all duration-200 active:scale-90',
+              'text-white/30 hover:text-white/70 hover:bg-white/8'
+            )}
+            aria-label="Fermer"
+          >
+            <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+          </button>
+        </div>
+
+        {/* Barre de progression auto-dismiss (succès uniquement) */}
+        {isSuccess && (
+          <div
+            className="absolute bottom-0 left-0 h-[2px] rounded-full bg-emerald-400/60 animate-shrink-x"
+            style={{
+              width: '100%',
+              animation: 'shrinkX 3.5s linear forwards',
+            }}
+          />
+        )}
       </div>
+
+      {/* Keyframe inline */}
+      <style>{`
+        @keyframes shrinkX {
+          from { width: 100%; }
+          to   { width: 0%; }
+        }
+      `}</style>
     </div>
   );
 }

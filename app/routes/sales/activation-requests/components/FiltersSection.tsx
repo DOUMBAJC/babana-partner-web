@@ -12,17 +12,15 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Search, X, Filter, Loader2 } from "lucide-react";
-import { useLanguage, useTranslation, useAuth } from "~/hooks";
+import { useTranslation } from "~/hooks";
 import { ExportButtons } from "./ExportButtons";
 
 
 export function FiltersSection() {
   const { t } = useTranslation();
-  const { language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
-  const { user } = useAuth();
 
   // Initialiser les filtres depuis l'URL au montage
   const [localFilters, setLocalFilters] = useState(() => ({

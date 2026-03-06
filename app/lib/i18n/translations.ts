@@ -1525,6 +1525,33 @@ export interface Translations {
       offline: string;
       connected: string;
     };
+    // Groupes
+    newGroup: string;
+    createGroup: string;
+    createGroupTitle: string;
+    groupName: string;
+    groupNamePlaceholder: string;
+    groupDescription: string;
+    groupDescriptionPlaceholder: string;
+    groupMembers: string;
+    groupMembersPlaceholder: string;
+    groupMembersRequired: string;
+    groupCreated: string;
+    groupType: string;
+    directType: string;
+    adminSupportType: string;
+    membersCount: string;
+    leaveGroup: string;
+    addMembers: string;
+    // Contact Admin
+    contactAdmin: string;
+    contactAdminDesc: string;
+    adminChatTitle: string;
+    adminChatDesc: string;
+    adminChatBadge: string;
+    // Divers
+    inGroup: string;
+    groupBadge: string;
   };
 };
 
@@ -3433,6 +3460,30 @@ export const translations: Record<Language, Translations> = {
         offline: "Hors ligne",
         connected: "En ligne",
       },
+      newGroup: "Nouveau groupe",
+      createGroup: "Créer un groupe",
+      createGroupTitle: "Créer un groupe de discussion",
+      groupName: "Nom du groupe",
+      groupNamePlaceholder: "Ex: Équipe commerciale, Support technique...",
+      groupDescription: "Description (optionnel)",
+      groupDescriptionPlaceholder: "Décrivez l'objectif du groupe...",
+      groupMembers: "Membres",
+      groupMembersPlaceholder: "Rechercher des membres à ajouter...",
+      groupMembersRequired: "Ajoutez au moins un membre au groupe",
+      groupCreated: "Groupe créé avec succès !",
+      groupType: "Groupe",
+      directType: "Direct",
+      adminSupportType: "Support Admin",
+      membersCount: "{n} membres",
+      leaveGroup: "Quitter le groupe",
+      addMembers: "Ajouter des membres",
+      contactAdmin: "Contacter un admin",
+      contactAdminDesc: "Envoyez un message directement à l'équipe d'administration",
+      adminChatTitle: "Support Administration",
+      adminChatDesc: "Ce canal vous permet de contacter directement l'équipe d'administration.",
+      adminChatBadge: "Admin",
+      inGroup: "dans le groupe",
+      groupBadge: "Groupe",
     },
   },
   en: {
@@ -5339,6 +5390,30 @@ export const translations: Record<Language, Translations> = {
         offline: "Offline",
         connected: "Online",
       },
+      newGroup: "New group",
+      createGroup: "Create group",
+      createGroupTitle: "Create a discussion group",
+      groupName: "Group name",
+      groupNamePlaceholder: "E.g.: Sales team, Technical support...",
+      groupDescription: "Description (optional)",
+      groupDescriptionPlaceholder: "Describe the purpose of this group...",
+      groupMembers: "Members",
+      groupMembersPlaceholder: "Search members to add...",
+      groupMembersRequired: "Add at least one member to the group",
+      groupCreated: "Group successfully created!",
+      groupType: "Group",
+      directType: "Direct",
+      adminSupportType: "Admin Support",
+      membersCount: "{n} members",
+      leaveGroup: "Leave group",
+      addMembers: "Add members",
+      contactAdmin: "Contact an admin",
+      contactAdminDesc: "Send a message directly to the administration team",
+      adminChatTitle: "Administration Support",
+      adminChatDesc: "This channel allows you to contact the administration team directly.",
+      adminChatBadge: "Admin",
+      inGroup: "in the group",
+      groupBadge: "Group",
     },
   },
 };

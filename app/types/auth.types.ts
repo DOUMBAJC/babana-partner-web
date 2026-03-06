@@ -11,6 +11,7 @@ export type RoleSlug =
   | 'dsm'
   | 'vendeur'
   | 'client'
+  | 'identificateur'
   | 'autre';
 
 export type Permission =
