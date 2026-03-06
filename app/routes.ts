@@ -21,6 +21,8 @@ export default [
   route("admin", "routes/admin/route.tsx"),
   route("admin/users", "routes/admin/users/route.tsx"),
   route("admin/reports", "routes/admin/reports/route.tsx"),
+  route("admin/identifications", "routes/admin/identifications/route.tsx"),
+  route("admin/identifications/:id", "routes/admin/identifications/$id/route.tsx"),
   route("admin/camtel-logins", "routes/admin/camtel-logins/route.tsx"),
   route("admin/settings", "routes/admin/settings/route.tsx"),
   route("admin/logs", "routes/admin/logs/route.tsx"),

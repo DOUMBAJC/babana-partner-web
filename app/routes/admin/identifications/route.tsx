@@ -8,7 +8,7 @@ import { getTranslations, type Language } from '~/lib/translations';
 import { StatsCards } from './components/StatsCards';
 import { FiltersSection } from './components/FiltersSection';
 import { IdentificationsTable } from './components/IdentificationsTable';
-import { AccessDenied } from '~/routes/sales/activation-requests/components/AccessDenied';
+import { AccessDenied } from './components/AccessDenied';
 import type { RoleSlug } from '~/types';
 import { useEffect } from 'react';
 import { toast } from 'sonner';

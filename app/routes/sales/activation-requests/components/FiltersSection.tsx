@@ -13,7 +13,6 @@ import {
 } from "~/components/ui/select";
 import { Search, X, Filter, Loader2 } from "lucide-react";
 import { useTranslation } from "~/hooks";
-import { ExportButtons } from "./ExportButtons";
 
 
 export function FiltersSection() {
@@ -192,10 +191,7 @@ export function FiltersSection() {
 
 
       {/* Boutons d'action */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-6 pt-4 border-t border-border/40">
-        <div className="flex items-center gap-2">
-          <ExportButtons />
-        </div>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6 pt-4 border-t border-border/40">
         
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           {hasActiveFilters && (
