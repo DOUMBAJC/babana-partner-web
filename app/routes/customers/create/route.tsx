@@ -168,6 +168,18 @@ export default function CustomerCreatePage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  const location = useLocation();
+
+  // Initialise le formulaire avec les données pré-remplies depuis la page de recherche
+  const searchState = location.state as { idCardTypeId?: string | number; idCardNumber?: string } | null;
+  const initialData = (searchState?.idCardTypeId || searchState?.idCardNumber)
+    ? {
+        ...INITIAL_FORM_DATA,
+        idCardTypeId: searchState.idCardTypeId?.toString() ?? INITIAL_FORM_DATA.idCardTypeId,
+        idCardNumber: searchState.idCardNumber ?? INITIAL_FORM_DATA.idCardNumber,
+      }
+    : INITIAL_FORM_DATA;
+
   const {
     formData,
     errors,
@@ -178,7 +190,7 @@ export default function CustomerCreatePage() {
     resetForm,
     setExternalErrors,
     isFormValid
-  } = useCustomerForm(INITIAL_FORM_DATA, t.customerCreate.validation, idCardTypes);
+  } = useCustomerForm(initialData, t.customerCreate.validation, idCardTypes);
 
   const { clearPersistence } = useFormPersistence(formData, updateField);
 
@@ -190,10 +202,8 @@ export default function CustomerCreatePage() {
     (type: IdCardType) => type.id.toString() === formData.idCardTypeId
   );
 
-  const { validationError: idCardValidationError, validateIdCardNumber, setValidationError: setIdCardValidationError } = 
+  const { validationError: idCardValidationError, validateIdCardNumber, setValidationError: setIdCardValidationError } =
     useIdCardValidation(selectedCardType, 'Format de carte d\'identité invalide');
-
-  const location = useLocation();
 
   // Gestion des résultats de l'action (Succès/Erreur)
   useEffect(() => {
@@ -248,22 +258,18 @@ export default function CustomerCreatePage() {
     }
   }, [actionData, navigate, t.customerCreate.success]);
 
-  // Pré-remplissage depuis les résultats de recherche
+  // Valide le numéro de carte quand le type de carte change et qu'un numéro est déjà renseigné.
+  // Cet effet s'exécute après le re-render, donc selectedCardType est à jour.
   useEffect(() => {
-    const searchState = location.state as { idCardTypeId?: string | number; idCardNumber?: string } | null;
-    
-    // Attendre que les types de carte soient chargés
-    if (searchState && idCardTypes.length > 0) {
-      if (searchState.idCardTypeId) {
-        handleIdCardTypeChange(searchState.idCardTypeId.toString());
+    if (formData.idCardNumber && formData.idCardTypeId) {
+      if (selectedCardType?.validation_pattern) {
+        validateIdCardNumber(formData.idCardNumber);
+      } else {
+        setIdCardValidationError('');
       }
-      if (searchState.idCardNumber) {
-        handleIdCardNumberChange(searchState.idCardNumber);
-      }
-      // Nettoyage de l'état pour éviter les répétitions
-      window.history.replaceState({}, document.title);
     }
-  }, [location.state, idCardTypes.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.idCardTypeId]);
 
   const handleIdCardTypeChange = (value: string) => {
     updateField('idCardTypeId', value);

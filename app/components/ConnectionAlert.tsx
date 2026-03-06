@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 
 /**
- * Composant d'alerte de connexion moderne et fun
+ * Composant d'alerte de connexion
  * S'affiche lorsqu'il y a un problème de connexion réseau ou quand la connexion revient
  */
 export function ConnectionAlert() {

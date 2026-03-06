@@ -75,7 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                // Force viewport meta tag
+
                 let viewport = document.querySelector('meta[name="viewport"]');
                 if (!viewport) {
                   viewport = document.createElement('meta');
@@ -84,7 +84,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 }
                 viewport.content = 'width=device-width, initial-scale=1';
                 
-                // Theme initialization
                 const theme = localStorage.getItem('babana-ui-theme') || 'system';
                 if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                   document.documentElement.classList.add('dark');
