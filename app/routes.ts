@@ -39,6 +39,11 @@ export default [
   route("sales/activation", "routes/sales/activation/route.tsx"),
   route("sales/activation-requests", "routes/sales/activation-requests/route.tsx"),
   route("sales/activation-requests/:id", "routes/sales/activation-requests/$id/route.tsx"),
+  
+  // Gestion des Points de Vente (POS) - DSM
+  route("sales/pos", "routes/sales/pos/route.tsx"),
+  route("sales/pos/redeploy/:id", "routes/sales/pos/redeploy.$id.tsx"),
+  route("sales/pos/:id/history", "routes/sales/pos/history.$id.tsx"),
 
   // Messages
   route("messages", "routes/messages/route.tsx"),

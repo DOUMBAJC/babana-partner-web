@@ -15,10 +15,11 @@ import {
   CheckCircle2,
   X,
   GraduationCap,
-  LifeBuoy
+  LifeBuoy,
+  MapPin
 } from 'lucide-react';
 import logoUrl from '~/assets/logo.png';
-import { hasPermission, isAdmin } from '~/lib/permissions';
+import { hasPermission, isAdmin, hasRole } from '~/lib/permissions';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '~/lib/utils';
 import type { Permission } from '~/types/auth.types';
@@ -132,6 +133,15 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         color: "bg-linear-to-br from-blue-500 to-cyan-500",
         permission: undefined as Permission | undefined,
       },
+      {
+        title: t.pages.sales.pos.title,
+        description: t.pages.sales.pos.description,
+        icon: MapPin,
+        href: "/sales/pos",
+        color: "bg-linear-to-br from-green-500 to-emerald-600",
+        permission: 'manage-pos' as Permission,
+        _posCard: true,
+      },
     ].filter(action => {
       // Filtrer le tutoriel si l'utilisateur n'a pas accès
       if (action.href === "/tutorials") {
@@ -155,6 +165,16 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
         return {
           ...action,
           hasAccess: safeIsAuthenticated,
+        };
+      }
+
+      // La gestion POS est accessible aux DSM et admins
+      if ((action as any)._posCard) {
+        return {
+          ...action,
+          hasAccess: safeIsAuthenticated && user != null && (
+            hasPermission(user, 'manage-pos') || hasRole(user, 'dsm') || isAdmin(user)
+          ),
         };
       }
 

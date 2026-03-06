@@ -8,9 +8,9 @@ import { NotificationDropdown } from "~/components/NotificationDropdown";
 import { Button } from "~/components/ui/button";
 import { useScrolled, useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
-import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings, User as UserIcon, ChevronDown } from "lucide-react";
+import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings, User as UserIcon, ChevronDown, MapPin } from "lucide-react";
 import logoUrl from "~/assets/logo.png";
-import { hasPermission, isAdmin } from "~/lib/permissions";
+import { hasPermission, isAdmin, hasRole } from "~/lib/permissions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,6 +66,15 @@ export function Header() {
         href: "/admin/identifications",
         label: t.nav.identificationManagement,
         icon: FileText,
+        requiresAuth: true,
+      });
+    }
+
+    if (hasPermission(user, "manage-pos") || hasRole(user, 'dsm') || isAdmin(user)) {
+      links.push({
+        href: "/sales/pos",
+        label: t.nav.posManagement,
+        icon: MapPin,
         requiresAuth: true,
       });
     }

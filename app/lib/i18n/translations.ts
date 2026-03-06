@@ -209,6 +209,7 @@ export interface Translations {
     admin: string;
     camtelLogins: string;
     identificationManagement: string;
+    posManagement: string;
   };
   // Actions
   actions: {
@@ -253,6 +254,8 @@ export interface Translations {
     errorPreparingRequest: string;
     optional: string;
     cancel: string;
+    active: string;
+    inactive: string;
   };
   // Header
   header: {
@@ -450,6 +453,75 @@ export interface Translations {
       adminReports: {
         title: string;
         description: string;
+      };
+      pos: {
+        title: string;
+        description: string;
+        tabs: {
+          list: string;
+          deploy: string;
+        };
+        list: {
+          searchPlaceholder: string;
+          emptyTitle: string;
+          emptyMessage: string;
+          table: {
+            name: string;
+            number: string;
+            agent: string;
+            status: string;
+            lastRedeployed: string;
+            deployedAt: string;
+            actions: string;
+          };
+        };
+        deploy: {
+          title: string;
+          subtitle: string;
+          form: {
+            posNumber: string;
+            posName: string;
+            agent: string;
+            location: string;
+            latitude: string;
+            longitude: string;
+            getCurrentLocation: string;
+            submit: string;
+            submitting: string;
+          };
+          success: string;
+        };
+        redeploy: {
+          title: string;
+          subtitle: string;
+          success: string;
+        };
+        stats: {
+          total: string;
+          active: string;
+          inactive: string;
+          thisMonth: string;
+        };
+        history: {
+          title: string;
+          empty: string;
+          menuLabel: string;
+          by: string;
+          actionDeployed: string;
+          actionRedeployed: string;
+        };
+        deleteModal: {
+          trigger: string;
+          title: string;
+          description: string;
+          warning: string;
+          noteLabel: string;
+          optional: string;
+          notePlaceholder: string;
+          confirm: string;
+          cancel: string;
+          deleting: string;
+        };
       };
     };
     support: {
@@ -1570,6 +1642,7 @@ export const translations: Record<Language, Translations> = {
       admin: "Admin",
       camtelLogins: "Logins CAMTEL",
       identificationManagement: "Gestion Identifications",
+      posManagement: "Gestion POS",
     },
     actions: {
       login: "Connexion",
@@ -1795,6 +1868,8 @@ export const translations: Record<Language, Translations> = {
       errorPreparingRequest: "Erreur lors de la préparation de la requête",
       optional: "optionnel",
       cancel: "Annuler",
+      active: "Actif",
+      inactive: "Inactif",
     },
     header: {
       menuAriaLabel: "Menu de navigation",
@@ -1979,6 +2054,75 @@ export const translations: Record<Language, Translations> = {
         adminReports: {
           title: "Rapports et Statistiques - BABANA Partner",
           description: "Analyse des performances et rapports détaillés du système",
+        },
+        pos: {
+          title: "Gestion des Points de Vente (POS)",
+          description: "Déployez et gérez vos points de vente sur le terrain.",
+          tabs: {
+            list: "Mes POS",
+            deploy: "Déploiement",
+          },
+          stats: {
+            total: "Total POS",
+            active: "Actifs",
+            inactive: "Inactifs",
+            thisMonth: "Ce mois",
+          },
+          list: {
+            searchPlaceholder: "Rechercher un POS (Numéro ou Nom)...",
+            emptyTitle: "Aucun point de vente trouvé",
+            emptyMessage: "Vous n'avez pas encore déployé de POS ou aucun ne correspond à votre recherche.",
+            table: {
+              name: "Nom du POS",
+              number: "Numéro Camtel/Blue",
+              agent: "Agent Assigné",
+              status: "Statut",
+              lastRedeployed: "Dernier Redéploiement",
+              deployedAt: "Date de Déploiement",
+              actions: "Actions",
+            },
+          },
+          deploy: {
+            title: "Déploiement de POS",
+            subtitle: "Enregistrez un nouveau point de vente sur le terrain.",
+            form: {
+              posNumber: "Numéro de la SIM POS",
+              posName: "Nom de l'Etablissement (Optionnel)",
+              agent: "Assigner à un Agent (Optionnel)",
+              location: "Localisation Géographique",
+              latitude: "Latitude",
+              longitude: "Longitude",
+              getCurrentLocation: "Obtenir ma position actuelle",
+              submit: "Déployer le POS",
+              submitting: "Déploiement en cours...",
+            },
+            success: "Le point de vente a été déployé avec succès.",
+          },
+          redeploy: {
+            title: "Redéploiement de POS",
+            subtitle: "Mettez à jour les informations ou la position du point de vente.",
+            success: "Le point de vente a été mis à jour avec succès.",
+          },
+          history: {
+            title: "Historique des déploiements",
+            empty: "Aucun historique disponible",
+            menuLabel: "Historique",
+            by: "Par",
+            actionDeployed: "Déploiement initial",
+            actionRedeployed: "Redéploiement",
+          },
+          deleteModal: {
+            trigger: "Supprimer",
+            title: "Supprimer ce POS",
+            description: "Cette action est irréversible. Le POS sera archivé.",
+            warning: "La suppression de ce POS le retirera définitivement de votre liste active.",
+            noteLabel: "Raison de suppression",
+            optional: "Optionnel",
+            notePlaceholder: "Ex : POS fermé définitivement, déménagement, etc.",
+            confirm: "Supprimer",
+            cancel: "Annuler",
+            deleting: "Suppression...",
+          },
         },
       },
       support: {
@@ -3500,6 +3644,7 @@ export const translations: Record<Language, Translations> = {
       admin: "Admin",
       camtelLogins: "CAMTEL Logins",
       identificationManagement: "Identification Management",
+      posManagement: "POS Management",
     },
     actions: {
       login: "Login",
@@ -3725,6 +3870,8 @@ export const translations: Record<Language, Translations> = {
       errorPreparingRequest: "Error preparing request",
       optional: "optional",
       cancel: "Cancel",
+      active: "Active",
+      inactive: "Inactive",
     },
     header: {
       menuAriaLabel: "Navigation menu",
@@ -3909,6 +4056,75 @@ export const translations: Record<Language, Translations> = {
         adminReports: {
           title: "Reports and Statistics - BABANA Partner",
           description: "Performance analysis and detailed system reports",
+        },
+        pos: {
+          title: "POS Management",
+          description: "Deploy and manage your points of sale in the field.",
+          tabs: {
+            list: "My POS",
+            deploy: "Deployment",
+          },
+          stats: {
+            total: "Total POS",
+            active: "Active",
+            inactive: "Inactive",
+            thisMonth: "This Month",
+          },
+          list: {
+            searchPlaceholder: "Search POS (Number or Name)...",
+            emptyTitle: "No points of sale found",
+            emptyMessage: "You haven't deployed any POS yet or none match your search.",
+            table: {
+              name: "POS Name",
+              number: "Camtel/Blue Number",
+              agent: "Assigned Agent",
+              status: "Status",
+              lastRedeployed: "Last Redeployed",
+              deployedAt: "Deployment Date",
+              actions: "Actions",
+            },
+          },
+          deploy: {
+            title: "POS Deployment",
+            subtitle: "Register a new point of sale in the field.",
+            form: {
+              posNumber: "POS SIM Number",
+              posName: "Shop Name (Optional)",
+              agent: "Assign to Agent (Optional)",
+              location: "Geographic Location",
+              latitude: "Latitude",
+              longitude: "Longitude",
+              getCurrentLocation: "Get My Current Location",
+              submit: "Deploy POS",
+              submitting: "Deploying...",
+            },
+            success: "The point of sale has been successfully deployed.",
+          },
+          redeploy: {
+            title: "POS Redeployment",
+            subtitle: "Update the information or position of the point of sale.",
+            success: "The point of sale has been successfully updated.",
+          },
+          history: {
+            title: "Deployment History",
+            empty: "No history available",
+            menuLabel: "History",
+            by: "By",
+            actionDeployed: "Initial deployment",
+            actionRedeployed: "Redeployment",
+          },
+          deleteModal: {
+            trigger: "Delete",
+            title: "Delete this POS",
+            description: "This action cannot be undone. The POS will be archived.",
+            warning: "Deleting this POS will permanently remove it from your active list.",
+            noteLabel: "Reason for deletion",
+            optional: "Optional",
+            notePlaceholder: "E.g. POS permanently closed, moved, etc.",
+            confirm: "Delete",
+            cancel: "Cancel",
+            deleting: "Deleting...",
+          },
         },
       },
       support: {

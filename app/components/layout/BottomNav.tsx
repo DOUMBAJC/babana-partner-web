@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router";
-import { Home, Users, ClipboardList, User as UserIcon, Plus, Search, Settings, LogIn, ListChecks, FileText, KeyRound, UserPlus, Zap } from "lucide-react";
+import { Home, Users, ClipboardList, User as UserIcon, Plus, Search, Settings, LogIn, ListChecks, FileText, KeyRound, UserPlus, Zap, MapPin } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useTranslation, useAuth } from "~/hooks";
-import { hasPermission, isAdmin } from "~/lib/permissions";
+import { hasPermission, isAdmin, hasRole } from "~/lib/permissions";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
@@ -67,6 +67,15 @@ export function BottomNav() {
           href: "/sales/activation-requests",
           label: canProcessRequests ? t.nav.activationRequests : t.nav.simActivation,
           icon: ClipboardList,
+          requiresAuth: true,
+        });
+      }
+
+      if (hasPermission(user, "manage-pos") || hasRole(user, 'dsm') || isAdmin(user)) {
+        items.push({
+          href: "/sales/pos",
+          label: t.nav.posManagement,
+          icon: MapPin,
           requiresAuth: true,
         });
       }
@@ -138,6 +147,16 @@ export function BottomNav() {
         label: t.nav.activationRequests,
         icon: ListChecks,
         color: "from-babana-cyan to-babana-blue",
+      });
+    }
+
+    // Gestion POS - si DSM ou Admin
+    if (hasRole(user, 'dsm') || isAdmin(user)) {
+      actions.push({
+        href: "/sales/pos?tab=deploy",
+        label: t.pages.sales.pos.tabs.deploy,
+        icon: MapPin,
+        color: "from-green-500 to-emerald-600",
       });
     }
 
