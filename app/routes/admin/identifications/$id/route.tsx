@@ -3,8 +3,6 @@ import { useTranslation, usePageTitle } from '~/hooks';
 import { Layout } from '~/components';
 import type { Route } from "./+types/route";
 import { createAuthenticatedApi } from '~/services/api.server';
-import { getLanguage } from '~/services/session.server';
-import { getTranslations, type Language } from '~/lib/translations';
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
@@ -13,7 +11,6 @@ import {
   User as UserIcon, 
   FileCheck, 
   XCircle, 
-  MapPin, 
   CreditCard,
   UserCheck,
   Calendar,
@@ -24,8 +21,7 @@ import { toast } from 'sonner';
 import { ApproveDialog } from "../components/ApproveDialog";
 import { RejectDialog } from "../components/RejectDialog";
 import { format } from "date-fns";
-import { fr, enUS } from "date-fns/locale";
-import type { IdentificationRequest } from "~/types";
+import { fr } from "date-fns/locale";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   try {

@@ -488,6 +488,8 @@ export interface Translations {
             getCurrentLocation: string;
             submit: string;
             submitting: string;
+            none: string;
+            searchPlaceholder: string;
           };
           success: string;
         };
@@ -2095,6 +2097,8 @@ export const translations: Record<Language, Translations> = {
               getCurrentLocation: "Obtenir ma position actuelle",
               submit: "Déployer le POS",
               submitting: "Déploiement en cours...",
+              none: "Aucun agent (DSM direct)",
+              searchPlaceholder: "Rechercher par nom ou email...",
             },
             success: "Le point de vente a été déployé avec succès.",
           },
@@ -4097,6 +4101,8 @@ export const translations: Record<Language, Translations> = {
               getCurrentLocation: "Get My Current Location",
               submit: "Deploy POS",
               submitting: "Deploying...",
+              none: "No agent (Direct DSM)",
+              searchPlaceholder: "Search by name or email...",
             },
             success: "The point of sale has been successfully deployed.",
           },
