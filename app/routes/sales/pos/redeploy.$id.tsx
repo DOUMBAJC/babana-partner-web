@@ -24,6 +24,7 @@ import {
   Search,
   CheckCircle2
 } from "lucide-react";
+import { GeolocationButton } from "~/components";
 import type { Route } from "./+types/redeploy.$id";
 import type { RoleSlug } from "~/types";
 
@@ -113,7 +114,6 @@ export default function RedeployPosPage({ loaderData }: Route.ComponentProps) {
     dsm.email?.toLowerCase().includes(dsmSearch.toLowerCase())
   );
 
-  const [locationLoading, setLocationLoading] = useState(false);
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -129,23 +129,12 @@ export default function RedeployPosPage({ loaderData }: Route.ComponentProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const getCurrentLocation = () => {
-    setLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData(prev => ({
-          ...prev,
-          latitude: position.coords.latitude.toString(),
-          longitude: position.coords.longitude.toString()
-        }));
-        setLocationLoading(false);
-        toast.success("Position actualisée.");
-      },
-      (error) => {
-        toast.error("Géolocalisation échouée.");
-        setLocationLoading(false);
-      }
-    );
+  const onLocationFound = (lat: string, lng: string) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
   };
 
   return (
@@ -342,17 +331,10 @@ export default function RedeployPosPage({ loaderData }: Route.ComponentProps) {
                             <MapPin className="h-3.5 w-3.5 text-primary" />
                             {t.pages.sales.pos.deploy.form.location}
                           </Label>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={getCurrentLocation}
-                            disabled={locationLoading}
-                            className="h-9 px-4 rounded-lg text-xs font-black uppercase tracking-widest border-primary/20 hover:bg-primary/10 hover:text-primary transition-all flex items-center gap-2"
-                          >
-                            {locationLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Navigation className="h-3 w-3" />}
-                            Actualiser GPS
-                          </Button>
+                          <GeolocationButton 
+                            onLocationFound={onLocationFound} 
+                            label="Actualiser GPS" 
+                          />
                        </div>
 
                        <div className="grid grid-cols-2 gap-4">

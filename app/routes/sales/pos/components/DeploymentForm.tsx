@@ -16,8 +16,10 @@ import {
   Loader2,
   Search,
   CheckCircle2,
-  Navigation
+  Navigation,
 } from "lucide-react";
+
+import { GeolocationButton } from "~/components";
 
 import type { User } from "~/types/auth.types";
 
@@ -53,7 +55,6 @@ export function DeploymentForm({ agents, dsms = [], userIsAdmin = false }: Deplo
     dsm.email?.toLowerCase().includes(dsmSearch.toLowerCase())
   );
 
-  const [locationLoading, setLocationLoading] = useState(false);
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -81,30 +82,12 @@ export function DeploymentForm({ agents, dsms = [], userIsAdmin = false }: Deplo
     setFormData(prev => ({ ...prev, agent_id: value }));
   };
 
-  const getCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("La géolocalisation n'est pas supportée par votre navigateur.");
-      return;
-    }
-
-    setLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData(prev => ({
-          ...prev,
-          latitude: position.coords.latitude.toString(),
-          longitude: position.coords.longitude.toString()
-        }));
-        setLocationLoading(false);
-        toast.success("Position récupérée avec succès.");
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-        toast.error("Impossible de récupérer votre position. Veuillez l'autoriser dans votre navigateur.");
-        setLocationLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+  const onLocationFound = (lat: string, lng: string) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
   };
 
   return (
@@ -304,17 +287,10 @@ export function DeploymentForm({ agents, dsms = [], userIsAdmin = false }: Deplo
                 <MapPin className="h-4 w-4 text-primary" />
                 {t.pages.sales.pos.deploy.form.location}
               </Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={getCurrentLocation}
-                disabled={locationLoading}
-                className="rounded-lg h-9 font-semibold text-xs uppercase tracking-widest border-primary/20 hover:bg-primary/10 hover:text-primary transition-all flex items-center gap-2"
-              >
-                {locationLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Navigation className="h-3.5 w-3.5" />}
-                {t.pages.sales.pos.deploy.form.getCurrentLocation}
-              </Button>
+              <GeolocationButton 
+                onLocationFound={onLocationFound} 
+                label={t.pages.sales.pos.deploy.form.getCurrentLocation} 
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">

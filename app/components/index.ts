@@ -19,6 +19,7 @@ export { ConsentSettings } from './ConsentSettings';
 export { Footer } from './Footer';
 export { NotificationDropdown } from './NotificationDropdown';
 export { ConnectionAlert } from './ConnectionAlert';
+export { GeolocationButton } from './GeolocationButton';
 
 // Feature Components
 export { FeatureCard } from './features/FeatureCard';
