@@ -292,20 +292,6 @@ export function Header() {
               <NotificationDropdown />
             )}
 
-            {/* Support - accès direct (desktop) */}
-            {isAuthenticated && user ? (
-              <Link to="/support" className="hidden md:block">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 px-3 rounded-xl text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 transition-all duration-300"
-                >
-                  <LifeBuoy className="h-4 w-4 mr-2" />
-                  <span className="hidden lg:inline">{t.pages.support.title}</span>
-                </Button>
-              </Link>
-            ) : null}
-
             {/* Profil - accès direct (desktop) */}
             {isAuthenticated && user ? (
               <Link to="/profile" className="hidden md:block">
