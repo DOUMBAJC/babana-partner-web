@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
-import { Menu, X, Sparkles, LogIn, LogOut, User as UserIcon, Shield, Sun, Moon, Globe, Wallet } from "lucide-react";
+import { Menu, X, Sparkles, LogIn, LogOut, User as UserIcon, Shield, Sun, Moon, Globe, Wallet, KeyRound, GraduationCap, LifeBuoy, Home } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { useTranslation, useAuth, useTheme } from "~/hooks";
@@ -17,11 +17,17 @@ interface NavLink {
   requiresAuth?: boolean;
 }
 
-interface MobileNavProps {
-  links: NavLink[];
+interface NavGroup {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: NavLink[];
 }
 
-export function MobileNav({ links }: MobileNavProps) {
+interface MobileNavProps {
+  groups: NavGroup[];
+}
+
+export function MobileNav({ groups }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const location = useLocation();
@@ -48,12 +54,6 @@ export function MobileNav({ links }: MobileNavProps) {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  const dedupedLinks = useMemo(() => {
-    const byHref = new Map<string, NavLink>();
-    for (const l of links) byHref.set(l.href, l);
-    return Array.from(byHref.values());
-  }, [links]);
 
   // Eviter le mismatch SSR (portal uniquement côté client)
   useEffect(() => {
@@ -175,12 +175,12 @@ export function MobileNav({ links }: MobileNavProps) {
                     {/* Section Paramètres rapides - Mobile Only */}
                     <div className="space-y-3">
                       <div className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 px-2">
-                        {language === "fr" ? "Paramètres" : "Settings"}
+                        {t.profile.preferences.title}
                       </div>
                       
                       {/* Crédit Display */}
-                      {isAuthenticated && user && (user as any).wallet && (() => {
-                        const balance = (user as any).wallet?.balance ?? 0;
+                      {isAuthenticated && user && user.wallet && (() => {
+                        const balance = user.wallet.balance;
                         
                         // Configuration basée sur le niveau de crédit
                         const getStatusConfig = (val: number) => {
@@ -232,7 +232,7 @@ export function MobileNav({ links }: MobileNavProps) {
                               </div>
                               <div>
                                 <div className={cn("text-xs font-medium", config.label)}>
-                                  {language === "fr" ? "Mes crédits" : "My credits"}
+                                  {t.credits.title}
                                 </div>
                                 <div className={cn("text-xl font-black", config.text)}>
                                   {balance.toLocaleString()}
@@ -269,8 +269,8 @@ export function MobileNav({ links }: MobileNavProps) {
                           )}
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {theme === "dark"
-                              ? (language === "fr" ? "Clair" : "Light")
-                              : (language === "fr" ? "Sombre" : "Dark")}
+                              ? t.theme.light
+                              : t.theme.dark}
                           </span>
                         </button>
 
@@ -283,7 +283,7 @@ export function MobileNav({ links }: MobileNavProps) {
                         >
                           <Globe className="w-5 h-5 text-babana-cyan" />
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {language === "fr" ? "English" : "Français"}
+                            {language === "fr" ? t.languages.english : t.languages.french}
                           </span>
                         </button>
                       </div>
@@ -294,7 +294,7 @@ export function MobileNav({ links }: MobileNavProps) {
                     {isAuthenticated && user ? (
                       <div className="space-y-2">
                         <div className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 px-2">
-                          {language === "fr" ? "Compte" : "Account"}
+                          {t.nav.dashboard}
                         </div>
                         <Link
                           to="/profile"
@@ -310,64 +310,102 @@ export function MobileNav({ links }: MobileNavProps) {
                           <span className="flex-1">{t.pages.profile.title}</span>
                         </Link>
 
-                        {isAdmin(user) ? (
-                          <Link
-                            to="/admin"
-                            onClick={closeMenu}
-                            className={cn(
-                              "relative px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 group flex items-center gap-3",
-                              location.pathname.startsWith("/admin")
-                                ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan shadow-md"
-                                : "bg-card/40 border border-border/50 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
-                            )}
-                          >
-                            <Shield className="w-4 h-4 shrink-0" />
-                            <span className="flex-1">{t.nav.admin}</span>
-                          </Link>
-                        ) : null}
+                        {isAdmin(user) && (
+                          <>
+                            <Link
+                              to="/admin"
+                              onClick={closeMenu}
+                              className={cn(
+                                "relative px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 group flex items-center gap-3",
+                                location.pathname === "/admin"
+                                  ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan shadow-md"
+                                  : "bg-card/40 border border-border/50 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
+                              )}
+                            >
+                              <Shield className="w-4 h-4 shrink-0" />
+                              <span className="flex-1">{t.nav.admin}</span>
+                            </Link>
+                            <Link
+                              to="/admin/camtel-logins"
+                              onClick={closeMenu}
+                              className={cn(
+                                "relative px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 group flex items-center gap-3",
+                                location.pathname === "/admin/camtel-logins"
+                                  ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan shadow-md"
+                                  : "bg-card/40 border border-border/50 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
+                              )}
+                            >
+                              <KeyRound className="w-4 h-4 shrink-0" />
+                              <span className="flex-1">{t.nav.camtelLogins}</span>
+                            </Link>
+                          </>
+                        )}
                       </div>
                     ) : null}
 
                     <Separator className="bg-gray-200 dark:bg-gray-800" />
 
                     {/* Section Navigation */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 px-2">
-                        {language === "fr" ? "Pages" : "Pages"}
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <div className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 flex items-center gap-2">
+                          <Home className="w-3 h-3" />
+                          {t.nav.home}
+                        </div>
+                        <Link
+                          to="/"
+                          onClick={closeMenu}
+                          className={cn(
+                            "relative px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 group flex items-center gap-3",
+                            location.pathname === "/"
+                              ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan shadow-md"
+                              : "bg-card/30 border border-border/40 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15"
+                          )}
+                        >
+                          <Home className="w-4 h-4" />
+                          <span className="flex-1">{t.nav.home}</span>
+                        </Link>
                       </div>
-                      {dedupedLinks.map((link) => {
-                        const isActive =
-                          location.pathname === link.href ||
-                          (link.href !== "/" && location.pathname.startsWith(link.href));
-                        const Icon = link.icon;
 
-                        return (
-                          <Link
-                            key={link.href}
-                            to={link.href}
-                            onClick={closeMenu}
-                            className={cn(
-                              "relative px-4 py-3 rounded-2xl text-sm font-semibold",
-                              "transition-all duration-300 group",
-                              "flex items-center gap-3",
-                              isActive
-                                ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan dark:text-babana-cyan shadow-md"
-                                : "bg-card/30 border border-border/40 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 hover:text-babana-cyan dark:hover:text-babana-cyan"
-                            )}
-                          >
-                            {/* Indicateur actif */}
-                            {isActive && (
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-babana-cyan to-babana-blue rounded-r-full" />
-                            )}
+                      {groups.map((group) => (
+                        <div key={group.label} className="space-y-2">
+                          <div className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 flex items-center gap-2">
+                            <group.icon className="w-3 h-3" />
+                            {group.label}
+                          </div>
+                          <div className="grid gap-2">
+                            {group.items.map((link) => {
+                              const isActive =
+                                location.pathname === link.href ||
+                                (link.href !== "/" && location.pathname.startsWith(link.href));
+                              const Icon = link.icon;
 
-                            {Icon && <Icon className="w-4 h-4 relative z-10 shrink-0" />}
-                            <span className={cn("relative z-10", isActive && "ml-1")}>{link.label}</span>
+                              return (
+                                <Link
+                                  key={link.href}
+                                  to={link.href}
+                                  onClick={closeMenu}
+                                  className={cn(
+                                    "relative px-4 py-3 rounded-2xl text-sm font-semibold",
+                                    "transition-all duration-300 group",
+                                    "flex items-center gap-3",
+                                    isActive
+                                      ? "bg-linear-to-r from-babana-cyan/20 to-babana-blue/20 dark:from-babana-cyan/30 dark:to-babana-blue/30 text-babana-cyan dark:text-babana-cyan shadow-md"
+                                      : "bg-card/30 border border-border/40 text-gray-800 dark:text-gray-200 hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 hover:text-babana-cyan dark:hover:text-babana-cyan"
+                                  )}
+                                >
+                                  {isActive && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-babana-cyan to-babana-blue rounded-r-full" />
+                                  )}
 
-                            {/* Hover line */}
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-babana-cyan to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          </Link>
-                        );
-                      })}
+                                  {Icon && <Icon className="w-4 h-4 relative z-10 shrink-0" />}
+                                  <span className={cn("relative z-10", isActive && "ml-1")}>{link.label}</span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
@@ -411,6 +449,7 @@ export function MobileNav({ links }: MobileNavProps) {
                       </>
                     )}
                   </div>
+
 
                   {/* Footer */}
                   <div className="flex-none pb-6 pt-2 flex flex-col items-center gap-2">

@@ -87,7 +87,7 @@ export async function action({ request }: Route.ActionArgs) {
     
     // Construire le nom complet - firstName est optionnel
     const fullName = firstName && firstName.trim() 
-      ? `${firstName.trim()} ${lastName.trim()}` 
+      ? `${lastName.trim()} ${firstName.trim()}` 
       : lastName.trim();
     
     const customer = await customerService.createCustomer({

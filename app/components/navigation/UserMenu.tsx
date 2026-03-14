@@ -38,10 +38,13 @@ export function UserMenu() {
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
+    const safe = (name ?? "").trim();
+    if (!safe) return "??";
+    return safe
+      .split(" ")
+      .filter(Boolean)
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };

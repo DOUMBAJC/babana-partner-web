@@ -69,7 +69,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.searchCustomer,
-        description: language === 'fr' ? 'Rechercher et vérifier les informations d\'un client' : 'Search and verify customer information',
+        description: t.nav.searchCustomerDesc,
         icon: Search,
         href: "/customers/search",
         color: "bg-blue-500",
@@ -77,7 +77,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.newCustomer,
-        description: language === 'fr' ? 'Enregistrer un nouveau client dans la plateforme' : 'Register a new customer in the platform',
+        description: t.nav.newCustomerDesc,
         icon: UserPlus,
         href: "/customers/create",
         color: "bg-emerald-500",
@@ -85,7 +85,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.simActivation,
-        description: language === 'fr' ? 'Voir les demandes d\'activation de SIM' : 'View SIM activation requests',
+        description: t.nav.simActivationDesc,
         icon: Zap,
         href: "/sales/activation-requests?mine=1",
         color: "bg-amber-500",
@@ -93,7 +93,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.activationRequests,
-        description: language === 'fr' ? 'Gérer et traiter les demandes d\'activation en attente' : 'Manage and process pending activation requests',
+        description: t.nav.activationRequestsDesc,
         icon: ClipboardList,
         href: "/sales/activation-requests",
         color: "bg-purple-500",
@@ -101,7 +101,7 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.admin,
-        description: language === 'fr' ? 'Accéder aux paramètres et à la gestion du système' : 'Access system settings and management',
+        description: t.nav.adminDesc,
         icon: Settings,
         href: "/admin",
         color: "bg-slate-700",
@@ -109,16 +109,14 @@ export function Welcome({ welcomeMessage }: WelcomeProps) {
       },
       {
         title: t.nav.camtelLogins,
-        description: language === 'fr'
-          ? 'Gérer les identifiants CAMTEL (admins uniquement)'
-          : 'Manage CAMTEL credentials (admins only)',
+        description: t.nav.camtelLoginsDesc,
         icon: KeyRound,
         href: "/admin/camtel-logins",
         color: "bg-cyan-600",
         permission: 'admin-access' as Permission,
       },
       {
-        title: language === 'fr' ? 'Tutoriels' : 'Tutorials',
+        title: t.pages.tutorials.title.split(' - ')[0],
         description: t.pages.tutorials.subtitle,
         icon: GraduationCap,
         href: "/tutorials",

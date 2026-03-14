@@ -8,7 +8,7 @@ import { NotificationDropdown } from "~/components/NotificationDropdown";
 import { Button } from "~/components/ui/button";
 import { useScrolled, useTranslation, useAuth } from "~/hooks";
 import { cn } from "~/lib/utils";
-import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings, User as UserIcon, ChevronDown, MapPin } from "lucide-react";
+import { KeyRound, Sparkles, Home, Users, FileText, ClipboardList, Settings, User as UserIcon, ChevronDown, MapPin, LifeBuoy, GraduationCap, Zap } from "lucide-react";
 import logoUrl from "~/assets/logo.png";
 import { hasPermission, isAdmin, hasRole } from "~/lib/permissions";
 import {
@@ -36,50 +36,67 @@ export function Header() {
 
   const isActiveHref = (href: string) => location.pathname === href || (href !== "/" && location.pathname.startsWith(href));
 
-  // Liens de navigation adaptés aux permissions (sans doublons)
-  const navLinks: NavLink[] = (() => {
-    const links: NavLink[] = [{ href: "/", label: t.nav.home, icon: Home, requiresAuth: false }];
+  // Catégories de navigation
+  const navGroups = (() => {
+    if (!isAuthenticated || !user) return [];
 
-    if (!isAuthenticated || !user) return links;
+    const groups: { label: string; icon: React.ComponentType<{ className?: string }>; items: NavLink[] }[] = [];
 
+    // Groupe Clients
+    const clientItems: NavLink[] = [];
     if (hasPermission(user, "view-orders") || hasPermission(user, "create-orders")) {
-      links.push({ href: "/customers/search", label: t.nav.searchCustomer, icon: Users, requiresAuth: true });
+      clientItems.push({ href: "/customers/search", label: t.nav.searchCustomer, icon: Users, requiresAuth: true });
     }
-
     if (hasPermission(user, "create-orders")) {
-      links.push({ href: "/customers/create", label: t.nav.newCustomer, icon: FileText, requiresAuth: true });
+      clientItems.push({ href: "/customers/create", label: t.nav.newCustomer, icon: FileText, requiresAuth: true });
     }
-
-    const canCreateRequests = hasPermission(user, "create-requests");
-    const canProcessRequests = hasPermission(user, "process-requests") || hasPermission(user, "approve-requests");
-    if (canCreateRequests || canProcessRequests) {
-      links.push({
-        href: "/sales/activation-requests",
-        label: canProcessRequests ? t.nav.activationRequests : t.nav.simActivation,
-        icon: ClipboardList,
-        requiresAuth: true,
-      });
-    }
-
-    if (canProcessRequests) {
-      links.push({
+    if (hasPermission(user, "process-requests") || hasPermission(user, "approve-requests")) {
+      clientItems.push({
         href: "/admin/identifications",
         label: t.nav.identificationManagement,
         icon: FileText,
         requiresAuth: true,
       });
     }
+    if (clientItems.length > 0) {
+      groups.push({ label: t.nav.customers, icon: Users, items: clientItems });
+    }
 
+    // Groupe Ventes
+    const salesItems: NavLink[] = [];
+    const canCreateRequests = hasPermission(user, "create-requests");
+    const canProcessRequests = hasPermission(user, "process-requests") || hasPermission(user, "approve-requests");
+    if (canCreateRequests || canProcessRequests) {
+      salesItems.push({
+        href: "/sales/activation-requests",
+        label: canProcessRequests ? t.nav.activationRequests : t.nav.simActivation,
+        icon: ClipboardList,
+        requiresAuth: true,
+      });
+    }
     if (hasPermission(user, "manage-pos") || hasRole(user, 'dsm') || isAdmin(user)) {
-      links.push({
+      salesItems.push({
         href: "/sales/pos",
         label: t.nav.posManagement,
         icon: MapPin,
         requiresAuth: true,
       });
     }
+    if (salesItems.length > 0) {
+      groups.push({ label: t.nav.sales, icon: Zap, items: salesItems });
+    }
 
-    return links;
+    // Groupe Assistance
+    groups.push({
+      label: t.nav.support,
+      icon: LifeBuoy,
+      items: [
+        { href: "/tutorials", label: t.pages.tutorials.title.split(' - ')[0], icon: GraduationCap, requiresAuth: true },
+        { href: "/support", label: t.pages.support.title, icon: LifeBuoy, requiresAuth: true },
+      ]
+    });
+
+    return groups;
   })();
 
   const adminLinks: NavLink[] =
@@ -125,37 +142,76 @@ export function Header() {
 
           {/* Navigation Desktop */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const isActive = isActiveHref(link.href);
-              const Icon = link.icon;
+            <Link
+              to="/"
+              className={cn(
+                "relative px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-300 group flex items-center gap-2",
+                location.pathname === "/"
+                  ? "text-babana-cyan dark:text-babana-cyan"
+                  : "text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan"
+              )}
+            >
+              {location.pathname === "/" ? (
+                <div className="absolute inset-0 rounded-xl bg-linear-to-r from-babana-cyan/15 via-babana-blue/10 to-transparent dark:from-babana-cyan/20 dark:via-babana-blue/15 dark:to-transparent" />
+              ) : (
+                <div className="absolute inset-0 rounded-xl bg-babana-cyan/5 dark:bg-babana-cyan/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              )}
+              <Home className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">{t.nav.home}</span>
+            </Link>
+
+            {navGroups.map((group) => {
+              const isGroupActive = group.items.some(item => isActiveHref(item.href));
+              const GroupIcon = group.icon;
 
               return (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "relative px-3 py-2 rounded-xl text-sm font-semibold",
-                    "transition-all duration-300 group",
-                    "flex items-center gap-2",
-                    isActive
-                      ? "text-babana-cyan dark:text-babana-cyan"
-                      : "text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan"
-                  )}
-                >
-                  {isActive ? (
-                    <div className="absolute inset-0 rounded-xl bg-linear-to-r from-babana-cyan/15 via-babana-blue/10 to-transparent dark:from-babana-cyan/20 dark:via-babana-blue/15 dark:to-transparent" />
-                  ) : (
-                    <div className="absolute inset-0 rounded-xl bg-babana-cyan/5 dark:bg-babana-cyan/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  )}
-
-                  {Icon && <Icon className="w-4 h-4 relative z-10" />}
-                  <span className="relative z-10">{link.label}</span>
-
-                  {isActive && (
-                    <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-linear-to-r from-transparent via-babana-cyan to-transparent" />
-                  )}
-                </Link>
+                <DropdownMenu key={group.label}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "relative h-10 px-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 group",
+                        isGroupActive
+                          ? "text-babana-cyan dark:text-babana-cyan bg-babana-cyan/10 dark:bg-babana-cyan/15"
+                          : "text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/5 dark:hover:bg-babana-cyan/10"
+                      )}
+                    >
+                      <GroupIcon className="w-4 h-4" />
+                      <span>{group.label}</span>
+                      <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-300", "group-data-[state=open]:rotate-180 opacity-70")} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="w-72 rounded-2xl p-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl text-slate-900 dark:text-slate-100 border border-babana-cyan/20 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {group.items.map((item) => {
+                      const isActive = isActiveHref(item.href);
+                      const Icon = item.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={item.href}
+                          asChild
+                          className={cn(
+                            "cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200",
+                            "text-slate-700 dark:text-slate-200 focus:bg-babana-cyan/10 focus:text-babana-cyan",
+                            isActive && "bg-babana-cyan/10 text-babana-cyan"
+                          )}
+                        >
+                          <Link to={item.href} className="flex items-center gap-3">
+                            <div className={cn(
+                              "p-1.5 rounded-lg transition-colors",
+                              isActive ? "bg-babana-cyan/20" : "bg-gray-100 dark:bg-gray-800"
+                            )}>
+                              {Icon && <Icon className="w-4 h-4" />}
+                            </div>
+                            <span className="flex-1">{item.label}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               );
             })}
 
@@ -236,6 +292,20 @@ export function Header() {
               <NotificationDropdown />
             )}
 
+            {/* Support - accès direct (desktop) */}
+            {isAuthenticated && user ? (
+              <Link to="/support" className="hidden md:block">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-3 rounded-xl text-gray-700 dark:text-gray-300 hover:text-babana-cyan dark:hover:text-babana-cyan hover:bg-babana-cyan/10 dark:hover:bg-babana-cyan/15 transition-all duration-300"
+                >
+                  <LifeBuoy className="h-4 w-4 mr-2" />
+                  <span className="hidden lg:inline">{t.pages.support.title}</span>
+                </Button>
+              </Link>
+            ) : null}
+
             {/* Profil - accès direct (desktop) */}
             {isAuthenticated && user ? (
               <Link to="/profile" className="hidden md:block">
@@ -288,7 +358,7 @@ export function Header() {
             </div>
 
             {/* Mobile Navigation */}
-            <MobileNav links={navLinks} />
+            <MobileNav groups={navGroups} />
           </div>
         </div>
       </div>

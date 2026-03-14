@@ -203,13 +203,22 @@ export interface Translations {
     transactions: string;
     help: string;
     searchCustomer: string;
+    searchCustomerDesc: string;
     newCustomer: string;
+    newCustomerDesc: string;
     simActivation: string;
+    simActivationDesc: string;
     activationRequests: string;
+    activationRequestsDesc: string;
     admin: string;
+    adminDesc: string;
     camtelLogins: string;
+    camtelLoginsDesc: string;
     identificationManagement: string;
     posManagement: string;
+    customers: string;
+    sales: string;
+    support: string;
   };
   // Actions
   actions: {
@@ -1638,13 +1647,22 @@ export const translations: Record<Language, Translations> = {
       transactions: "Transactions",
       help: "Aide",
       searchCustomer: "Recherche Client",
+      searchCustomerDesc: "Rechercher et vérifier les informations d'un client",
       newCustomer: "Nouveau Client",
+      newCustomerDesc: "Enregistrer un nouveau client dans la plateforme",
       simActivation: "Activation SIM",
+      simActivationDesc: "Voir les demandes d'activation de SIM",
       activationRequests: "Requêtes",
+      activationRequestsDesc: "Gérer et traiter les demandes d'activation en attente",
       admin: "Admin",
+      adminDesc: "Accéder aux paramètres et à la gestion du système",
       camtelLogins: "Logins CAMTEL",
+      camtelLoginsDesc: "Gérer les identifiants CAMTEL (admins uniquement)",
       identificationManagement: "Gestion Identifications",
       posManagement: "Gestion POS",
+      customers: "Clients",
+      sales: "Ventes",
+      support: "Assistance",
     },
     actions: {
       login: "Connexion",
@@ -3642,13 +3660,22 @@ export const translations: Record<Language, Translations> = {
       transactions: "Transactions",
       help: "Help",
       searchCustomer: "Search Customer",
+      searchCustomerDesc: "Search and verify customer information",
       newCustomer: "New Customer",
+      newCustomerDesc: "Register a new customer in the platform",
       simActivation: "SIM Activation",
+      simActivationDesc: "View SIM activation requests",
       activationRequests: "Requests",
+      activationRequestsDesc: "Manage and process pending activation requests",
       admin: "Admin",
+      adminDesc: "Access system settings and management",
       camtelLogins: "CAMTEL Logins",
+      camtelLoginsDesc: "Manage CAMTEL credentials (admins only)",
       identificationManagement: "Identification Management",
       posManagement: "POS Management",
+      customers: "Customers",
+      sales: "Sales",
+      support: "Support",
     },
     actions: {
       login: "Login",
