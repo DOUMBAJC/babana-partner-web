@@ -58,7 +58,7 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
       <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.address}
-        value={request.customer?.address || '-'}
+        value={request.customer?.address?.toLowerCase() || '-'}
         mono
         icon={<Shield className="h-4 w-4" />}
       />

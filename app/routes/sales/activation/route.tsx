@@ -5,8 +5,6 @@ import { Layout } from '~/components';
 import { Loader2 } from "lucide-react";
 import type { Route } from "./+types/route";
 import { createAuthenticatedApi, getCurrentUser } from '~/services/api.server';
-import { getLanguage } from '~/services/session.server';
-import { getTranslations, type Language } from '~/lib/translations';
 import { toast } from "sonner";
 import { Toaster } from '~/components/ui/toaster';
 import { hasAnyRole } from '~/lib/auth/permissions';
@@ -62,8 +60,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       quotaReached: false
     });
   } catch (error: any) {
-    console.error('Erreur dans le loader:', error?.message);
-
     return data({
       user: null,
       hasAccess: false,
@@ -77,8 +73,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 // --- ACTION ---
 export async function action({ request }: Route.ActionArgs) {
-  const language = (await getLanguage(request)) as Language;
-  const t = getTranslations(language);
 
   const formData = await request.formData();
   const simNumber = formData.get('sim_number') as string;
@@ -174,7 +168,7 @@ export async function action({ request }: Route.ActionArgs) {
     let errorMessage = '';
     const errors: Record<string, string[]> = {};
 
-    // 1. Erreurs de validation (format Laravel: { errors: { field: [messages] } })
+    // 1. Erreurs de validation
     if (errorData?.errors && typeof errorData.errors === 'object') {
       Object.keys(errorData.errors).forEach((field) => {
         const fieldErrors = errorData.errors[field];
