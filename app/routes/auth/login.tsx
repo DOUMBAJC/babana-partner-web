@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useActionData, useNavigation, Form, data, redirect } from 'react-router';
 import { useAuth, useLanguage } from '~/hooks';
-import { AuthLayout, FormInput, Button } from '~/components';
+import { AuthLayout } from '~/components/layout/AuthLayout';
+import { FormInput } from '~/components/forms/FormInput';
+import { Button } from '~/components/ui/button';
 import type { LoginCredentials } from '~/types';
 import type { Route } from "./+types/login";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
