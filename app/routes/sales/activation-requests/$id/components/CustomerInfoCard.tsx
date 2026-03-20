@@ -15,11 +15,11 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
     <InfoCard
       icon={<User className="h-6 w-6" />}
       title={t.activationRequests.details.customerInfo}
-      gradient="bg-linear-to-r from-blue-500 via-cyan-500 to-teal-500"
+      gradient="bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500"
     >
       <CopyableValue
         label={t.activationRequests.details.fullName}
-        value={request.customer?.full_name?.toUpperCase() || '-'}
+        value={request.customer?.full_name || '-'}
         highlight
         icon={<User className="h-4 w-4" />}
       />
@@ -36,13 +36,13 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
           <span className="text-primary shrink-0">
             <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </span>
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1 wrap-break-word">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1 break-words">
             {t.activationRequests.details.cardTypePiece}
           </p>
         </div>
         <div className="flex items-start sm:items-center justify-between gap-2 sm:gap-3 group">
           <div className="flex-1 min-w-0">
-            <p className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary wrap-break-word sm:break-all transition-all duration-200">
+            <p className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary break-words sm:break-all transition-all duration-200">
               {request.customer?.id_card_type?.name || '-'}
             </p>
           </div>
@@ -58,7 +58,7 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
       <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.address}
-        value={request.customer?.address?.toUpperCase() || '-'}
+        value={request.customer?.address || '-'}
         mono
         icon={<Shield className="h-4 w-4" />}
       />
