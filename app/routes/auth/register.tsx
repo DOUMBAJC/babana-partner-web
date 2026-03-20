@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useTranslation, usePageTitle } from '~/hooks';
-import { AuthLayout, FormInput, Button } from '~/components';
+import { AuthLayout } from '~/components/layout/AuthLayout';
+import { FormInput } from '~/components/forms/FormInput';
+import { Button } from '~/components/ui/button';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2, Phone } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
 import type { Route } from "./+types/register";
