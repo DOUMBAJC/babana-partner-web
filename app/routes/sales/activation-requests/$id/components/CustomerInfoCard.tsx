@@ -19,7 +19,7 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
     >
       <CopyableValue
         label={t.activationRequests.details.fullName}
-        value={request.customer?.full_name || '-'}
+        value={request.customer?.full_name.toUpperCase() || '-'}
         highlight
         icon={<User className="h-4 w-4" />}
       />
@@ -51,14 +51,14 @@ export function CustomerInfoCard({ request }: CustomerInfoCardProps) {
       <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.cardNumber}
-        value={request.customer?.id_card_number || '-'}
+        value={request.customer?.id_card_number.toUpperCase() || '-'}
         mono
         icon={<Shield className="h-4 w-4" />}
       />
       <Separator className="my-2 sm:my-3" />
       <CopyableValue
         label={t.activationRequests.details.address}
-        value={request.customer?.address || '-'}
+        value={request.customer?.address.toUpperCase() || '-'}
         mono
         icon={<Shield className="h-4 w-4" />}
       />
