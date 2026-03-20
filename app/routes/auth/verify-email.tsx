@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from '~/hooks';
-import { AuthLayout, Button } from '~/components';
+import { AuthLayout } from '~/components/layout/AuthLayout';
+import { Button } from '~/components/ui/button';
 import { CheckCircle2, XCircle, Loader2, Mail } from 'lucide-react';
 import { api, type ApiError } from '~/lib/axios';
 
