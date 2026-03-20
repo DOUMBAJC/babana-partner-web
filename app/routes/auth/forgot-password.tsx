@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from '~/hooks';
-import { AuthLayout, FormInput, Button } from '~/components';
+import { AuthLayout } from '~/components/layout/AuthLayout';
+import { FormInput } from '~/components/forms/FormInput';
+import { Button } from '~/components/ui/button';
 import { Mail, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { authService } from '~/lib/auth.service';
 import type { ApiError } from '~/lib/axios';
